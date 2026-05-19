@@ -3,18 +3,11 @@ import { getStripe } from '@/lib/stripe'
 import { createClient } from '@supabase/supabase-js'
 import type Stripe from 'stripe'
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-const PLAN_FROM_PRICE: Record<string, string> = {
-  [process.env.STRIPE_PRICE_CLIPPER_MONTHLY || '']: 'clipper',
-  [process.env.STRIPE_PRICE_CLIPPER_ANNUAL  || '']: 'clipper',
-  [process.env.STRIPE_PRICE_PRO_MONTHLY     || '']: 'pro',
-  [process.env.STRIPE_PRICE_PRO_ANNUAL      || '']: 'pro',
-  [process.env.STRIPE_PRICE_KING_MONTHLY    || '']: 'king',
-  [process.env.STRIPE_PRICE_KING_ANNUAL     || '']: 'king',
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 }
 
 const ROLE_MAP: Record<string, string> = {
@@ -23,8 +16,19 @@ const ROLE_MAP: Record<string, string> = {
   king: 'king',
 }
 
+function getPlanFromPrice(): Record<string, string> {
+  return {
+    [process.env.STRIPE_PRICE_CLIPPER_MONTHLY || '']: 'clipper',
+    [process.env.STRIPE_PRICE_CLIPPER_ANNUAL  || '']: 'clipper',
+    [process.env.STRIPE_PRICE_PRO_MONTHLY     || '']: 'pro',
+    [process.env.STRIPE_PRICE_PRO_ANNUAL      || '']: 'pro',
+    [process.env.STRIPE_PRICE_KING_MONTHLY    || '']: 'king',
+    [process.env.STRIPE_PRICE_KING_ANNUAL     || '']: 'king',
+  }
+}
+
 async function updateUserPlan(userId: string, plan: string, subId: string) {
-  await supabaseAdmin
+  await getSupabaseAdmin()
     .from('profiles')
     .update({
       plan,
@@ -48,6 +52,9 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Webhook inválido' }, { status: 400 })
   }
+
+  const supabaseAdmin = getSupabaseAdmin()
+  const PLAN_FROM_PRICE = getPlanFromPrice()
 
   try {
     switch (event.type) {
