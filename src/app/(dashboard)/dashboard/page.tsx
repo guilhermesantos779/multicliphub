@@ -1,15 +1,31 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { MetricCard, MetricCardSkeleton } from '@/components/dashboard/MetricCard'
 import { PostCardSkeleton } from '@/components/shared/Skeleton'
 import { PlatformIcon } from '@/components/shared/PlatformIcon'
 import { useUser } from '@/hooks/useUser'
+import { useToast } from '@/components/shared/Toast'
 import { createClient } from '@/lib/supabase/client'
 import { formatViews, formatDate } from '@/lib/utils'
 import type { Platform } from '@/types/api.types'
+
+function UpgradeSuccessHandler() {
+  const searchParams = useSearchParams()
+  const { toast } = useToast()
+
+  useEffect(() => {
+    if (searchParams.get('upgrade') === 'success') {
+      toast('🎉 Upgrade realizado com sucesso! Bem-vindo ao novo plano.', 'success')
+      window.history.replaceState({}, '', '/dashboard')
+    }
+  }, [searchParams, toast])
+
+  return null
+}
 
 interface RecentPost {
   id: string
@@ -60,6 +76,9 @@ export default function DashboardPage() {
 
   return (
     <div>
+      <Suspense fallback={null}>
+        <UpgradeSuccessHandler />
+      </Suspense>
       <Topbar title="Dashboard" />
 
       <div className="p-6 space-y-6">
