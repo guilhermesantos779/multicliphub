@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PUBLIC_ROUTES = ['/', '/landing', '/terms', '/privacy', '/login', '/register']
+const PUBLIC_ROUTES = ['/', '/landing', '/terms', '/privacy', '/login', '/register', '/auth/callback', '/api/auth', '/demo']
 const AUTH_ROUTES = ['/login', '/register']
 const ADMIN_ROUTES = ['/admin']
 
@@ -32,7 +32,9 @@ export async function proxy(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser()
     const pathname = request.nextUrl.pathname
-    const isPublicRoute = PUBLIC_ROUTES.some(route => pathname.startsWith(route))
+    const isPublicRoute = PUBLIC_ROUTES.some(route =>
+      route === '/' ? pathname === '/' : pathname === route || pathname.startsWith(route + '/')
+    )
     const isAuthRoute = AUTH_ROUTES.some(route => pathname.startsWith(route))
     const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route))
 
