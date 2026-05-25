@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { useId } from 'react'
 
-// SVG paths replicam exatamente o Logo.tsx do app (viewBox 0 0 120 120)
 const FRONT_PATH = 'M 42 30 Q 42 28 44 28 Q 46 28 48 29.4 L 100 60 L 48 90.6 Q 46 92 44 92 Q 42 92 42 90 Z'
 const MID_PATH   = 'M 32 30 Q 32 28 34 28 Q 36 28 38 29.4 L 74 56.6 Q 76 58 76 60 Q 76 62 74 63.4 L 38 90.6 Q 36 92 34 92 Q 32 92 32 90 Z'
 const BACK_PATH  = 'M 22 30 Q 22 28 24 28 Q 26 28 28 29.4 L 64 56.6 Q 66 58 66 60 Q 66 62 64 63.4 L 28 90.6 Q 26 92 24 92 Q 22 92 22 90 Z'
@@ -12,8 +11,11 @@ interface RemotionLogoProps {
 }
 
 export const RemotionLogo = ({ variant = 'full', height = 36, style }: RemotionLogoProps) => {
+  // useId gera um ID único por instância do componente — evita colisão de
+  // linearGradient IDs quando múltiplos Logos coexistem no DOM durante transições
+  const uid = useId()
+  const gradId = `mcGrad_${uid.replace(/:/g, '_')}`
   const markSize = variant === 'icon' ? height : Math.round(height * 0.95)
-  const gradId = `mcGrad_${markSize}`
 
   const mark = (
     <svg
