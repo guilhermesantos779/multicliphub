@@ -5,7 +5,6 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion'
-import React from 'react'
 import { RemotionLogo } from '../components/Logo'
 
 export const Scene1Login = () => {
@@ -132,9 +131,15 @@ export const Scene1Login = () => {
               alignItems: 'center',
             }}>
               {email}
-              {cursorVisible && emailLength < 24 && (
-                <span style={{ width: 1.5, height: 14, background: '#00E5A0', marginLeft: 1, display: 'inline-block' }} />
-              )}
+              {/* Cursor sempre no DOM — opacity evita mount/unmount que causa removeChild */}
+              <span style={{
+                width: 1.5,
+                height: 14,
+                background: '#00E5A0',
+                marginLeft: 1,
+                display: 'inline-block',
+                opacity: cursorVisible && emailLength < 24 ? 1 : 0,
+              }} />
             </div>
           </div>
 

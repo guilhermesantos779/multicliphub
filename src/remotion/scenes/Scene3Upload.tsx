@@ -5,7 +5,6 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion'
-import React from 'react'
 import { AppChrome } from '../components/AppChrome'
 
 const PLATFORMS = [
@@ -82,17 +81,16 @@ export const Scene3Upload = () => {
               </div>
               <div style={{ fontSize: 12, color: '#555' }}>MP4, MOV, AVI — até 2GB</div>
             </div>
-            {progressVisible && (
-              <div style={{ width: '100%', maxWidth: 280 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 11, color: '#555' }}>
-                  <span>demo-viral.mp4</span>
-                  <span style={{ color: '#00E5A0' }}>{Math.round(progress)}%</span>
-                </div>
-                <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
-                  <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, #00E5A0, #3CFFB8)', borderRadius: 99 }} />
-                </div>
+            {/* Progresso sempre no DOM — opacity controla visibilidade */}
+            <div style={{ width: '100%', maxWidth: 280, opacity: progressVisible ? 1 : 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 11, color: '#555' }}>
+                <span>demo-viral.mp4</span>
+                <span style={{ color: '#00E5A0' }}>{Math.round(progress)}%</span>
               </div>
-            )}
+              <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
+                <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, #00E5A0, #3CFFB8)', borderRadius: 99 }} />
+              </div>
+            </div>
           </div>
 
           {/* Título */}
@@ -106,9 +104,10 @@ export const Scene3Upload = () => {
               display: 'flex', alignItems: 'center',
             }}>
               {titleText}
-              {titleCursor && (
-                <span style={{ width: 1.5, height: 14, background: '#00E5A0', marginLeft: 1, display: 'inline-block' }} />
-              )}
+              <span style={{
+                width: 1.5, height: 14, background: '#00E5A0', marginLeft: 1, display: 'inline-block',
+                opacity: titleCursor ? 1 : 0,
+              }} />
             </div>
           </div>
 

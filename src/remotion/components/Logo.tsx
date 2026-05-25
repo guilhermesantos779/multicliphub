@@ -45,7 +45,7 @@ export const RemotionLogo = ({ variant = 'full', height = 36, style }: RemotionL
       {mark}
       <span
         style={{
-          fontFamily: 'Manrope, sans-serif',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
           fontSize: Math.round(height * 0.38),
           lineHeight: 1,
           letterSpacing: '-0.02em',
