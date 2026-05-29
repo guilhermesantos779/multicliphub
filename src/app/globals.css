@@ -7,9 +7,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-manrope);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans:    var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-geist-sans), var(--font-inter), system-ui, sans-serif;
+  --font-mono:    var(--font-geist-mono);
+  --font-heading: var(--font-display);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -47,113 +49,136 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* ── MultiClip Hub Brand (STACK identity) ─────────────────────── */
-  /* Primary accent: Electric Mint */
   --color-brand-mint:       #00E5A0;
   --color-brand-mint-deep:  #00B584;
   --color-brand-mint-dark:  #00C484;
   --color-brand-mint-glow:  #3CFFB8;
-  /* Wordmark base */
+  --color-brand-purple:     #9146FF;
+  --color-brand-purple-deep:#7c3aed;
   --color-brand-obsidian:   #0B0F19;
   --color-brand-obsidian-2: #161B2C;
-  /* Light surfaces */
   --color-brand-paper:      #F8F9FB;
   --color-brand-smoke:      #6C7186;
-  /* Legacy alias (kept for Shadcn tokens) */
   --color-brand-green:      #DEFF9A;
 
-  /* Surface Colors */
   --color-surface-base:     #000000;
-  --color-surface-card:     #0a0a0a;
+  --color-surface-card:     rgba(255,255,255,0.02);
   --color-surface-elevated: #111111;
   --color-surface-border:   rgba(255,255,255,0.06);
-  --color-surface-border-hover: rgba(255,255,255,0.12);
+  --color-surface-border-hover: rgba(255,255,255,0.15);
 
-  /* Content Colors */
-  --color-content-primary:   #FAFAFA;
-  --color-content-secondary: #888888;
-  --color-content-tertiary:  #444444;
-  --color-content-muted:     #333333;
+  --color-content-primary:   #FFFFFF;
+  --color-content-secondary: rgba(255,255,255,0.60);
+  --color-content-tertiary:  rgba(255,255,255,0.40);
+  --color-content-muted:     rgba(255,255,255,0.25);
 }
 
 :root {
   --background:    #000000;
-  --foreground:    #FAFAFA;
+  --foreground:    #FFFFFF;
 
-  /* Brand accent: Electric Mint */
   --brand-mint:      #00E5A0;
   --brand-mint-deep: #00B584;
   --brand-mint-glow: #3CFFB8;
+  --brand-purple:    #9146FF;
 
-  /* Surfaces */
-  --surface-card:    #0a0a0a;
+  --surface-card:    rgba(255,255,255,0.02);
   --surface-elevated:#111111;
   --border:          rgba(255,255,255,0.06);
-  --border-hover:    rgba(255,255,255,0.12);
+  --border-hover:    rgba(255,255,255,0.15);
 
-  /* Text */
-  --text-primary:   #FAFAFA;
-  --text-secondary: #888888;
-  --text-tertiary:  #444444;
+  --text-primary:   #FFFFFF;
+  --text-secondary: rgba(255,255,255,0.60);
+  --text-muted:     rgba(255,255,255,0.40);
 
-  /* Shadcn tokens — remapped to brand */
-  --card:                      #0a0a0a;
-  --card-foreground:           #FAFAFA;
+  --card:                      rgba(255,255,255,0.02);
+  --card-foreground:           #FFFFFF;
   --popover:                   #111111;
-  --popover-foreground:        #FAFAFA;
-  --primary:                   #00E5A0;
-  --primary-foreground:        #0B0F19;
+  --popover-foreground:        #FFFFFF;
+  --primary:                   #9146FF;
+  --primary-foreground:        #FFFFFF;
   --secondary:                 #111111;
-  --secondary-foreground:      #FAFAFA;
+  --secondary-foreground:      #FFFFFF;
   --muted:                     #111111;
-  --muted-foreground:          #888888;
+  --muted-foreground:          rgba(255,255,255,0.40);
   --accent:                    #111111;
-  --accent-foreground:         #FAFAFA;
+  --accent-foreground:         #FFFFFF;
   --destructive:               oklch(0.577 0.245 27.325);
   --input:                     rgba(255,255,255,0.06);
-  --ring:                      #00E5A0;
-  --chart-1:                   #00E5A0;
-  --chart-2:                   #DEFF9A;
+  --ring:                      #9146FF;
+  --chart-1:                   #9146FF;
+  --chart-2:                   #00E5A0;
   --chart-3:                   #3CFFB8;
   --chart-4:                   #00B584;
   --chart-5:                   #0B0F19;
   --radius:                    0.625rem;
-  --sidebar:                   #0a0a0a;
-  --sidebar-foreground:        #FAFAFA;
-  --sidebar-primary:           #00E5A0;
-  --sidebar-primary-foreground:#0B0F19;
+  --sidebar:                   rgba(255,255,255,0.02);
+  --sidebar-foreground:        #FFFFFF;
+  --sidebar-primary:           #9146FF;
+  --sidebar-primary-foreground:#FFFFFF;
   --sidebar-accent:            #111111;
-  --sidebar-accent-foreground: #FAFAFA;
+  --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border:            rgba(255,255,255,0.06);
-  --sidebar-ring:              #00E5A0;
+  --sidebar-ring:              #9146FF;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-manrope), 'Manrope', system-ui, -apple-system, sans-serif;
+  background: #000000;
+  color: #FFFFFF;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
-  background: rgba(0, 229, 160, 0.25);
-  color: #FAFAFA;
+  background: rgba(145,70,255,0.30);
+  color: #ffffff;
 }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #000000; }
-::-webkit-scrollbar-thumb { background: #333333; border-radius: 2px; }
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+[data-scroll-pin] { will-change: transform; }
+
+video, canvas {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
 
 @layer base {
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background text-foreground; }
-  html {
-    @apply font-sans;
-    scroll-behavior: smooth;
-  }
+}
+
+/* Animated border button — purple→mint gradient flow */
+@keyframes borderFlow {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+
+.animated-border-btn {
+  background: linear-gradient(45deg, #9146FF, #00E5A0, #9146FF, #00E5A0);
+  background-size: 400% 400%;
+  animation: borderFlow 8s ease infinite;
+  padding: 2px;
+}
+
+.animated-border-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: linear-gradient(45deg, #9146FF, #00E5A0, #9146FF, #00E5A0);
+  background-size: 400% 400%;
+  animation: borderFlow 8s ease infinite;
+  filter: blur(30px);
+  opacity: 0.6;
+  z-index: -1;
 }
