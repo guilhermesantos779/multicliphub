@@ -64,12 +64,12 @@ export function RankingSection() {
             className="font-display font-semibold leading-[1.05] tracking-[-0.04em] text-white"
             style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
           >
-            compete.{' '}
-            <span style={{ color: '#00E5A0' }}>vence</span>
-            . recebe.
+            Compete.{' '}
+            <span style={{ color: '#00E5A0' }}>Vence</span>
+            . Recebe.
           </h2>
           <p className="mt-3 text-white/50 text-[15px]">
-            dois rankings mensais com premiação real.
+            Dois rankings mensais com premiação real.
           </p>
         </FadeIn>
 
@@ -80,10 +80,10 @@ export function RankingSection() {
             <RaycastCard cornerGlow="purple" cornerPosition="tl" className="h-full" padding="p-6">
               <div className="mb-1 text-[22px]">👑</div>
               <h3 className="font-display font-semibold text-[18px] text-white mb-1 tracking-[-0.02em]">
-                kings of reach
+                Kings of Reach
               </h3>
               <p className="text-[13px] text-white/40 mb-5">
-                ranking por views totais no mês
+                Ranking por views totais no mês
               </p>
 
               <div className="flex flex-col gap-2">
@@ -100,7 +100,7 @@ export function RankingSection() {
 
               <div className="mt-5 inline-flex items-center rounded-full border border-[#00E5A0]/20 bg-[#00E5A0]/[0.06] px-3 py-1">
                 <span className="text-[11px] font-medium text-[#00E5A0]">
-                  top 3 = 3 meses grátis
+                  Top 3 = 3 meses grátis
                 </span>
               </div>
             </RaycastCard>
@@ -111,10 +111,10 @@ export function RankingSection() {
             <RaycastCard cornerGlow="mint" cornerPosition="tr" className="h-full" padding="p-6">
               <div className="mb-1 text-[22px]">🔫</div>
               <h3 className="font-display font-semibold text-[18px] text-white mb-1 tracking-[-0.02em]">
-                machine gun
+                Machine Gun
               </h3>
               <p className="text-[13px] text-white/40 mb-5">
-                ranking por consistência de posts
+                Ranking por consistência de posts
               </p>
 
               <div className="flex flex-col gap-2">
@@ -131,7 +131,7 @@ export function RankingSection() {
 
               <div className="mt-5 inline-flex items-center rounded-full border border-[#00E5A0]/20 bg-[#00E5A0]/[0.06] px-3 py-1">
                 <span className="text-[11px] font-medium text-[#00E5A0]">
-                  top 3 = cargos exclusivos discord
+                  Top 3 = cargos exclusivos Discord
                 </span>
               </div>
             </RaycastCard>
@@ -142,14 +142,14 @@ export function RankingSection() {
         <FadeIn delay={0.16} className="flex justify-center">
           <div className="inline-flex items-center gap-3 rounded-full border border-white/[0.06] bg-white/[0.02] px-5 py-2.5">
             <span className="text-[13px] text-white/50">
-              sua posição atual:{' '}
+              Sua posição atual:{' '}
               <span className="text-white font-medium">#8 · 1,2M views</span>
             </span>
             <span
               className="rounded-full px-2 py-0.5 text-[11px] font-medium"
               style={{ background: 'rgba(0,229,160,0.10)', color: '#00E5A0' }}
             >
-              ↑ subindo
+              ↑ Subindo
             </span>
           </div>
         </FadeIn>

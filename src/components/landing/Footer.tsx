@@ -2,25 +2,25 @@ import Link from 'next/link'
 import { Logo } from '@/components/shared/Logo'
 
 const PRODUTO = [
-  { label: 'funcionalidades', href: '#funcionalidades' },
-  { label: 'como funciona',   href: '#como-funciona'   },
-  { label: 'preços',          href: '#precos'           },
-  { label: 'ranking',         href: '#ranking'          },
-  { label: 'changelog',       href: '#'                 },
+  { label: 'Funcionalidades', href: '#funcionalidades' },
+  { label: 'Como funciona',   href: '#como-funciona'   },
+  { label: 'Preços',          href: '#precos'           },
+  { label: 'Ranking',         href: '#ranking'          },
+  { label: 'Changelog',       href: '#'                 },
 ]
 
 const EMPRESA = [
-  { label: 'sobre',                href: '#'         },
-  { label: 'discord da comunidade',href: '#'         },
-  { label: 'blog (em breve)',      href: '#'         },
-  { label: 'contato',             href: 'mailto:suportemulticliphub@gmail.com' },
+  { label: 'Sobre',                 href: '#'         },
+  { label: 'Discord da comunidade', href: '#'         },
+  { label: 'Blog',                  href: '#'         },
+  { label: 'Contato',               href: 'mailto:suportemulticliphub@gmail.com' },
 ]
 
 const LEGAL = [
-  { label: 'termos de uso',        href: '/terms'   },
-  { label: 'política de privacidade', href: '/privacy' },
-  { label: 'política de cookies',  href: '#'         },
-  { label: 'lgpd',                 href: '#'         },
+  { label: 'Termos de uso',           href: '/terms'   },
+  { label: 'Política de privacidade', href: '/privacy' },
+  { label: 'Política de cookies',     href: '#'         },
+  { label: 'LGPD',                    href: '#'         },
 ]
 
 function ColTitle({ children }: { children: React.ReactNode }) {
@@ -58,7 +58,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Logo height={28} variant="mint" className="mb-4" />
             <p className="text-[13px] text-white/40 leading-relaxed max-w-[220px]">
-              distribuição inteligente para clipadores profissionais.
+              Distribuição inteligente para clipadores profissionais.
             </p>
 
             {/* Social icons */}
@@ -114,9 +114,9 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-t border-white/[0.04] pt-8">
           <p className="text-[12px] text-white/35">
-            © 2025 MultiClipHub. todos os direitos reservados.
+            © 2025 MultiClip Hub. Todos os direitos reservados.
           </p>
-          <p className="text-[12px] text-white/35">feito no brasil 🇧🇷</p>
+          <p className="text-[12px] text-white/35">Feito no Brasil 🇧🇷</p>
         </div>
       </div>
     </footer>

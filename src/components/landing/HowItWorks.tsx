@@ -7,18 +7,18 @@ import { FadeIn } from '@/components/shared/FadeIn'
 const STEPS = [
   {
     number: '01',
-    title: 'faça upload do clipe',
-    desc: 'arraste seu vídeo direto na plataforma. aceita até 4gb.',
+    title: 'Faça upload do clipe',
+    desc: 'Arraste seu vídeo direto na plataforma. Aceita até 4GB.',
   },
   {
     number: '02',
-    title: 'escolha as plataformas',
-    desc: 'marque TikTok, Reels e Shorts. a ia adapta cada formato.',
+    title: 'Escolha as plataformas',
+    desc: 'Marque TikTok, Reels e Shorts. A IA adapta cada formato.',
   },
   {
     number: '03',
-    title: 'veja a mágica acontecer',
-    desc: 'publicação simultânea. métricas em tempo real. ranking sobe.',
+    title: 'Veja a mágica acontecer',
+    desc: 'Publicação simultânea. Métricas em tempo real. Ranking sobe.',
   },
 ]
 
@@ -44,10 +44,10 @@ export function HowItWorks() {
             className="font-display font-semibold leading-[1.05] tracking-[-0.04em] text-white"
             style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
           >
-            três passos. zero complicação.
+            Três passos. Zero complicação.
           </h2>
           <p className="mt-3 text-white/50 text-[15px]">
-            do upload à viralização em menos de um minuto.
+            Do upload à viralização em menos de um minuto.
           </p>
         </FadeIn>
 
@@ -102,7 +102,7 @@ export function HowItWorks() {
               style={{ boxShadow: '0 0 6px rgba(0,229,160,0.6)' }}
             />
             <span className="text-[13px] text-white/50">
-              tempo médio do primeiro post:{' '}
+              Tempo médio do primeiro post:{' '}
               <span className="font-semibold text-white">menos de 3 minutos</span>
             </span>
           </div>

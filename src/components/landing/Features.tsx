@@ -34,51 +34,51 @@ const CARDS: FeatureCard[] = [
     id: 'upload',
     Icon: Upload,
     corner: 'purple',
-    title: 'magic upload',
+    title: 'Magic upload',
     description:
-      'um clipe, uma legenda, publicado em TikTok, Reels e Shorts ao mesmo tempo. sem abrir três apps diferentes.',
+      'Um clipe, uma legenda, publicado em TikTok, Reels e Shorts ao mesmo tempo. Sem abrir três apps diferentes.',
     badge: '+40 min/dia economizados',
   },
   {
     id: 'ai',
     Icon: Sparkles,
     corner: 'mint',
-    title: 'ia que fala cada algoritmo',
+    title: 'IA que fala cada algoritmo',
     description:
-      'adapta legenda e hashtags automaticamente para maximizar o alcance em cada plataforma.',
+      'Adapta legenda e hashtags automaticamente para maximizar o alcance em cada plataforma.',
   },
   {
     id: 'analytics',
     Icon: BarChart3,
     corner: 'purple',
-    title: 'analytics unificado',
+    title: 'Analytics unificado',
     description:
-      'views do TikTok, Reels e Shorts em um único dashboard. veja seu crescimento real.',
+      'Views do TikTok, Reels e Shorts em um único dashboard. Veja seu crescimento real.',
   },
   {
     id: 'timing',
     Icon: Clock,
     corner: 'mint',
-    title: 'best time to post',
+    title: 'Best time to post',
     description:
-      'saiba exatamente quando postar com base no seu histórico. sugestões personalizadas por plataforma.',
+      'Saiba exatamente quando postar com base no seu histórico. Sugestões personalizadas por plataforma.',
   },
   {
     id: 'ranking',
     Icon: Trophy,
     corner: 'purple',
-    title: 'ranking gamificado',
+    title: 'Ranking gamificado',
     description:
-      'dois rankings mensais. top 3 ganham 3 meses grátis e cargos exclusivos no discord.',
-    badge: 'exclusivo MultiClipHub',
+      'Dois rankings mensais. Top 3 ganham 3 meses grátis e cargos exclusivos no Discord.',
+    badge: 'Exclusivo MultiClip Hub',
   },
   {
     id: 'scheduling',
     Icon: Calendar,
     corner: 'mint',
-    title: 'agendamento inteligente',
+    title: 'Agendamento inteligente',
     description:
-      'programe seus posts e deixe o algoritmo trabalhar enquanto você dorme.',
+      'Programe seus posts e deixe o algoritmo trabalhar enquanto você dorme.',
   },
 ]
 
@@ -127,11 +127,11 @@ export function Features() {
             className="font-display font-semibold leading-[1.05] tracking-[-0.04em] text-white"
             style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', maxWidth: 700, margin: '0 auto 16px' }}
           >
-            tudo que você precisa para{' '}
+            Tudo que você precisa para{' '}
             <span style={{ color: '#9146FF' }}>dominar</span> o algoritmo
           </h2>
           <p className="text-white/50 text-[15px]">
-            uma plataforma. todas as funcionalidades. feita por quem entende o jogo.
+            Uma plataforma. Todas as funcionalidades. Feita por quem entende o jogo.
           </p>
         </motion.div>
 

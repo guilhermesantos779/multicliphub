@@ -90,7 +90,7 @@ export function Hero() {
               style={{ boxShadow: '0 0 6px rgba(0,229,160,0.8)' }}
             />
             <span className="text-[12px] text-white/70">
-              ✨ novo · ranking gamificado disponível
+              ✨ Novo · Ranking gamificado disponível
             </span>
           </div>
 
@@ -99,7 +99,7 @@ export function Hero() {
             className="font-display font-semibold leading-[1.05] tracking-[-0.045em]"
             style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', maxWidth: 840 }}
           >
-            <span className="block text-white">distribuição simultânea</span>
+            <span className="block text-white">Distribuição simultânea</span>
             <span className="block text-white/40">
               para TikTok, Reels e Shorts
             </span>
@@ -110,8 +110,8 @@ export function Hero() {
             className="text-white/50 leading-relaxed"
             style={{ fontSize: 16, maxWidth: 480 }}
           >
-            um upload publica nas 3 plataformas ao mesmo tempo.
-            zero trabalho braçal. máximo alcance.
+            Um upload publica nas 3 plataformas ao mesmo tempo.
+            Zero trabalho braçal. Máximo alcance.
           </p>
 
           {/* CTAs */}
@@ -120,13 +120,13 @@ export function Hero() {
               href="/register"
               className="rounded-full bg-[#9146FF] px-6 py-3 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[#7c3aed]"
             >
-              começar grátis →
+              Começar grátis →
             </Link>
             <Link
               href="#como-funciona"
               className="rounded-full border border-white/[0.12] px-6 py-3 text-[14px] text-white/70 transition-all duration-200 hover:border-white/[0.25] hover:text-white"
             >
-              ver como funciona
+              Ver como funciona
             </Link>
           </div>
 

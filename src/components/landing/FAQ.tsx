@@ -7,36 +7,36 @@ import Link from 'next/link'
 
 const ITEMS = [
   {
-    q: 'o MultiClipHub é seguro? meus tokens estão protegidos?',
-    a: 'nunca armazenamos suas senhas. usamos autenticação oauth oficial de cada plataforma — o mesmo sistema do buffer e later. você se conecta diretamente pela plataforma sem passar credenciais pelo MultiClipHub.',
+    q: 'O MultiClip Hub é seguro? Meus tokens estão protegidos?',
+    a: 'Nunca armazenamos suas senhas. Usamos autenticação OAuth oficial de cada plataforma — o mesmo sistema do Buffer e Later. Você se conecta diretamente pela plataforma sem passar credenciais pelo MultiClip Hub.',
   },
   {
-    q: 'funciona com contas verificadas / business?',
-    a: 'sim. as apis oficiais do tiktok, instagram e youtube aceitam contas pessoais, verificadas e business. basta conectar via oauth e pronto.',
+    q: 'Funciona com contas verificadas / business?',
+    a: 'Sim. As APIs oficiais do TikTok, Instagram e YouTube aceitam contas pessoais, verificadas e business. Basta conectar via OAuth e pronto.',
   },
   {
-    q: 'e se uma plataforma mudar a api?',
-    a: 'nossa equipe acompanha os changelogs oficiais em tempo real. caso uma api mude, atualizamos o conector em até 24h e você recebe uma notificação proativa antes de qualquer impacto.',
+    q: 'E se uma plataforma mudar a API?',
+    a: 'Nossa equipe acompanha os changelogs oficiais em tempo real. Caso uma API mude, atualizamos o conector em até 24h e você recebe uma notificação proativa antes de qualquer impacto.',
   },
   {
-    q: 'posso cancelar a qualquer momento?',
-    a: 'sim, sem multa e sem burocracia. cancele pelo painel em menos de 30 segundos. você continua tendo acesso até o fim do período já pago.',
+    q: 'Posso cancelar a qualquer momento?',
+    a: 'Sim, sem multa e sem burocracia. Cancele pelo painel em menos de 30 segundos. Você continua tendo acesso até o fim do período já pago.',
   },
   {
-    q: 'quanto tempo demora a publicação?',
-    a: 'a publicação simultânea nas três plataformas leva entre 30 segundos e 3 minutos dependendo do tamanho do vídeo e da fila das apis. você recebe notificação quando cada plataforma confirmar.',
+    q: 'Quanto tempo demora a publicação?',
+    a: 'A publicação simultânea nas três plataformas leva entre 30 segundos e 3 minutos dependendo do tamanho do vídeo e da fila das APIs. Você recebe notificação quando cada plataforma confirmar.',
   },
   {
-    q: 'tem limite de vídeos por mês?',
-    a: 'no plano clipper são 200 posts/mês. nos planos pro e king os posts são ilimitados — o limite fica por conta das cotas de api de cada plataforma (tiktok: 5/dia, instagram: 25/dia, youtube: 50/dia).',
+    q: 'Tem limite de vídeos por mês?',
+    a: 'No plano Clipper são 200 posts/mês. Nos planos Pro e King os posts são ilimitados — o limite fica por conta das cotas de API de cada plataforma (TikTok: 5/dia, Instagram: 25/dia, YouTube: 50/dia).',
   },
   {
-    q: 'como funciona o ranking?',
-    a: 'os dados vêm direto das apis oficiais. apenas vídeos publicados pelo MultiClipHub são contabilizados. o ranking atualiza a cada 6 horas e reinicia no primeiro dia de cada mês.',
+    q: 'Como funciona o ranking?',
+    a: 'Os dados vêm direto das APIs oficiais. Apenas vídeos publicados pelo MultiClip Hub são contabilizados. O ranking atualiza a cada 6 horas e reinicia no primeiro dia de cada mês.',
   },
   {
-    q: 'posso ter mais de um canal por plataforma?',
-    a: 'no plano pro você conecta até 3 contas por plataforma (9 canais no total). no plano king os canais são ilimitados, ideal para agências e managers que gerenciam múltiplos criadores.',
+    q: 'Posso ter mais de um canal por plataforma?',
+    a: 'No plano Pro você conecta até 3 contas por plataforma (9 canais no total). No plano King os canais são ilimitados, ideal para agências e managers que gerenciam múltiplos criadores.',
   },
 ]
 
@@ -55,10 +55,10 @@ export function FAQ() {
             className="font-display font-semibold leading-[1.05] tracking-[-0.04em] text-white mb-3"
             style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
           >
-            tudo que você precisa saber.
+            Tudo que você precisa saber.
           </h2>
           <p className="text-[15px] text-white/50">
-            se algo não estiver aqui,{' '}
+            Se algo não estiver aqui,{' '}
             <Link
               href="mailto:suportemulticliphub@gmail.com"
               className="text-white/70 underline underline-offset-2 hover:text-white transition-colors"

@@ -9,7 +9,7 @@ const TRUST = [
   '2.300+ clipadores ativos',
   '+47M views distribuídos',
   '99,9% uptime',
-]
+] // trust items intentionally lowercase (concise stats format)
 
 export function CTASection() {
   return (
@@ -20,7 +20,7 @@ export function CTASection() {
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
         <FadeIn>
           {/* Pre-title */}
-          <p className="mb-6 text-[14px] text-white/40">pronto para escalar?</p>
+          <p className="mb-6 text-[14px] text-white/40">Pronto para escalar?</p>
 
           {/* Massive headline */}
           <motion.h2
@@ -31,8 +31,8 @@ export function CTASection() {
             className="font-display font-bold leading-[0.95] tracking-[-0.045em] mb-8"
             style={{ fontSize: 'clamp(3rem, 8vw, 6rem)' }}
           >
-            <span className="text-white">distribua. multiplique. </span>
-            <span style={{ color: '#9146FF' }}>escale</span>
+            <span className="text-white">Distribua. Multiplique. </span>
+            <span style={{ color: '#9146FF' }}>Escale</span>
             <span className="text-white">.</span>
           </motion.h2>
 
@@ -41,8 +41,8 @@ export function CTASection() {
             className="text-white/50 leading-relaxed mb-10 mx-auto"
             style={{ fontSize: 16, maxWidth: 420 }}
           >
-            comece a usar o MultiClipHub gratuitamente hoje.
-            7 dias completos. sem cartão de crédito.
+            Comece a usar o MultiClip Hub gratuitamente hoje.
+            7 dias completos. Sem cartão de crédito.
           </p>
 
           {/* CTAs */}
@@ -51,13 +51,13 @@ export function CTASection() {
               href="/register"
               className="rounded-full bg-[#9146FF] px-8 py-3.5 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[#7c3aed]"
             >
-              criar conta grátis →
+              Criar conta grátis →
             </Link>
             <Link
               href="mailto:suportemulticliphub@gmail.com"
               className="rounded-full border border-white/[0.12] px-8 py-3.5 text-[14px] text-white/70 transition-all duration-200 hover:border-white/[0.25] hover:text-white"
             >
-              falar com a gente
+              Falar com a gente
             </Link>
           </div>
 

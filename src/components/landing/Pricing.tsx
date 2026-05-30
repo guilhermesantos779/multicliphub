@@ -11,52 +11,52 @@ import { AnimatedBorderButton } from '@/components/ui/animated-border-button'
 const PLANS = [
   {
     id: 'clipper',
-    name: 'clipper',
+    name: 'Clipper',
     monthly: 27,
     annual: 19,
     corner: 'none' as const,
     featured: false,
-    cta: 'começar grátis',
+    cta: 'Começar grátis',
     ctaStyle: 'outline' as const,
     features: [
       '200 posts por mês',
       '3 canais conectados',
-      'analytics básico',
-      'discord da comunidade',
+      'Analytics básico',
+      'Discord da comunidade',
     ],
   },
   {
     id: 'pro',
-    name: 'pro',
+    name: 'Pro',
     monthly: 57,
     annual: 40,
     corner: 'purple' as const,
     featured: true,
-    cta: 'começar grátis',
+    cta: 'Começar grátis',
     ctaStyle: 'filled' as const,
     features: [
-      'posts ilimitados',
+      'Posts ilimitados',
       '9 canais conectados',
-      'ia de legendas + hashtags',
-      'agendamento inteligente',
-      'analytics avançado',
+      'IA de legendas + hashtags',
+      'Agendamento inteligente',
+      'Analytics avançado',
     ],
   },
   {
     id: 'king',
-    name: 'king',
+    name: 'King',
     monthly: 97,
     annual: 68,
     corner: 'mint' as const,
     featured: false,
-    cta: 'assinar king',
+    cta: 'Assinar King',
     ctaStyle: 'outline' as const,
     features: [
-      'tudo do pro +',
-      'canais ilimitados',
-      'até 5 membros na equipe',
-      'api access',
-      'suporte prioritário',
+      'Tudo do Pro +',
+      'Canais ilimitados',
+      'Até 5 membros na equipe',
+      'API access',
+      'Suporte prioritário',
     ],
   },
 ]
@@ -83,10 +83,10 @@ export function Pricing() {
             className="font-display font-semibold leading-[1.05] tracking-[-0.04em] text-white"
             style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
           >
-            comece grátis. escale quando dominar.
+            Comece grátis. Escale quando dominar.
           </h2>
           <p className="mt-3 mb-8 text-white/50 text-[15px]">
-            7 dias grátis em qualquer plano. sem cartão.
+            7 dias grátis em qualquer plano. Sem cartão.
           </p>
 
           {/* Toggle */}
@@ -100,7 +100,7 @@ export function Pricing() {
                   : 'text-white/50 hover:text-white/70',
               ].join(' ')}
             >
-              mensal
+              Mensal
             </button>
             <button
               onClick={() => setAnnual(true)}
@@ -111,10 +111,10 @@ export function Pricing() {
                   : 'text-white/50 hover:text-white/70',
               ].join(' ')}
             >
-              anual
+              Anual
               {annual && (
                 <span className="rounded-full bg-[#00E5A0]/10 px-2 py-0.5 text-[10px] font-semibold text-[#00E5A0]">
-                  economize até 30%
+                  Economize até 30%
                 </span>
               )}
             </button>
@@ -156,7 +156,7 @@ export function Pricing() {
                   <div className="absolute -top-px left-1/2 -translate-x-1/2">
                     <div className="rounded-b-full bg-[#9146FF] px-4 py-1">
                       <span className="text-[10px] font-semibold text-white">
-                        mais popular
+                        Mais popular
                       </span>
                     </div>
                   </div>
@@ -212,7 +212,7 @@ export function Pricing() {
 
         {/* Fine print */}
         <p className="mt-8 text-center text-[12px] text-white/40">
-          todos os planos incluem 7 dias grátis · cancele quando quiser
+          Todos os planos incluem 7 dias grátis · cancele quando quiser
         </p>
       </div>
     </section>
