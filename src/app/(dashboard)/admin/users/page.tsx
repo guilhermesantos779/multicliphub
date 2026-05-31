@@ -28,6 +28,8 @@ const ROLE_COLORS: Record<string, { text: string; bg: string }> = {
 }
 
 const ROLE_OPTIONS = ['clipper', 'pro', 'king', 'trial', 'blocked', 'admin']
+// Plan can be set independently of role (e.g. an admin on any plan)
+const PLAN_OPTIONS = ['trial', 'clipper', 'pro', 'king']
 
 export default function AdminUsersPage() {
   const { toast } = useToast()
@@ -73,6 +75,25 @@ export default function AdminUsersPage() {
     } else {
       toast(`Usuário atualizado para ${newRole}`, 'success')
       setSelected(prev => prev && prev.id === userId ? { ...prev, role: newRole } : prev)
+      fetchUsers()
+    }
+    setActionLoading(false)
+  }
+
+  // Set ONLY the plan, leaving role untouched (so an admin keeps admin)
+  const updateUserPlan = async (userId: string, newPlan: string) => {
+    setActionLoading(true)
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('profiles')
+      .update({ plan: newPlan })
+      .eq('id', userId)
+
+    if (error) {
+      toast('Erro ao atualizar plano', 'error')
+    } else {
+      toast(`Plano alterado para ${newPlan}`, 'success')
+      setSelected(prev => prev && prev.id === userId ? { ...prev, plan: newPlan } : prev)
       fetchUsers()
     }
     setActionLoading(false)
@@ -235,9 +256,9 @@ export default function AdminUsersPage() {
                   </button>
                 </div>
 
-                {/* Alterar role */}
+                {/* Alterar cargo (role) — define permissões. 'admin' = acesso total */}
                 <div>
-                  <div className="mb-1.5 text-[10px] text-[#444444]">Alterar plano</div>
+                  <div className="mb-1.5 text-[10px] text-[#444444]">Alterar cargo</div>
                   <div className="grid grid-cols-2 gap-1.5">
                     {ROLE_OPTIONS.map(r => (
                       <button
@@ -251,6 +272,30 @@ export default function AdminUsersPage() {
                         }`}
                       >
                         {r}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-1.5 text-[9px] text-[#444444]">
+                    Mudar o cargo também ajusta o plano. Para definir o plano sem mexer no cargo, use abaixo.
+                  </p>
+                </div>
+
+                {/* Alterar plano — independente do cargo (admin pode ter qualquer plano) */}
+                <div>
+                  <div className="mb-1.5 text-[10px] text-[#444444]">Alterar plano</div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {PLAN_OPTIONS.map(pl => (
+                      <button
+                        key={pl}
+                        onClick={() => updateUserPlan(selected.id, pl)}
+                        disabled={actionLoading || selected.plan === pl}
+                        className={`rounded-lg py-1.5 text-[10px] font-medium capitalize transition-all disabled:opacity-40 ${
+                          selected.plan === pl
+                            ? 'bg-[#00E5A0] text-[#0B0F19]'
+                            : 'bg-[#1a1a1a] text-[#888888] hover:bg-[#222] hover:text-white'
+                        }`}
+                      >
+                        {pl}
                       </button>
                     ))}
                   </div>
