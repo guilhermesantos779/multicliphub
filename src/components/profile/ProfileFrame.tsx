@@ -10,24 +10,16 @@ interface ProfileFrameProps {
   className?: string
 }
 
-const OCTAGON =
-  'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)'
+// Flat-top hexagon — matches the achievement badge silhouette for cohesion
+const HEX = 'polygon(27.5% 10%, 72.5% 10%, 95% 50%, 72.5% 90%, 27.5% 90%, 5% 50%)'
 
-export function ProfileFrame({
-  plan,
-  size = 96,
-  children,
-  className,
-}: ProfileFrameProps) {
+export function ProfileFrame({ plan, size = 96, children, className }: ProfileFrameProps) {
   const tier = normalizePlan(plan)
 
-  // ── trial / null: simple circle, no glow ────────────────────────────────
+  // ── Free / trial: simple circle ring, no glow ───────────────────────────
   if (tier === 'trial') {
     return (
-      <div
-        className={className}
-        style={{ width: size, height: size, position: 'relative' }}
-      >
+      <div className={className} style={{ width: size, height: size, position: 'relative' }}>
         <div
           style={{
             width: size,
@@ -44,81 +36,45 @@ export function ProfileFrame({
     )
   }
 
-  // ── clipper / pro / king: octagonal frame ───────────────────────────────
   const isKing = tier === 'king'
-  const pad = isKing ? 3 : 2
+  const pad = isKing ? Math.max(3, size * 0.035) : Math.max(2, size * 0.026)
 
-  const borderStyle: CSSProperties = isKing
+  const rimStyle: CSSProperties = isKing
     ? {
-        background:
-          'linear-gradient(45deg, #9146FF, #00E5A0, #9146FF, #00E5A0)',
+        background: 'linear-gradient(45deg, #9146FF, #00E5A0, #9146FF, #00E5A0)',
         backgroundSize: '400% 400%',
         animation: 'borderFlow 8s ease infinite',
       }
     : { background: '#9146FF' }
 
   const glow = isKing
-    ? '0 0 20px rgba(145,70,255,0.6)'
-    : '0 0 12px rgba(145,70,255,0.4)'
+    ? `drop-shadow(0 0 ${size * 0.22}px rgba(145,70,255,0.6))`
+    : `drop-shadow(0 0 ${size * 0.13}px rgba(145,70,255,0.45))`
 
   return (
-    <div
-      className={className}
-      style={{ width: size, height: size, position: 'relative' }}
-    >
-      {/* Glow layer — box-shadow on a square sized like the frame; the octagon
-          sits on top so the glow reads as an ambient halo. */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          inset: size * 0.12,
-          boxShadow: glow,
-          borderRadius: 8,
-        }}
-      />
-
-      {/* Border layer (clipped octagon) */}
-      <div
-        style={{
-          position: 'relative',
-          width: size,
-          height: size,
-          clipPath: OCTAGON,
-          padding: pad,
-          ...borderStyle,
-        }}
-      >
-        {/* Inner avatar (clipped octagon, black backdrop) */}
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            clipPath: OCTAGON,
-            overflow: 'hidden',
-            background: '#000',
-          }}
-        >
+    <div className={className} style={{ width: size, height: size, position: 'relative' }}>
+      {/* Hex rim (with glow that follows the clipped shape) */}
+      <div style={{ width: size, height: size, clipPath: HEX, padding: pad, filter: glow, ...rimStyle }}>
+        <div style={{ position: 'relative', width: '100%', height: '100%', clipPath: HEX, overflow: 'hidden', background: '#000' }}>
           {children}
+          {/* Inner vignette so the avatar pops */}
+          <span
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(circle at 50% 40%, transparent 45%, rgba(0,0,0,0.55) 100%)',
+            }}
+          />
         </div>
       </div>
 
-      {/* Plan badge — bottom-right */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: -4,
-          right: -4,
-          zIndex: 2,
-        }}
-      >
+      {/* Plan badge — bottom */}
+      <div style={{ position: 'absolute', bottom: -2, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
         {isKing ? (
           <span
             className="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[9px] font-bold text-black"
-            style={{
-              background: 'linear-gradient(45deg, #9146FF, #00E5A0)',
-              animation: 'kingPulse 2.2s ease-in-out infinite',
-            }}
+            style={{ background: 'linear-gradient(45deg, #9146FF, #00E5A0)', animation: 'kingPulse 2.2s ease-in-out infinite' }}
           >
             👑 KING
           </span>
@@ -129,27 +85,20 @@ export function ProfileFrame({
         )}
       </div>
 
-      {/* Sparkle dots — King only */}
+      {/* Sparkles at hex points — King only */}
       {isKing && (
         <>
-          <Sparkle style={{ top: -2, left: '32%' }} delay="0s" color="#00E5A0" />
-          <Sparkle style={{ top: '32%', right: -2 }} delay="0.5s" color="#9146FF" />
-          <Sparkle style={{ bottom: '32%', left: -2 }} delay="1s" color="#00E5A0" />
+          <Sparkle style={{ top: '4%', left: '47%' }} delay="0s" color="#00E5A0" />
+          <Sparkle style={{ top: '47%', right: '0%' }} delay="0.5s" color="#9146FF" />
+          <Sparkle style={{ top: '47%', left: '0%' }} delay="1s" color="#00E5A0" />
+          <Sparkle style={{ bottom: '14%', right: '20%' }} delay="1.5s" color="#9146FF" />
         </>
       )}
     </div>
   )
 }
 
-function Sparkle({
-  style,
-  delay,
-  color,
-}: {
-  style: CSSProperties
-  delay: string
-  color: string
-}) {
+function Sparkle({ style, delay, color }: { style: CSSProperties; delay: string; color: string }) {
   return (
     <span
       aria-hidden

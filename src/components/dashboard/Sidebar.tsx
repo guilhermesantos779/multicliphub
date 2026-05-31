@@ -5,84 +5,23 @@ import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/hooks/useUser'
 import { LogoSidebar } from '@/components/shared/Logo'
+import { SystemIcon, type SystemIconName } from '@/components/icons/SystemIcon'
 
+const navIcon = (name: SystemIconName) => (active: boolean) =>
+  <SystemIcon name={name} active={active} size={18} />
 
 const NAV_ITEMS = [
-  {
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Upload',
-    href: '/upload',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Canais',
-    href: '/canais',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Analytics',
-    href: '/analytics',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Ranking',
-    href: '/ranking',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <path d="M6 9H4.5a2.5 2.5 0 010-5H6" /><path d="M18 9h1.5a2.5 2.5 0 000-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0012 0V2z" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Histórico',
-    href: '/historico',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-      </svg>
-    ),
-  },
+  { label: 'Dashboard', href: '/dashboard',  icon: navIcon('dashboard') },
+  { label: 'Upload',    href: '/upload',     icon: navIcon('upload')    },
+  { label: 'Canais',    href: '/canais',     icon: navIcon('canais')    },
+  { label: 'Analytics', href: '/analytics',  icon: navIcon('analytics') },
+  { label: 'Ranking',   href: '/ranking',    icon: navIcon('ranking')   },
+  { label: 'Histórico', href: '/historico',  icon: navIcon('historico') },
 ]
 
 const BOTTOM_ITEMS = [
-  {
-    label: 'Perfil',
-    href: '/perfil',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Configurações',
-    href: '/configuracoes',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-      </svg>
-    ),
-  },
+  { label: 'Perfil',        href: '/perfil',        icon: navIcon('perfil') },
+  { label: 'Configurações', href: '/configuracoes', icon: navIcon('config') },
 ]
 
 function NavItem({ item, active }: { item: typeof NAV_ITEMS[0]; active: boolean }) {
@@ -203,11 +142,7 @@ export function Sidebar() {
             item={{
               label: 'Admin',
               href: '/admin',
-              icon: (active: boolean) => (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-[#DEFF9A]' : 'text-[#555555]'}>
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-              ),
+              icon: navIcon('admin'),
             }}
             active={pathname.startsWith('/admin')}
           />

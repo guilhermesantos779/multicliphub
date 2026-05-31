@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
-import { Manrope } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
+import { Inter } from 'next/font/google'
 import './globals.css'
+import { IconDefs } from '@/components/icons/IconDefs'
 
-const manrope = Manrope({
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-manrope',
+  variable: '--font-inter',
   display: 'swap',
-  weight: ['200', '300', '400', '500', '600', '700', '800'],
 })
 
 export const metadata: Metadata = {
@@ -34,8 +35,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${manrope.variable} h-full`}>
+    <html lang="pt-BR" className={`${GeistSans.variable} ${inter.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-black text-white antialiased">
+        <IconDefs />
         {children}
       </body>
     </html>
