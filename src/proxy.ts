@@ -39,7 +39,10 @@ export async function proxy(request: NextRequest) {
     const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route))
 
     if (!user && !isPublicRoute) {
-      return NextResponse.redirect(new URL('/login', request.url))
+      // Preserve where the user was heading so we can return them after login
+      const loginUrl = new URL('/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname + request.nextUrl.search)
+      return NextResponse.redirect(loginUrl)
     }
 
     if (user && isAuthRoute) {

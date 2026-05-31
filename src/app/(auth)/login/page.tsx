@@ -22,6 +22,14 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
+  // Read ?redirect= directly from the URL (avoids useSearchParams Suspense
+  // requirement on a statically-rendered page). Only allow same-site paths.
+  const safeRedirect = () => {
+    if (typeof window === 'undefined') return '/dashboard'
+    const r = new URLSearchParams(window.location.search).get('redirect')
+    return r && r.startsWith('/') && !r.startsWith('//') ? r : '/dashboard'
+  }
+
   const handleLogin = async (e: React.SyntheticEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -32,16 +40,23 @@ export default function LoginPage() {
       setError('E-mail ou senha incorretos. Tente novamente.')
       setLoading(false)
     } else {
-      router.push('/dashboard')
+      router.push(safeRedirect())
     }
   }
 
   const handleGoogle = async () => {
-    const supabase = createClient()
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    })
+    try {
+      setError('')
+      const supabase = createClient()
+      const next = encodeURIComponent(safeRedirect())
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/auth/callback?next=${next}` },
+      })
+      if (error) setError('Erro Google: ' + error.message)
+    } catch (err) {
+      setError('Erro ao conectar: ' + (err instanceof Error ? err.message : String(err)))
+    }
   }
 
   return (
