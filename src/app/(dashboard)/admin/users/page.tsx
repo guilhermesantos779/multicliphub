@@ -40,6 +40,11 @@ export default function AdminUsersPage() {
   const [selected, setSelected]     = useState<AdminUser | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
   const [grantDays, setGrantDays]   = useState(7)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null))
+  }, [])
 
   const fetchUsers = useCallback(async () => {
     const supabase = createClient()
@@ -256,27 +261,33 @@ export default function AdminUsersPage() {
                   </button>
                 </div>
 
-                {/* Alterar cargo (role) — define permissões. 'admin' = acesso total */}
+                {/* Alterar cargo (role) — define permissões. 'admin' = acesso total.
+                    Bloqueado para a própria conta para evitar auto-rebaixamento. */}
                 <div>
                   <div className="mb-1.5 text-[10px] text-[#444444]">Alterar cargo</div>
                   <div className="grid grid-cols-2 gap-1.5">
-                    {ROLE_OPTIONS.map(r => (
-                      <button
-                        key={r}
-                        onClick={() => updateUserRole(selected.id, r)}
-                        disabled={actionLoading || selected.role === r}
-                        className={`rounded-lg py-1.5 text-[10px] font-medium capitalize transition-all disabled:opacity-40 ${
-                          selected.role === r
-                            ? 'bg-[#9146FF] text-white'
-                            : 'bg-[#1a1a1a] text-[#888888] hover:bg-[#222] hover:text-white'
-                        }`}
-                      >
-                        {r}
-                      </button>
-                    ))}
+                    {ROLE_OPTIONS.map(r => {
+                      const isSelf = selected.id === currentUserId
+                      return (
+                        <button
+                          key={r}
+                          onClick={() => updateUserRole(selected.id, r)}
+                          disabled={actionLoading || selected.role === r || isSelf}
+                          className={`rounded-lg py-1.5 text-[10px] font-medium capitalize transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                            selected.role === r
+                              ? 'bg-[#9146FF] text-white'
+                              : 'bg-[#1a1a1a] text-[#888888] hover:bg-[#222] hover:text-white'
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      )
+                    })}
                   </div>
                   <p className="mt-1.5 text-[9px] text-[#444444]">
-                    Mudar o cargo também ajusta o plano. Para definir o plano sem mexer no cargo, use abaixo.
+                    {selected.id === currentUserId
+                      ? 'Você não pode alterar o próprio cargo (proteção contra auto-rebaixamento).'
+                      : 'Mudar o cargo também ajusta o plano. Para definir o plano sem mexer no cargo, use abaixo.'}
                   </p>
                 </div>
 
