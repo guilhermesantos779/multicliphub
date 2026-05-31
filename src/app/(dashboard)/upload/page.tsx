@@ -5,6 +5,7 @@ import { Topbar } from '@/components/dashboard/Topbar'
 import { PlatformIcon } from '@/components/shared/PlatformIcon'
 import { useUser } from '@/hooks/useUser'
 import { useToast } from '@/components/shared/Toast'
+import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import type { Platform } from '@/types/api.types'
 
@@ -34,7 +35,7 @@ const statusIcons: Record<PublishStatus, React.ReactNode> = {
 }
 
 export default function UploadPage() {
-  const { canPost } = useUser()
+  const { canPost, profile } = useUser()
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -91,6 +92,15 @@ export default function UploadPage() {
       setPublishResults(prev => ({ ...prev, [platform]: 'publishing' }))
       await new Promise(r => setTimeout(r, 1200 + Math.random() * 800))
       setPublishResults(prev => ({ ...prev, [platform]: 'published' }))
+      // Count this publication toward the activity heatmap + monthly ranking.
+      // When real OAuth publishing lands, keep this call at the success point.
+      if (profile?.id) {
+        const supabase = createClient()
+        await supabase.rpc('register_publication', {
+          p_user_id: profile.id,
+          p_platform: platform,
+        })
+      }
     }
 
     setPublishing(false)

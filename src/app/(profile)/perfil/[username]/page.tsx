@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { ProfileLinks } from '@/components/profile/ProfileLinks'
 import { AchievementGrid } from '@/components/profile/AchievementGrid'
+import { ActivityHeatmap } from '@/components/profile/ActivityHeatmap'
+import { PlatformRanking } from '@/components/profile/PlatformRanking'
 
 interface PageProps {
   params: Promise<{ username: string }>
@@ -96,6 +98,14 @@ export default async function ProfilePage({ params }: PageProps) {
           featuredSlugs={profile.featured_achievements ?? []}
           isOwnProfile={isOwnProfile}
         />
+
+        <div className="border-t border-white/[0.06] pt-8">
+          <ActivityHeatmap userId={profile.id} />
+        </div>
+
+        <div className="border-t border-white/[0.06] pt-8">
+          <PlatformRanking userId={profile.id} />
+        </div>
       </div>
     </div>
   )
