@@ -1,6 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useProfileContext } from '@/components/app/ProfileProvider'
 import type { Database } from '@/types/database.types'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -12,35 +11,12 @@ interface UseUserReturn {
   canPost: boolean
 }
 
+// Reads the shared profile from ProfileProvider (single fetch for the whole
+// dashboard) and derives convenience flags. Public API unchanged.
 export function useUser(): UseUserReturn {
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const supabase = createClient()
-
-    const fetchProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { setLoading(false); return }
-
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-
-      setProfile(data)
-      setLoading(false)
-    }
-
-    fetchProfile()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      fetchProfile()
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
+  const ctx = useProfileContext()
+  const profile = ctx?.profile ?? null
+  const loading = ctx?.loading ?? true
 
   const isAdmin = profile?.role === 'admin'
 

@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { useUser } from '@/hooks/useUser'
 import { LogoSidebar } from '@/components/shared/Logo'
 import { SystemIcon, type SystemIconName } from '@/components/icons/SystemIcon'
+import { UserMenu } from '@/components/app/UserMenu'
 
 const navIcon = (name: SystemIconName) => (active: boolean) =>
   <SystemIcon name={name} active={active} size={18} />
@@ -19,8 +20,8 @@ const NAV_ITEMS = [
   { label: 'Histórico', href: '/historico',  icon: navIcon('historico') },
 ]
 
+// 'Perfil' moved into the user-card dropdown ("Ver perfil") to avoid duplication
 const BOTTOM_ITEMS = [
-  { label: 'Perfil',        href: '/perfil',        icon: navIcon('perfil') },
   { label: 'Configurações', href: '/configuracoes', icon: navIcon('config') },
 ]
 
@@ -56,14 +57,6 @@ function NavItem({ item, active }: { item: typeof NAV_ITEMS[0]; active: boolean 
 export function Sidebar() {
   const pathname = usePathname()
   const { profile, isAdmin } = useUser()
-  const planColors: Record<string, string> = {
-    clipper: '#888888',
-    pro: '#00E5A0',
-    king: '#DEFF9A',
-    trial: '#f59e0b',
-  }
-  const planColor = planColors[profile?.plan || 'trial'] || '#888888'
-
   const postsLimit = profile?.plan === 'clipper' ? 200 : profile?.plan === 'trial' ? 10 : null
   const postsUsed = profile?.posts_this_month || 0
   const postsPct = postsLimit ? Math.min((postsUsed / postsLimit) * 100, 100) : 0
@@ -75,46 +68,29 @@ export function Sidebar() {
         <LogoSidebar />
       </div>
 
-      {/* User badge */}
-      {profile && (
-        <div className="border-b border-white/[0.06] p-3">
-          <div className="flex items-center gap-2.5">
-            <div
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold text-white"
-              style={{ background: `linear-gradient(135deg, ${planColor}44, ${planColor}22)`, border: `1px solid ${planColor}44` }}
-            >
-              {(profile.full_name || profile.email || 'U').charAt(0).toUpperCase()}
+      {/* User card — real avatar + compact plan frame + dropdown */}
+      <div className="border-b border-white/[0.06] p-3">
+        <UserMenu profile={profile} layout="sidebar" avatarSize={40} />
+
+        {profile && postsLimit && (
+          <div className="mt-2.5 space-y-1">
+            <div className="flex justify-between text-[10px] text-[#444444]">
+              <span>Posts este mês</span>
+              <span>{postsUsed}/{postsLimit}</span>
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[12px] font-medium text-white">
-                {profile.full_name || 'Usuário'}
-              </div>
-              <div className="text-[10px] font-medium" style={{ color: planColor }}>
-                Plano {profile.plan?.charAt(0).toUpperCase() + (profile.plan?.slice(1) || '')}
-              </div>
+            <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${postsPct}%`,
+                  backgroundColor:
+                    postsPct > 90 ? '#ef4444' : postsPct > 75 ? '#f59e0b' : '#00E5A0',
+                }}
+              />
             </div>
           </div>
-
-          {postsLimit && (
-            <div className="mt-2.5 space-y-1">
-              <div className="flex justify-between text-[10px] text-[#444444]">
-                <span>Posts este mês</span>
-                <span>{postsUsed}/{postsLimit}</span>
-              </div>
-              <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${postsPct}%`,
-                    backgroundColor:
-                      postsPct > 90 ? '#ef4444' : postsPct > 75 ? '#f59e0b' : '#00E5A0',
-                  }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Nav principal */}
       <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">

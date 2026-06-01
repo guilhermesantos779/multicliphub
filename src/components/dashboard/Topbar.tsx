@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useUser } from '@/hooks/useUser'
 import { useNotifications } from '@/hooks/useNotifications'
 import { formatDate } from '@/lib/utils'
+import { UserMenu } from '@/components/app/UserMenu'
 
 const notifIcons: Record<string, string> = {
   published: '✅',
@@ -93,10 +94,8 @@ export function Topbar({ title }: { title: string }) {
           </AnimatePresence>
         </div>
 
-        {/* Avatar */}
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#00E5A0]/20 text-[12px] font-semibold text-[#3CFFB8]">
-          {(profile?.full_name || profile?.email || 'U').charAt(0).toUpperCase()}
-        </div>
+        {/* User avatar + dropdown (real avatar, compact plan frame) */}
+        <UserMenu profile={profile} layout="header" avatarSize={36} />
       </div>
     </header>
   )
