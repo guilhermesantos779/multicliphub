@@ -22,6 +22,7 @@ const NAV_ITEMS = [
 
 // 'Perfil' moved into the user-card dropdown ("Ver perfil") to avoid duplication
 const BOTTOM_ITEMS = [
+  { label: 'Suporte',       href: '/suporte',       icon: navIcon('suporte') },
   { label: 'Configurações', href: '/configuracoes', icon: navIcon('config') },
 ]
 

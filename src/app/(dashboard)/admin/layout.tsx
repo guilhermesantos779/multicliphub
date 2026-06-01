@@ -1,13 +1,15 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useUser } from '@/hooks/useUser'
+import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
 const ADMIN_NAV = [
   { label: 'Visão Geral',   href: '/admin',           icon: '📊' },
   { label: 'Usuários',      href: '/admin/users',     icon: '👥' },
+  { label: 'Chamados',      href: '/admin/chamados',  icon: '🎫' },
   { label: 'Planos',        href: '/admin/plans',     icon: '💳' },
   { label: 'Ranking',       href: '/admin/ranking',   icon: '🏆' },
   { label: 'Cupons',        href: '/admin/coupons',   icon: '🎟️' },
@@ -19,6 +21,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { profile, loading } = useUser()
   const router = useRouter()
   const pathname = usePathname()
+  const [ticketAlerts, setTicketAlerts] = useState(0)
+
+  // Count tickets awaiting an admin reply (open/in-analysis + last message from user)
+  useEffect(() => {
+    if (profile?.role !== 'admin') return
+    ;(async () => {
+      const supabase = createClient()
+      const { count } = await supabase
+        .from('tickets')
+        .select('id', { count: 'exact', head: true })
+        .in('status', ['aberto', 'em_analise'])
+        .eq('last_message_by', 'user')
+      setTicketAlerts(count ?? 0)
+    })()
+  }, [profile?.role, pathname])
 
   useEffect(() => {
     if (!loading && profile?.role !== 'admin') {
@@ -63,7 +80,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               >
                 <span className="text-sm">{item.icon}</span>
                 {item.label}
-                {active && (
+                {item.href === '/admin/chamados' && ticketAlerts > 0 && (
+                  <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-[#00E5A0] px-1 text-[9px] font-bold text-[#0B0F19]">
+                    {ticketAlerts > 9 ? '9+' : ticketAlerts}
+                  </span>
+                )}
+                {active && !(item.href === '/admin/chamados' && ticketAlerts > 0) && (
                   <span className="ml-auto h-3.5 w-0.5 rounded-full bg-[#9146FF]" />
                 )}
               </Link>

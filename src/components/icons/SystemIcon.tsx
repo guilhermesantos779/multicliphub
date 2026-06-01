@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from 'react'
 
 export type SystemIconName =
   | 'dashboard' | 'upload' | 'analytics' | 'ranking' | 'perfil'
-  | 'canais' | 'historico' | 'config' | 'notificacoes' | 'admin'
+  | 'canais' | 'historico' | 'config' | 'notificacoes' | 'admin' | 'suporte'
 
 interface SystemIconProps {
   name: SystemIconName
@@ -94,6 +94,17 @@ const ICONS: Record<SystemIconName, (paint: string) => ReactNode> = {
       fill={p}
       d="M12 2 L20 5 V11 C20 16.2 16.4 20.2 12 22 C7.6 20.2 4 16.2 4 11 V5 Z M12 7.2 l1.32 2.68 2.96 .43 -2.14 2.09 .5 2.95 -2.64-1.39 -2.64 1.39 .5-2.95 -2.14-2.09 2.96-.43 z"
     />
+  ),
+  suporte: (p) => (
+    <g>
+      <g fill="none" stroke={p} strokeWidth="2">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="3.6" />
+      </g>
+      <g stroke={p} strokeWidth="2" strokeLinecap="round">
+        <path d="M5.6 5.6 L9.4 9.4 M18.4 5.6 L14.6 9.4 M5.6 18.4 L9.4 14.6 M18.4 18.4 L14.6 14.6" />
+      </g>
+    </g>
   ),
 }
 
