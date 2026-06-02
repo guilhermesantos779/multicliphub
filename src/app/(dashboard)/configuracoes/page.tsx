@@ -4,15 +4,14 @@ import { Topbar } from '@/components/dashboard/Topbar'
 import { useUser } from '@/hooks/useUser'
 import { useSubscription } from '@/hooks/useSubscription'
 import type { PlanKey } from '@/lib/stripe'
+import { PLAN_PRICES, formatPriceBRL } from '@/config/plans'
 import { cn } from '@/lib/utils'
 
+// Presentation only — prices come from the centralized PLAN_PRICES config.
 const PLANS_CONFIG = [
   {
     id: 'clipper' as PlanKey,
-    name: 'Clipper',
     icon: '⚡',
-    price_monthly: 27,
-    price_annual:  19,
     description: 'Para quem está começando',
     features: [
       'Até 200 posts/mês',
@@ -25,10 +24,7 @@ const PLANS_CONFIG = [
   },
   {
     id: 'pro' as PlanKey,
-    name: 'Pro',
     icon: '🏆',
-    price_monthly: 57,
-    price_annual:  40,
     description: 'Para creators sérios',
     features: [
       'Posts ilimitados',
@@ -42,10 +38,7 @@ const PLANS_CONFIG = [
   },
   {
     id: 'king' as PlanKey,
-    name: 'King',
     icon: '👑',
-    price_monthly: 97,
-    price_annual:  68,
     description: 'Para agências e profissionais',
     features: [
       'Tudo do Pro',
@@ -57,7 +50,7 @@ const PLANS_CONFIG = [
     ],
     featured: false,
   },
-]
+].map((p) => ({ ...p, ...PLAN_PRICES[p.id] }))
 
 export default function ConfiguracoesPage() {
   const { profile } = useUser()
@@ -110,7 +103,7 @@ export default function ConfiguracoesPage() {
           <div className="grid gap-4 md:grid-cols-3">
             {PLANS_CONFIG.map(plan => {
               const isCurrent = profile?.plan === plan.id
-              const price = annual ? plan.price_annual : plan.price_monthly
+              const price = annual ? plan.annualMonthlyPrice : plan.monthlyPrice
 
               return (
                 <div
@@ -137,13 +130,13 @@ export default function ConfiguracoesPage() {
                   <div className="mb-6">
                     <div className="flex items-end gap-1">
                       <span className="text-[32px] font-bold leading-none text-white">
-                        R$ {price}
+                        R$ {formatPriceBRL(price)}
                       </span>
                       <span className="mb-1 text-[13px] text-[#888888]">/mês</span>
                     </div>
                     {annual && (
                       <p className="mt-1 text-[11px] text-[#00E5A0]">
-                        Cobrado R$ {price * 12} anualmente
+                        Cobrado R$ {formatPriceBRL(plan.annualTotal)} anualmente
                       </p>
                     )}
                   </div>

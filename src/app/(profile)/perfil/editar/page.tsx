@@ -6,7 +6,12 @@ export const metadata = {
   title: 'Editar perfil — MultiClip Hub',
 }
 
-export default async function ProfileEditorPage() {
+export default async function ProfileEditorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ setup?: string }>
+}) {
+  const { setup } = await searchParams
   const supabase = await createClient()
   const {
     data: { user },
@@ -40,6 +45,7 @@ export default async function ProfileEditorPage() {
       initialLinks={linksRes.data ?? []}
       achievements={achRes.data ?? []}
       unlockedSlugs={(userAchRes.data ?? []).map((u) => u.achievement_slug)}
+      setupMode={setup === '1'}
     />
   )
 }

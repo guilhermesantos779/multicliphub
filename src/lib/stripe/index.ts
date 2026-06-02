@@ -7,27 +7,29 @@ export function getStripe(): Stripe {
   })
 }
 
+// Amounts in centavos (BRL * 100). monthly = monthly billing; annual = FULL
+// yearly total charged once (interval: year). Mirrors src/config/plans.ts.
 export const PLANS = {
   clipper: {
     name: 'Clipper',
     monthly: process.env.STRIPE_PRICE_CLIPPER_MONTHLY!,
     annual:  process.env.STRIPE_PRICE_CLIPPER_ANNUAL!,
-    price_monthly: 2700,
-    price_annual:  1900,
+    price_monthly: 5700,
+    price_annual:  47880,
   },
   pro: {
     name: 'Pro',
     monthly: process.env.STRIPE_PRICE_PRO_MONTHLY!,
     annual:  process.env.STRIPE_PRICE_PRO_ANNUAL!,
-    price_monthly: 5700,
-    price_annual:  4000,
+    price_monthly: 9700,
+    price_annual:  81480,
   },
   king: {
     name: 'King',
     monthly: process.env.STRIPE_PRICE_KING_MONTHLY!,
     annual:  process.env.STRIPE_PRICE_KING_ANNUAL!,
-    price_monthly: 9700,
-    price_annual:  6800,
+    price_monthly: 19700,
+    price_annual:  165480,
   },
 } as const
 

@@ -16,6 +16,8 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/shared/Toast'
+import { UsernameInput } from '@/components/ui/UsernameInput'
+import { normalizeUsername, validateUsername, USERNAME_ERROR_MESSAGE } from '@/lib/username'
 import { ProfileHeader } from './ProfileHeader'
 import { AchievementIcon } from './icons/AchievementIcon'
 import { PlatformIcon } from './icons/PlatformIcon'
@@ -43,6 +45,8 @@ interface ProfileEditorProps {
   initialLinks: ProfileLink[]
   achievements: Achievement[]
   unlockedSlugs: string[]
+  /** True when a legacy account is forced to pick a nickname before continuing. */
+  setupMode?: boolean
 }
 
 export function ProfileEditor({
@@ -50,11 +54,16 @@ export function ProfileEditor({
   initialLinks,
   achievements,
   unlockedSlugs,
+  setupMode = false,
 }: ProfileEditorProps) {
   const router = useRouter()
   const { toast } = useToast()
   const supabase = createClient()
 
+  const currentUsername = (initialProfile.username ?? '').toLowerCase()
+  const [username, setUsername] = useState(currentUsername)
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
+  const [usernameChecking, setUsernameChecking] = useState(false)
   const [displayName, setDisplayName] = useState(initialProfile.full_name ?? '')
   const [bio, setBio] = useState(initialProfile.bio ?? '')
   const [avatarUrl, setAvatarUrl] = useState(initialProfile.avatar_url ?? '')
@@ -165,11 +174,29 @@ export function ProfileEditor({
 
   // ── Save ───────────────────────────────────────────────────────────────────
   async function handleSave() {
+    // Server-side rules mirrored client-side — never trust the input blindly.
+    const nextUsername = normalizeUsername(username)
+    const usernameErr = validateUsername(nextUsername)
+    if (usernameErr) {
+      toast(USERNAME_ERROR_MESSAGE[usernameErr], 'error')
+      return
+    }
+    if (usernameChecking) {
+      toast('Aguarde a verificação do nickname', 'warning')
+      return
+    }
+    if (usernameAvailable === false) {
+      toast('Este nickname já está em uso', 'error')
+      return
+    }
+
     setSaving(true)
+    const usernameChanged = nextUsername !== currentUsername
 
     const { error: profErr } = await supabase
       .from('profiles')
       .update({
+        username: nextUsername,
         full_name: displayName.trim() || null,
         bio: bio.trim() || null,
         avatar_url: avatarUrl || null,
@@ -179,7 +206,17 @@ export function ProfileEditor({
       .eq('id', initialProfile.id)
 
     if (profErr) {
-      toast('Erro ao salvar perfil', 'error')
+      // 23505 = unique violation (nickname taken), 23514 = check constraint
+      // (invalid format / reserved word) — both enforced at the DB level.
+      if (profErr.code === '23505') {
+        toast('Este nickname já está em uso', 'error')
+        setUsernameAvailable(false)
+      } else if (profErr.code === '23514') {
+        toast('Nickname inválido ou reservado', 'error')
+        setUsernameAvailable(false)
+      } else {
+        toast('Erro ao salvar perfil', 'error')
+      }
       setSaving(false)
       return
     }
@@ -205,9 +242,16 @@ export function ProfileEditor({
       }
     }
 
-    toast('Perfil atualizado!', 'success')
     setSaving(false)
-    router.refresh()
+
+    if (usernameChanged) {
+      // The public URL moved — take the user to their new address.
+      toast(`Nickname atualizado! Seu perfil agora é /perfil/${nextUsername}`, 'success')
+      router.push(`/perfil/${nextUsername}`)
+    } else {
+      toast('Perfil atualizado!', 'success')
+      router.refresh()
+    }
   }
 
   // Preview object shaped like public_profiles
@@ -228,13 +272,24 @@ export function ProfileEditor({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
+      {setupMode && (
+        <div className="mb-6 rounded-2xl border border-[#00E5A0]/30 bg-[#00E5A0]/[0.06] px-5 py-4">
+          <p className="text-[14px] font-semibold text-[#00E5A0]">
+            Escolha seu nickname para acessar seu perfil público.
+          </p>
+          <p className="mt-1 text-[13px] text-white/60">
+            Defina um nickname disponível abaixo e salve para continuar usando a plataforma.
+          </p>
+        </div>
+      )}
+
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-[22px] font-bold tracking-[-0.02em] text-white">
           Editar perfil
         </h1>
         <button
           onClick={handleSave}
-          disabled={saving || uploading !== null}
+          disabled={saving || uploading !== null || usernameChecking || usernameAvailable === false}
           className="inline-flex items-center gap-2 rounded-full bg-[#9146FF] px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#7c3aed] disabled:opacity-50"
         >
           {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
@@ -302,6 +357,20 @@ export function ProfileEditor({
               className="hidden"
               onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0], 'avatars', setAvatarUrl)}
             />
+
+            {/* Nickname (username) */}
+            <label className="mb-1.5 block text-[12px] font-medium text-white/50">Nickname</label>
+            <div className="mb-4">
+              <UsernameInput
+                value={username}
+                onChange={setUsername}
+                currentUsername={currentUsername}
+                onAvailabilityChange={(available, isChecking) => {
+                  setUsernameAvailable(available)
+                  setUsernameChecking(isChecking)
+                }}
+              />
+            </div>
 
             {/* Display name */}
             <label className="mb-1.5 block text-[12px] font-medium text-white/50">Nome de exibição</label>

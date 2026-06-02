@@ -7,13 +7,12 @@ import { Check } from 'lucide-react'
 import { AmbientGlow } from './raycast/AmbientGlow'
 import { FadeIn } from '@/components/shared/FadeIn'
 import { AnimatedBorderButton } from '@/components/ui/animated-border-button'
+import { PLAN_PRICES, formatPriceBRL, type PlanId } from '@/config/plans'
 
+// Presentation only — prices come from the centralized PLAN_PRICES config.
 const PLANS = [
   {
-    id: 'clipper',
-    name: 'Clipper',
-    monthly: 27,
-    annual: 19,
+    id: 'clipper' as PlanId,
     corner: 'none' as const,
     featured: false,
     cta: 'Começar grátis',
@@ -26,10 +25,7 @@ const PLANS = [
     ],
   },
   {
-    id: 'pro',
-    name: 'Pro',
-    monthly: 57,
-    annual: 40,
+    id: 'pro' as PlanId,
     corner: 'purple' as const,
     featured: true,
     cta: 'Começar grátis',
@@ -43,10 +39,7 @@ const PLANS = [
     ],
   },
   {
-    id: 'king',
-    name: 'King',
-    monthly: 97,
-    annual: 68,
+    id: 'king' as PlanId,
     corner: 'mint' as const,
     featured: false,
     cta: 'Assinar King',
@@ -59,7 +52,7 @@ const PLANS = [
       'Suporte prioritário',
     ],
   },
-]
+].map((p) => ({ ...p, ...PLAN_PRICES[p.id] }))
 
 export function Pricing() {
   const [annual, setAnnual] = useState(false)
@@ -167,13 +160,16 @@ export function Pricing() {
                     {plan.name}
                   </p>
 
-                  <div className="flex items-end gap-1 mb-6">
+                  <div className="flex items-end gap-1 mb-1">
                     <span className="text-[13px] text-white/40">R$</span>
                     <span className="font-display font-semibold text-[48px] leading-none tracking-[-0.04em] text-white">
-                      {annual ? plan.annual : plan.monthly}
+                      {formatPriceBRL(annual ? plan.annualMonthlyPrice : plan.monthlyPrice)}
                     </span>
                     <span className="mb-1 text-[13px] text-white/40">/mês</span>
                   </div>
+                  <p className="mb-6 text-[11px] text-white/35 h-4">
+                    {annual ? `R$ ${formatPriceBRL(plan.annualTotal)} cobrados por ano` : ' '}
+                  </p>
 
                   <hr className="border-white/[0.06] mb-5" />
 

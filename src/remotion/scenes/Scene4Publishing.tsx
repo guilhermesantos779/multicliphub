@@ -6,105 +6,199 @@ import {
   useVideoConfig,
 } from 'remotion'
 import { AppChrome } from '../components/AppChrome'
+import { PlatformIcon } from '../components/Platform'
 
-const PLATFORMS = [
-  { name: 'TikTok', delay: 0 },
-  { name: 'Instagram Reels', delay: 18 },
-  { name: 'YouTube Shorts', delay: 36 },
+type PlatformKey = 'tiktok' | 'instagram' | 'youtube'
+
+const PLATFORMS: { key: PlatformKey; label: string; completesAt: number }[] = [
+  { key: 'tiktok',    label: 'TikTok',          completesAt: 40  },
+  { key: 'instagram', label: 'Instagram Reels',  completesAt: 70  },
+  { key: 'youtube',   label: 'YouTube Shorts',   completesAt: 100 },
 ]
 
-// Separado em componente para evitar IIFE e manter árvore estável entre frames
-function SuccessCard({ frame, fps }: { frame: number; fps: number }) {
-  const successOpacity = interpolate(frame, [120, 140], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  })
-  const successScale = spring({
-    frame: frame - 118,
-    fps,
-    config: { damping: 16, stiffness: 120 },
-    from: 0.88,
-    to: 1,
-  })
-
-  return (
-    <div style={{
-      textAlign: 'center',
-      opacity: successOpacity,
-      transform: `scale(${successScale})`,
-    }}>
-      <div style={{ fontSize: 36, marginBottom: 8 }}>🎉</div>
-      <div style={{ fontSize: 15, fontWeight: 600, color: '#fff', marginBottom: 4 }}>
-        Publicado com sucesso!
-      </div>
-      <div style={{ fontSize: 12, color: '#555' }}>3 plataformas · agora mesmo</div>
-    </div>
-  )
+const ACCENT: Record<PlatformKey, string> = {
+  tiktok:    '#fff',
+  instagram: '#E1306C',
+  youtube:   '#FF0000',
 }
 
+// Componente isolado para cada card de plataforma — árvore DOM estável
 function PlatformCard({
-  name,
-  delay,
+  platform,
   frame,
   fps,
 }: {
-  name: string
-  delay: number
+  platform: typeof PLATFORMS[0]
   frame: number
   fps: number
 }) {
-  const cardOpacity = interpolate(frame, [delay, delay + 15], [0, 1], {
+  const { key, label, completesAt } = platform
+  const startAt = completesAt - 30
+
+  const isDone    = frame >= completesAt
+  const isLoading = frame >= startAt && !isDone
+
+  const progress = interpolate(frame, [startAt, completesAt], [0, 100], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   })
-  const progressVal = interpolate(frame, [delay + 10, delay + 100], [0, 100], {
+
+  const cardOpacity = interpolate(frame, [startAt - 20, startAt], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   })
-  const done = progressVal >= 99
 
   const checkScale = spring({
-    frame: frame - (delay + 100),
+    frame: frame - completesAt,
     fps,
     config: { damping: 14, stiffness: 200 },
     from: 0,
     to: 1,
   })
 
+  const statusText = isDone
+    ? '✓ Publicado com sucesso'
+    : isLoading
+    ? 'Enviando vídeo...'
+    : 'Na fila...'
+
+  const statusColor = isDone ? '#00E5A0' : isLoading ? '#888' : '#444'
+
   return (
     <div style={{
       background: '#111',
-      border: '1px solid rgba(255,255,255,0.07)',
+      border: `1px solid ${isDone ? 'rgba(0,229,160,0.2)' : 'rgba(255,255,255,0.07)'}`,
       borderRadius: 14,
-      padding: '16px 20px',
+      padding: '14px 16px',
       opacity: cardOpacity,
+      display: 'flex',
+      flexDirection: 'column',  // COLUNA: texto em cima, barra embaixo
+      gap: 12,
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <span style={{ fontSize: 13, fontWeight: 500, color: '#fff' }}>{name}</span>
-        {/* Mantém a mesma estrutura de elemento em todos os frames:
-            opacity controla visibilidade sem alterar a árvore de componentes */}
-        <span style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          width: 22, height: 22, borderRadius: '50%',
-          background: done ? 'rgba(0,229,160,0.15)' : 'transparent',
-          color: '#00E5A0',
-          fontSize: 13,
-          transform: done ? `scale(${checkScale})` : 'scale(0)',
-        }}>✓</span>
-        <span style={{
-          fontSize: 11,
-          color: '#00E5A0',
-          position: 'absolute',
-          opacity: done ? 0 : 1,
-        }}>{Math.round(progressVal)}%</span>
-      </div>
-      <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
+      {/* ── Linha superior: ícone + nome/status + indicador ── */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+      }}>
+        {/* Ícone da plataforma */}
+        <PlatformIcon platform={key} size={34} />
+
+        {/* Nome + status em coluna, ocupam o espaço restante */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#fff',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>
+            {label}
+          </div>
+          <div style={{
+            fontSize: 11,
+            color: statusColor,
+            marginTop: 2,
+            whiteSpace: 'nowrap',
+          }}>
+            {statusText}
+          </div>
+        </div>
+
+        {/* Indicador de conclusão — sempre renderizado, opacity controla visibilidade */}
         <div style={{
-          width: `${progressVal}%`,
+          width: 26,
+          height: 26,
+          borderRadius: '50%',
+          background: 'rgba(0,229,160,0.12)',
+          border: '1px solid rgba(0,229,160,0.25)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 13,
+          color: '#00E5A0',
+          fontWeight: 700,
+          transform: `scale(${isDone ? checkScale : 0})`,
+          opacity: isDone ? 1 : 0,
+        }}>✓</div>
+
+        {/* Percentual — mesmo nível, visível enquanto loading */}
+        <div style={{
+          fontSize: 12,
+          fontWeight: 600,
+          color: ACCENT[key],
+          minWidth: 34,
+          textAlign: 'right',
+          opacity: isLoading ? 1 : 0,
+        }}>
+          {Math.round(progress)}%
+        </div>
+      </div>
+
+      {/* ── Barra de progresso — completamente separada do texto ── */}
+      <div style={{
+        height: 4,
+        background: 'rgba(255,255,255,0.06)',
+        borderRadius: 99,
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          width: `${progress}%`,
           height: '100%',
-          background: done ? '#00E5A0' : 'linear-gradient(90deg, #00E5A0, #3CFFB8)',
+          background: isDone
+            ? '#00E5A0'
+            : `linear-gradient(90deg, ${ACCENT[key]}, #00E5A0)`,
           borderRadius: 99,
         }} />
+      </div>
+    </div>
+  )
+}
+
+// Botões de ação pós-publicação
+function PostPublishButtons({ frame, fps }: { frame: number; fps: number }) {
+  const scale = spring({
+    frame: frame - 115,
+    fps,
+    config: { damping: 16, stiffness: 130 },
+    from: 0.88,
+    to: 1,
+  })
+  const opacity = interpolate(frame, [112, 128], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  })
+
+  return (
+    <div style={{
+      display: 'flex',
+      gap: 10,
+      opacity,
+      transform: `scale(${scale})`,
+    }}>
+      <div style={{
+        background: '#00E5A0',
+        borderRadius: 10,
+        padding: '10px 20px',
+        fontSize: 12.5,
+        fontWeight: 700,
+        color: '#0B0F19',
+        cursor: 'default',
+      }}>
+        Publicar novo clipe
+      </div>
+      <div style={{
+        background: 'rgba(255,255,255,0.06)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: 10,
+        padding: '10px 20px',
+        fontSize: 12.5,
+        fontWeight: 500,
+        color: '#aaa',
+        cursor: 'default',
+      }}>
+        Ver no Histórico
       </div>
     </div>
   )
@@ -119,34 +213,86 @@ export const Scene4Publishing = () => {
     extrapolateRight: 'clamp',
   })
 
+  const allDone = frame >= 110
+
+  const overallProgress = interpolate(frame, [0, 105], [0, 100], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  })
+
+  const headerScale = spring({
+    frame: frame - 5,
+    fps,
+    config: { damping: 18, stiffness: 140 },
+    from: 0.94,
+    to: 1,
+  })
+
   return (
     <AbsoluteFill style={{ opacity: fadeIn }}>
-      <AppChrome activeNav="Upload" title="Publicando...">
+      <AppChrome activeNav="Upload" title="Upload & Publicar">
         <div style={{
-          flex: 1,
+          padding: '24px 28px',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 40,
-          gap: 32,
+          gap: 18,
           fontFamily: 'Inter, system-ui, sans-serif',
           height: '100%',
         }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: '#fff', marginBottom: 6 }}>
-              Como crescer 10k seguidores em 30 dias
+          {/* Header do card principal */}
+          <div style={{
+            background: '#111',
+            border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 16,
+            padding: '18px 20px',
+            transform: `scale(${headerScale})`,
+          }}>
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
+                {allDone ? '🎉 Publicado com sucesso!' : '⚡ Publicando seu clipe...'}
+              </div>
+              <div style={{ fontSize: 12, color: '#555' }}>
+                {allDone
+                  ? 'Distribuído para 3 plataformas simultaneamente'
+                  : 'Distribuindo para as plataformas em paralelo'}
+              </div>
             </div>
-            <div style={{ fontSize: 12, color: '#555' }}>Publicando em simultâneo...</div>
+
+            {/* Barra de progresso geral */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 11 }}>
+                <span style={{ color: '#555' }}>Progresso geral</span>
+                <span style={{ color: '#00E5A0', fontWeight: 600 }}>
+                  {Math.round(overallProgress)}%
+                </span>
+              </div>
+              <div style={{ height: 5, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
+                <div style={{
+                  width: `${overallProgress}%`,
+                  height: '100%',
+                  background: allDone ? '#00E5A0' : 'linear-gradient(90deg, #00E5A0, #3CFFB8)',
+                  borderRadius: 99,
+                }} />
+              </div>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 380, position: 'relative' }}>
-            {PLATFORMS.map((p) => (
-              <PlatformCard key={p.name} name={p.name} delay={p.delay} frame={frame} fps={fps} />
+          {/* Cards de plataforma individuais */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {PLATFORMS.map(platform => (
+              <PlatformCard
+                key={platform.key}
+                platform={platform}
+                frame={frame}
+                fps={fps}
+              />
             ))}
           </div>
 
-          <SuccessCard frame={frame} fps={fps} />
+          {/* Botões pós-publicação — sempre no DOM, opacity controla aparição */}
+          <div style={{ opacity: allDone ? 1 : 0, pointerEvents: allDone ? 'auto' : 'none' }}>
+            <PostPublishButtons frame={frame} fps={fps} />
+          </div>
         </div>
       </AppChrome>
     </AbsoluteFill>

@@ -1,9 +1,9 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Logo } from '@/components/shared/Logo'
+import { UsernameInput } from '@/components/ui/UsernameInput'
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24">
@@ -15,44 +15,66 @@ const GoogleIcon = () => (
 )
 
 export default function RegisterPage() {
-  const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
+  const [usernameChecking, setUsernameChecking] = useState(false)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+
+  // Block submission until the nickname is confirmed available.
+  const canSubmit =
+    !loading && usernameAvailable === true && !usernameChecking
 
   const handleRegister = async (e: React.SyntheticEvent) => {
     e.preventDefault()
+    if (usernameChecking) { setError('Aguarde a verificação do nickname'); return }
+    if (usernameAvailable !== true) { setError('Escolha um nickname disponível'); return }
     if (password !== confirm) { setError('As senhas não coincidem'); return }
     if (password.length < 8) { setError('Senha deve ter mínimo 8 caracteres'); return }
     if (!agreed) { setError('Aceite os termos para continuar'); return }
 
     setLoading(true)
     setError('')
-    const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: name } },
-    })
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        // username is consumed by the handle_new_user() trigger, which
+        // re-validates it and falls back to a generated one if taken.
+        options: { data: { full_name: name, username } },
+      })
 
-    if (error) {
-      setError(error.message)
+      if (error) {
+        setError(error.message)
+      } else {
+        setSuccess(true)
+      }
+    } catch (err) {
+      setError('Erro de conexão: ' + (err instanceof Error ? err.message : String(err)))
+    } finally {
       setLoading(false)
-    } else {
-      router.push('/dashboard')
     }
   }
 
   const handleGoogle = async () => {
-    const supabase = createClient()
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    })
+    try {
+      setError('')
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      })
+      if (error) setError('Erro Google: ' + error.message)
+    } catch (err) {
+      setError('Erro ao conectar: ' + (err instanceof Error ? err.message : String(err)))
+    }
   }
 
   const fields = [
@@ -70,6 +92,20 @@ export default function RegisterPage() {
         </div>
 
         <div className="rounded-2xl border border-white/[0.08] bg-[#0a0a0a] p-7">
+          {success ? (
+            <div className="text-center py-4">
+              <div className="mb-3 text-4xl">📧</div>
+              <h2 className="text-[18px] font-semibold text-white mb-2">Confirme seu e-mail</h2>
+              <p className="text-[13px] text-[#888888]">
+                Enviamos um link de confirmação para <span className="text-white">{email}</span>.<br />
+                Clique no link para ativar sua conta e entrar.
+              </p>
+              <Link href="/login" className="mt-5 inline-block text-[13px] text-[#00E5A0] hover:underline">
+                Já confirmei → Entrar
+              </Link>
+            </div>
+          ) : (
+          <>
           <div className="mb-6 text-center">
             <h1 className="text-[20px] font-semibold text-white">Crie sua conta</h1>
             <p className="mt-1 text-[13px] text-[#555555]">7 dias grátis · Sem cartão de crédito</p>
@@ -104,6 +140,21 @@ export default function RegisterPage() {
               </div>
             ))}
 
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">Nickname</label>
+              <UsernameInput
+                value={username}
+                onChange={setUsername}
+                onAvailabilityChange={(available, isChecking) => {
+                  setUsernameAvailable(available)
+                  setUsernameChecking(isChecking)
+                }}
+              />
+              <p className="mt-1 text-[11px] text-[#444444]">
+                Como você será conhecido na plataforma. Pode ser alterado depois nas configurações.
+              </p>
+            </div>
+
             <label className="flex cursor-pointer items-start gap-2.5">
               <input
                 type="checkbox"
@@ -127,7 +178,7 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={!canSubmit}
               className="w-full rounded-xl bg-[#00E5A0] py-3 text-[13px] font-medium text-[#0B0F19] font-semibold transition-colors hover:bg-[#00B584] disabled:opacity-50"
             >
               {loading ? 'Criando conta...' : 'Criar minha conta'}
@@ -138,6 +189,8 @@ export default function RegisterPage() {
             Já tem uma conta?{' '}
             <Link href="/login" className="text-[#00E5A0] hover:underline">Entrar</Link>
           </p>
+          </>
+          )}
         </div>
       </div>
     </div>
