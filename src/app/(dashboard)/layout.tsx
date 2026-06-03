@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { ToastProvider } from '@/components/shared/Toast'
 import { ProfileProvider } from '@/components/app/ProfileProvider'
+import { OnboardingProvider } from '@/components/onboarding/OnboardingProvider'
+import { OnboardingLayers } from '@/components/onboarding/OnboardingLayers'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -24,12 +26,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <ProfileProvider>
       <ToastProvider>
-        <div className="flex min-h-screen bg-[#0a0a0a]">
-          <Sidebar />
-          <main className="ml-56 flex-1 min-w-0">
-            {children}
-          </main>
-        </div>
+        <OnboardingProvider>
+          <div className="flex min-h-screen bg-[#0a0a0a]">
+            <Sidebar />
+            <main className="ml-56 flex-1 min-w-0">
+              {children}
+            </main>
+          </div>
+          <OnboardingLayers />
+        </OnboardingProvider>
       </ToastProvider>
     </ProfileProvider>
   )

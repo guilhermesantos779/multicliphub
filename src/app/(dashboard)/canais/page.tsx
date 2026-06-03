@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { PlatformIcon } from '@/components/shared/PlatformIcon'
 import { useUser } from '@/hooks/useUser'
+import { useOnboarding } from '@/hooks/useOnboarding'
 import { useToast } from '@/components/shared/Toast'
 import { createClient } from '@/lib/supabase/client'
 import type { Platform } from '@/types/api.types'
@@ -25,6 +26,7 @@ const PLATFORM_INFO: Record<Platform, { name: string; color: string; desc: strin
 
 export default function CanaisPage() {
   const { profile } = useUser()
+  const { markItem } = useOnboarding()
   const { toast } = useToast()
   const [channels, setChannels] = useState<Channel[]>([])
   const [loading, setLoading] = useState(true)
@@ -41,9 +43,11 @@ export default function CanaisPage() {
         .order('created_at', { ascending: false })
       setChannels((data as Channel[]) || [])
       setLoading(false)
+      // Onboarding: having at least one active channel completes this step.
+      if ((data || []).some((c) => c.is_active)) markItem('connect_channel')
     }
     load()
-  }, [profile])
+  }, [profile, markItem])
 
   const handleDisconnect = async (id: string) => {
     const supabase = createClient()

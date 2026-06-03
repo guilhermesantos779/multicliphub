@@ -18,6 +18,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/shared/Toast'
 import { UsernameInput } from '@/components/ui/UsernameInput'
 import { normalizeUsername, validateUsername, USERNAME_ERROR_MESSAGE } from '@/lib/username'
+import { markChecklistItem } from '@/lib/onboarding/markComplete'
 import { ProfileHeader } from './ProfileHeader'
 import { AchievementIcon } from './icons/AchievementIcon'
 import { PlatformIcon } from './icons/PlatformIcon'
@@ -240,6 +241,14 @@ export function ProfileEditor({
         setSaving(false)
         return
       }
+    }
+
+    // Onboarding: editing the profile completes nickname/photo steps.
+    // (This page lives outside the dashboard's OnboardingProvider, so we write
+    // straight to the checklist via the lib helper.)
+    if (!initialProfile.checklist_completed) {
+      await markChecklistItem(supabase, initialProfile.id, 'set_nickname')
+      if (avatarUrl) await markChecklistItem(supabase, initialProfile.id, 'upload_photo')
     }
 
     setSaving(false)

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { PlatformIcon } from '@/components/shared/PlatformIcon'
 import { useUser } from '@/hooks/useUser'
+import { useOnboarding } from '@/hooks/useOnboarding'
 import { useToast } from '@/components/shared/Toast'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -36,6 +37,7 @@ const statusIcons: Record<PublishStatus, React.ReactNode> = {
 
 export default function UploadPage() {
   const { canPost, profile } = useUser()
+  const { markItem } = useOnboarding()
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -105,6 +107,8 @@ export default function UploadPage() {
 
     setPublishing(false)
     toast(`Clipe publicado com sucesso em ${selectedPlatforms.length} plataforma${selectedPlatforms.length !== 1 ? 's' : ''}!`, 'success')
+    // Onboarding: first successful publish completes this step.
+    markItem('first_upload')
   }
 
   const resetForm = () => {

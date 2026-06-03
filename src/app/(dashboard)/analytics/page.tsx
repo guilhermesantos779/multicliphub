@@ -5,6 +5,7 @@ import { Topbar } from '@/components/dashboard/Topbar'
 import { MetricCard, MetricCardSkeleton } from '@/components/dashboard/MetricCard'
 import { PlatformIcon } from '@/components/shared/PlatformIcon'
 import { useUser } from '@/hooks/useUser'
+import { useOnboarding } from '@/hooks/useOnboarding'
 import { createClient } from '@/lib/supabase/client'
 import { formatViews } from '@/lib/utils'
 import type { Platform } from '@/types/api.types'
@@ -29,8 +30,14 @@ const PLATFORM_NAMES: Record<Platform, string> = {
 
 export default function AnalyticsPage() {
   const { profile, loading: profileLoading } = useUser()
+  const { markItem } = useOnboarding()
   const [stats, setStats] = useState<PlatformStat[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Onboarding: visiting Analytics completes that checklist step.
+  useEffect(() => {
+    if (profile) markItem('explore_analytics')
+  }, [profile, markItem])
 
   useEffect(() => {
     if (!profile) return

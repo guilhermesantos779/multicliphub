@@ -26,10 +26,19 @@ const BOTTOM_ITEMS = [
   { label: 'Configurações', href: '/configuracoes', icon: navIcon('config') },
 ]
 
+// Maps a nav href to a tour anchor so ProductTour can spotlight it.
+const TOUR_ANCHOR: Record<string, string> = {
+  '/upload': 'upload',
+  '/analytics': 'analytics',
+  '/ranking': 'ranking',
+  '/suporte': 'suporte',
+}
+
 function NavItem({ item, active }: { item: typeof NAV_ITEMS[0]; active: boolean }) {
   return (
     <Link
       href={item.href}
+      data-tour={TOUR_ANCHOR[item.href]}
       className={cn(
         'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors duration-200',
         active ? 'text-white' : 'text-[#555555] hover:text-[#888888]'
@@ -70,7 +79,7 @@ export function Sidebar() {
       </div>
 
       {/* User card — real avatar + compact plan frame + dropdown */}
-      <div className="border-b border-white/[0.06] p-3">
+      <div data-tour="profile" className="border-b border-white/[0.06] p-3">
         <UserMenu profile={profile} layout="sidebar" avatarSize={40} />
 
         {profile && postsLimit && (

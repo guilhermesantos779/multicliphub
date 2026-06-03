@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { useUser } from '@/hooks/useUser'
+import { useOnboarding } from '@/hooks/useOnboarding'
 import { createClient } from '@/lib/supabase/client'
 import { formatViews } from '@/lib/utils'
 import { cn } from '@/lib/utils'
@@ -28,9 +29,15 @@ const PODIUM_MEDALS = ['🥇', '🥈', '🥉']
 
 export default function RankingPage() {
   const { profile } = useUser()
+  const { markItem } = useOnboarding()
   const [entries, setEntries] = useState<RankEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'ranking' | 'como'>('ranking')
+
+  // Onboarding: visiting Ranking completes that checklist step.
+  useEffect(() => {
+    if (profile) markItem('check_ranking')
+  }, [profile, markItem])
 
   useEffect(() => {
     const load = async () => {

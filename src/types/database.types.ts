@@ -388,11 +388,40 @@ export type Database = {
         }
         Relationships: []
       }
+      onboarding_checklist: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          id: string
+          item_key: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          id?: string
+          item_key: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          id?: string
+          item_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           banner_url: string | null
           bio: string | null
+          checklist_completed: boolean
+          first_login_at: string | null
+          onboarding_completed: boolean
+          onboarding_step: number
+          tour_completed: boolean
           created_at: string
           email: string
           featured_achievements: string[] | null
@@ -414,6 +443,11 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          checklist_completed?: boolean
+          first_login_at?: string | null
+          onboarding_completed?: boolean
+          onboarding_step?: number
+          tour_completed?: boolean
           created_at?: string
           email: string
           featured_achievements?: string[] | null
@@ -435,6 +469,11 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          checklist_completed?: boolean
+          first_login_at?: string | null
+          onboarding_completed?: boolean
+          onboarding_step?: number
+          tour_completed?: boolean
           created_at?: string
           email?: string
           featured_achievements?: string[] | null
