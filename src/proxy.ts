@@ -1,7 +1,11 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PUBLIC_ROUTES = ['/', '/landing', '/terms', '/privacy', '/login', '/register', '/auth/callback', '/api/auth', '/api/username', '/demo']
+// '/api/discord' is public at the middleware layer: the route handler does its
+// own auth + token handling and must run even for logged-out users (otherwise
+// the middleware would redirect to /login?redirect=...token=... — a URL that
+// Google Safe Browsing flags as phishing).
+const PUBLIC_ROUTES = ['/', '/landing', '/terms', '/privacy', '/login', '/register', '/auth/callback', '/api/auth', '/api/username', '/api/discord', '/demo']
 const AUTH_ROUTES = ['/login', '/register']
 const ADMIN_ROUTES = ['/admin']
 
