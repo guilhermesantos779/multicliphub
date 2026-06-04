@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import { createClient } from '@supabase/supabase-js'
+import { notifyDiscord } from '@/lib/discord/notify'
 import type Stripe from 'stripe'
 
 function getSupabaseAdmin() {
@@ -28,7 +29,8 @@ function getPlanFromPrice(): Record<string, string> {
 }
 
 async function updateUserPlan(userId: string, plan: string, subId: string) {
-  await getSupabaseAdmin()
+  const admin = getSupabaseAdmin()
+  await admin
     .from('profiles')
     .update({
       plan,
@@ -37,6 +39,21 @@ async function updateUserPlan(userId: string, plan: string, subId: string) {
       plan_expires_at: null,
     })
     .eq('id', userId)
+
+  // Notify the Discord bot so it can announce the upgrade and sync the role.
+  // No-op until BOT_WEBHOOK_URL / BOT_WEBHOOK_SECRET are configured.
+  const { data: profile } = await admin
+    .from('profiles')
+    .select('username, discord_id')
+    .eq('id', userId)
+    .single()
+  if (profile) {
+    await notifyDiscord('plan.upgraded', {
+      username: profile.username,
+      plan,
+      discord_id: profile.discord_id ?? undefined,
+    })
+  }
 }
 
 export async function POST(req: NextRequest) {
