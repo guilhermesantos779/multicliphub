@@ -82,9 +82,13 @@ export function WebGLShader({
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const motionMultiplier = reduceMotion ? 0.2 : 1.0
 
-    // Renderer — cap pixel ratio at 2 for performance
+    // Renderer — cap pixel ratio for performance. On phones (<768px) cap
+    // harder at 1.5 so the fullscreen fragment shader doesn't lag mid-range
+    // devices; desktop keeps the crisper 2x ceiling.
+    const isMobile = window.matchMedia('(max-width: 767px)').matches
+    const pixelCap = isMobile ? 1.5 : 2
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false })
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+    renderer.setPixelRatio(Math.min(devicePixelRatio, pixelCap))
     renderer.setSize(window.innerWidth, window.innerHeight)
 
     const scene  = new THREE.Scene()

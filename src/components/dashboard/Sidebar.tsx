@@ -1,9 +1,11 @@
 'use client'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/hooks/useUser'
+import { useMobileNav } from '@/components/dashboard/MobileNav'
 import { LogoSidebar } from '@/components/shared/Logo'
 import { SystemIcon, type SystemIconName } from '@/components/icons/SystemIcon'
 import { UserMenu } from '@/components/app/UserMenu'
@@ -34,10 +36,11 @@ const TOUR_ANCHOR: Record<string, string> = {
   '/suporte': 'suporte',
 }
 
-function NavItem({ item, active }: { item: typeof NAV_ITEMS[0]; active: boolean }) {
+function NavItem({ item, active, onNavigate }: { item: typeof NAV_ITEMS[0]; active: boolean; onNavigate?: () => void }) {
   return (
     <Link
       href={item.href}
+      onClick={onNavigate}
       data-tour={TOUR_ANCHOR[item.href]}
       className={cn(
         'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors duration-200',
@@ -67,15 +70,52 @@ function NavItem({ item, active }: { item: typeof NAV_ITEMS[0]; active: boolean 
 export function Sidebar() {
   const pathname = usePathname()
   const { profile, isAdmin } = useUser()
+  const { open, setOpen } = useMobileNav()
   const postsLimit = profile?.plan === 'clipper' ? 200 : profile?.plan === 'trial' ? 10 : null
   const postsUsed = profile?.posts_this_month || 0
   const postsPct = postsLimit ? Math.min((postsUsed / postsLimit) * 100, 100) : 0
 
+  // Close the mobile drawer whenever the route changes (covers swipe-nav and
+  // links that point at the current section).
+  useEffect(() => { setOpen(false) }, [pathname, setOpen])
+
+  const closeOnMobile = () => setOpen(false)
+
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-56 flex-col border-r border-white/[0.06] bg-[#0a0a0a]">
-      {/* Logo */}
-      <div className="flex h-14 items-center border-b border-white/[0.06] px-4">
+    <>
+      {/* Backdrop — mobile only, behind the drawer */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeOnMobile}
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+            aria-hidden
+          />
+        )}
+      </AnimatePresence>
+
+      <aside
+        className={cn(
+          'fixed left-0 top-0 z-50 flex h-screen w-56 flex-col border-r border-white/[0.06] bg-[#0a0a0a]',
+          'transition-transform duration-300 ease-out md:z-40 md:translate-x-0',
+          open ? 'translate-x-0' : '-translate-x-full',
+        )}
+      >
+      {/* Logo + mobile close */}
+      <div className="flex h-14 items-center justify-between border-b border-white/[0.06] px-4">
         <LogoSidebar />
+        <button
+          onClick={closeOnMobile}
+          aria-label="fechar menu"
+          className="grid h-8 w-8 place-items-center rounded-lg text-[#666666] transition-colors hover:text-white md:hidden"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
       </div>
 
       {/* User card — real avatar + compact plan frame + dropdown */}
@@ -108,6 +148,7 @@ export function Sidebar() {
           <NavItem
             key={item.href}
             item={item}
+            onNavigate={closeOnMobile}
             active={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
           />
         ))}
@@ -119,6 +160,7 @@ export function Sidebar() {
           <NavItem
             key={item.href}
             item={item}
+            onNavigate={closeOnMobile}
             active={pathname.startsWith(item.href)}
           />
         ))}
@@ -130,13 +172,15 @@ export function Sidebar() {
               href: '/admin',
               icon: navIcon('admin'),
             }}
+            onNavigate={closeOnMobile}
             active={pathname.startsWith('/admin')}
           />
         )}
 
         <LogoutButton />
       </div>
-    </aside>
+      </aside>
+    </>
   )
 }
 

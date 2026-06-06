@@ -69,7 +69,7 @@ export default function AnalyticsPage() {
   return (
     <div>
       <Topbar title="Analytics" />
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-6 md:p-6">
 
         {/* Métricas top */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

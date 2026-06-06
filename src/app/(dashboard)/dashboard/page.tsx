@@ -81,7 +81,7 @@ export default function DashboardPage() {
       </Suspense>
       <Topbar title="Dashboard" />
 
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-6 md:p-6">
         {/* Métricas */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {loading ? (
@@ -222,7 +222,7 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             className="rounded-xl border border-[#f59e0b]/20 bg-[#f59e0b]/[0.04] p-5"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-[14px] font-semibold text-white">Seu trial está ativo ⚠️</div>
                 <div className="mt-0.5 text-[12px] text-[#888888]">

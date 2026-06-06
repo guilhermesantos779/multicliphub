@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useUser } from '@/hooks/useUser'
 import { useNotifications } from '@/hooks/useNotifications'
+import { useMobileNav } from '@/components/dashboard/MobileNav'
 import { formatDate } from '@/lib/utils'
 import { UserMenu } from '@/components/app/UserMenu'
 
@@ -18,6 +19,7 @@ const notifIcons: Record<string, string> = {
 export function Topbar({ title }: { title: string }) {
   const { profile } = useUser()
   const { notifications, unreadCount, markAllRead, markRead } = useNotifications(profile?.id)
+  const { toggle } = useMobileNav()
   const [notifOpen, setNotifOpen] = useState(false)
 
   const handleBellClick = () => {
@@ -26,10 +28,22 @@ export function Topbar({ title }: { title: string }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-white/[0.06] bg-[#0a0a0a]/90 px-6 backdrop-blur-sm">
-      <h1 className="text-[15px] font-semibold text-white">{title}</h1>
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-white/[0.06] bg-[#0a0a0a]/90 px-4 backdrop-blur-sm md:px-6">
+      <div className="flex min-w-0 items-center gap-2">
+        {/* Hamburger — opens the nav drawer on mobile */}
+        <button
+          onClick={toggle}
+          aria-label="abrir menu"
+          className="-ml-1 grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[#888888] transition-colors hover:text-white md:hidden"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <h1 className="truncate text-[15px] font-semibold text-white">{title}</h1>
+      </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         {/* Notification bell */}
         <div className="relative">
           <button

@@ -567,8 +567,64 @@ export type Database = {
           },
         ]
       }
+      platform_rankings: {
+        Row: {
+          id: string
+          user_id: string
+          platform: string
+          period_month: string
+          score: number
+          source: string
+          rank_position: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          platform: string
+          period_month: string
+          score?: number
+          source?: string
+          rank_position?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          platform?: string
+          period_month?: string
+          score?: number
+          source?: string
+          rank_position?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_rankings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
+      platform_rankings_public: {
+        Row: {
+          id: string | null
+          platform: string | null
+          period_month: string | null
+          source: string | null
+          score: number | null
+          rank_position: number | null
+          username: string | null
+          full_name: string | null
+          avatar_url: string | null
+          plan: string | null
+        }
+        Relationships: []
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null

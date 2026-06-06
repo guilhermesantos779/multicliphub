@@ -124,7 +124,12 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* Clip at the viewport root so decorative glows (incl. position:fixed ones
+     like the navbar) can never produce a horizontal scrollbar on phones. */
+  overflow-x: clip;
+}
 
 body {
   background: #000000;
@@ -132,6 +137,10 @@ body {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Clip stray horizontal overflow from decorative glows/blurs so phones never
+     get a horizontal scrollbar. `clip` (not `hidden`) avoids creating a scroll
+     container, so position: sticky headers keep working. */
+  overflow-x: clip;
 }
 
 ::selection {

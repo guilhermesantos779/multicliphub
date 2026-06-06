@@ -76,7 +76,7 @@ export default function HistoricoPage() {
   return (
     <div>
       <Topbar title="Histórico" />
-      <div className="p-6 space-y-5">
+      <div className="p-4 space-y-5 md:p-6">
 
         {/* Filtros */}
         <div className="flex flex-wrap items-center gap-3">

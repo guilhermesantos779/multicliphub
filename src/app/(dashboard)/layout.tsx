@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/dashboard/Sidebar'
+import { MobileNavProvider } from '@/components/dashboard/MobileNav'
 import { ToastProvider } from '@/components/shared/Toast'
 import { ProfileProvider } from '@/components/app/ProfileProvider'
 import { OnboardingProvider } from '@/components/onboarding/OnboardingProvider'
@@ -27,12 +28,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <ProfileProvider>
       <ToastProvider>
         <OnboardingProvider>
-          <div className="flex min-h-screen bg-[#0a0a0a]">
-            <Sidebar />
-            <main className="ml-56 flex-1 min-w-0">
-              {children}
-            </main>
-          </div>
+          <MobileNavProvider>
+            <div className="flex min-h-screen bg-[#0a0a0a]">
+              <Sidebar />
+              <main className="flex-1 min-w-0 md:ml-56">
+                {children}
+              </main>
+            </div>
+          </MobileNavProvider>
           <OnboardingLayers />
         </OnboardingProvider>
       </ToastProvider>

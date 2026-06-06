@@ -23,10 +23,13 @@ export function Navbar() {
 
   return (
     <div className="fixed inset-x-4 top-4 z-50 flex justify-center">
-      {/* Ambient glow bleeding behind navbar */}
+      {/* Ambient glow bleeding behind navbar. overflow-hidden so the oversized
+          radial glow can't push past the viewport and create a horizontal
+          scrollbar on phones (the navbar is position:fixed, so body's
+          overflow-x:clip doesn't contain it). */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-4 h-40 overflow-visible"
+        className="pointer-events-none absolute inset-x-0 -top-4 h-40 overflow-hidden"
       >
         <div
           className="absolute left-1/2 top-0 -translate-x-1/2"
