@@ -92,5 +92,15 @@ export async function GET(req: NextRequest) {
     .update({ used_at: new Date().toISOString() })
     .eq('token', token)
 
+  // Notify the bot so it assigns the plan role + posts a welcome message.
+  // Goes through pg_net (app_settings.discord_bot) — same proven path as
+  // ticket notifications — so it does not depend on Vercel webhook env vars.
+  // Best-effort: a notification failure must never break the linking flow.
+  try {
+    await admin.rpc('notify_discord_account_linked', { p_user_id: user.id })
+  } catch {
+    // Non-critical — ignore.
+  }
+
   return finish('/configuracoes?discord=linked')
 }
