@@ -1,0 +1,47 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#000000"/>
+      <stop offset="40%" stop-color="#0a0010"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </linearGradient>
+    <linearGradient id="purpleLeft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#9146FF" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#9146FF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="mintRight" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0%" stop-color="#00E5A0" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#00E5A0" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="300" fill="url(#bg3)"/>
+  <rect x="0" y="0" width="450" height="300" fill="url(#purpleLeft)"/>
+  <rect x="750" y="0" width="450" height="300" fill="url(#mintRight)"/>
+  <rect x="0" y="0" width="4" height="300" fill="#9146FF" opacity="0.9"/>
+  <rect x="1196" y="0" width="4" height="300" fill="#00E5A0" opacity="0.9"/>
+  <line x1="0" y1="299" x2="1200" y2="299" stroke="#9146FF" stroke-width="1" opacity="0.35"/>
+  <circle cx="140" cy="150" r="90" fill="none" stroke="#9146FF" stroke-width="1" opacity="0.15"/>
+  <circle cx="140" cy="150" r="65" fill="none" stroke="#9146FF" stroke-width="1" opacity="0.2"/>
+  <circle cx="140" cy="150" r="42" fill="#9146FF" opacity="0.12"/>
+  <text x="140" y="173" text-anchor="middle" font-size="60">📣</text>
+  <line x1="220" y1="110" x2="290" y2="95" stroke="#9146FF" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
+  <line x1="225" y1="155" x2="300" y2="155" stroke="#9146FF" stroke-width="1" stroke-dasharray="4,3" opacity="0.3"/>
+  <line x1="218" y1="195" x2="288" y2="210" stroke="#00E5A0" stroke-width="1" stroke-dasharray="4,3" opacity="0.35"/>
+  <rect x="290" y="80" width="200" height="28" fill="#9146FF" opacity="0.12" rx="4"/>
+  <text x="302" y="99" font-family="Arial, sans-serif" font-size="13" fill="#9146FF" opacity="0.8">🚀 Nova funcionalidade</text>
+  <rect x="295" y="143" width="160" height="24" fill="#9146FF" opacity="0.1" rx="4"/>
+  <text x="307" y="160" font-family="Arial, sans-serif" font-size="12" fill="white" opacity="0.5">🏆 Resultado do ranking</text>
+  <rect x="288" y="197" width="170" height="24" fill="#00E5A0" opacity="0.1" rx="4"/>
+  <text x="300" y="214" font-family="Arial, sans-serif" font-size="12" fill="#00E5A0" opacity="0.7">⚡ Atualização do sistema</text>
+  <text x="700" y="90" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="54" font-weight="900" fill="white" letter-spacing="2">ANÚNCIOS</text>
+  <rect x="560" y="105" width="280" height="1" fill="#9146FF" opacity="0.5"/>
+  <text x="700" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" fill="#9146FF" letter-spacing="3">MULTICLIPHUB</text>
+  <rect x="560" y="160" width="280" height="1" fill="#9146FF" opacity="0.25"/>
+  <text x="700" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="white" opacity="0.55">Novidades, atualizações e eventos oficiais</text>
+  <text x="700" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="white" opacity="0.35">🔔 Ative as notificações para não perder nada</text>
+  <text x="700" y="268" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#00E5A0" opacity="0.55" letter-spacing="2">DISTRIBUIR · MULTIPLICAR · ESCALAR</text>
+  <circle cx="1060" cy="150" r="80" fill="none" stroke="#00E5A0" stroke-width="1" opacity="0.12"/>
+  <circle cx="1060" cy="150" r="55" fill="none" stroke="#00E5A0" stroke-width="1" opacity="0.18"/>
+  <circle cx="1060" cy="150" r="32" fill="#00E5A0" opacity="0.08"/>
+  <text x="1060" y="163" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="28" font-weight="900" fill="#00E5A0" opacity="0.6">MCH</text>
+</svg>
