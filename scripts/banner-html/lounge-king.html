@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1200px; height:300px; overflow:hidden; font-family:'Inter',Arial,sans-serif; }
+  .banner {
+    position:relative; width:1200px; height:300px; overflow:hidden;
+    background:
+      radial-gradient(ellipse 80% 120% at 50% 0%, rgba(255,215,0,0.20), transparent 55%),
+      radial-gradient(ellipse 70% 110% at 25% 60%, rgba(255,184,11,0.16), transparent 55%),
+      linear-gradient(135deg, #14100a 0%, #07060a 55%, #100b04 100%);
+  }
+  .banner::before {
+    content:''; position:absolute; inset:-50%;
+    background:radial-gradient(circle at 30% 45%, rgba(255,215,0,0.16), transparent 24%);
+    animation: drift 4s ease-in-out infinite alternate;
+  }
+  @keyframes drift { 0%{transform:translate(0,0);} 100%{transform:translate(40px,20px);} }
+  .banner::after {
+    content:''; position:absolute; top:0; left:-30%; width:30%; height:100%;
+    background:linear-gradient(90deg, transparent, rgba(255,215,0,0.10), transparent);
+    animation: scan 4s linear infinite;
+  }
+  @keyframes scan { 0%{left:-30%;} 100%{left:130%;} }
+  .bar-left,.bar-right { position:absolute; top:0; width:4px; height:100%; animation:barpulse 2s ease-in-out infinite; }
+  .bar-left { left:0; background:linear-gradient(180deg,#FFD700,#B8860B); box-shadow:0 0 22px #FFD700; }
+  .bar-right { right:0; background:linear-gradient(180deg,#FFD700,#8B6914); box-shadow:0 0 18px #FFD700; animation-delay:1s; }
+  @keyframes barpulse { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+  .corner { position:absolute; font-size:26px; opacity:0.5; animation:twinkle 2s ease-in-out infinite; }
+  .corner.tl{ top:14px; left:18px; } .corner.tr{ top:14px; right:18px; animation-delay:.5s; }
+  .corner.bl{ bottom:14px; left:18px; animation-delay:1s; } .corner.br{ bottom:14px; right:18px; animation-delay:1.5s; }
+  @keyframes twinkle { 0%,100%{opacity:0.3;transform:scale(0.9);} 50%{opacity:0.9;transform:scale(1.1);} }
+  .particle { position:absolute; pointer-events:none; animation:floatUp linear infinite; font-size:12px; }
+  @keyframes floatUp { 0%{transform:translateY(310px) scale(0) rotate(0);opacity:0;} 10%{opacity:1;transform:scale(1);} 90%{opacity:1;} 100%{transform:translateY(-20px) scale(0.6) rotate(180deg);opacity:0;} }
+  .content { position:absolute; inset:0; display:grid; grid-template-columns:320px 1fr; align-items:center; z-index:5; }
+  .crownwrap { position:relative; height:100%; }
+  .ring { position:absolute; top:50%; left:165px; transform:translate(-50%,-50%); border-radius:50%; border:2px solid rgba(255,215,0,0.5); animation:pulse 2s ease-out infinite; }
+  .ring.r1{ width:100px;height:100px;} .ring.r2{ width:100px;height:100px;animation-delay:1s;}
+  @keyframes pulse { 0%{width:100px;height:100px;opacity:0.85;} 100%{width:220px;height:220px;opacity:0;} }
+  .crown { position:absolute; top:50%; left:165px; transform:translate(-50%,-50%); font-size:90px; filter:drop-shadow(0 0 26px rgba(255,215,0,0.9)); animation:bob 2s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{transform:translate(-50%,-50%) translateY(0);} 50%{transform:translate(-50%,-50%) translateY(-8px);} }
+  .spark { position:absolute; top:50%; left:165px; font-size:22px; animation:twinkle 1s ease-in-out infinite; }
+  .spark.s1{ transform:translate(20px,-70px); } .spark.s2{ transform:translate(-86px,-10px); animation-delay:.5s; } .spark.s3{ transform:translate(70px,30px); animation-delay:.25s; }
+  .right { padding-right:48px; }
+  .eyebrow { font-size:14px; letter-spacing:6px; color:#FFD700; font-weight:700; text-shadow:0 0 16px rgba(255,215,0,0.7); }
+  .title { font-size:54px; font-weight:900; line-height:1; margin-top:4px; background:linear-gradient(180deg,#FFF6CC 30%,#FFD700 70%,#B8860B); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .badge { display:inline-block; margin-top:8px; font-size:12px; font-weight:900; letter-spacing:2px; color:#1a1200; background:linear-gradient(180deg,#FFD700,#B8860B); padding:5px 14px; border-radius:6px; }
+  .divider { width:440px; height:2px; margin:12px 0; background:linear-gradient(90deg,#FFD700,transparent); animation:dividerGlow 2s ease-in-out infinite; }
+  @keyframes dividerGlow { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+  .pills { display:flex; gap:10px; flex-wrap:wrap; max-width:560px; }
+  .pill { font-size:12px; color:#FFE9A6; background:rgba(255,215,0,0.10); padding:6px 12px; border-radius:5px; }
+  .tagline { font-size:11px; letter-spacing:3px; color:#FFD700; opacity:0.6; margin-top:14px; }
+</style></head><body>
+  <div class="banner" id="banner">
+    <div class="bar-left"></div><div class="bar-right"></div>
+    <div class="corner tl">✦</div><div class="corner tr">✦</div><div class="corner bl">✦</div><div class="corner br">✦</div>
+    <div class="content">
+      <div class="crownwrap">
+        <div class="ring r1"></div><div class="ring r2"></div>
+        <div class="crown">👑</div>
+        <div class="spark s1">✨</div><div class="spark s2">✨</div><div class="spark s3">✨</div>
+      </div>
+      <div class="right">
+        <div class="eyebrow">O TOPO DA COMUNIDADE</div>
+        <div class="title">LOUNGE KING</div>
+        <div class="badge">👑 KING</div>
+        <div class="divider"></div>
+        <div class="pills">
+          <div class="pill">💎 Canais ilimitados</div>
+          <div class="pill">👥 Equipe até 5</div>
+          <div class="pill">🔑 API Access</div>
+          <div class="pill">🏆 Suporte VIP</div>
+        </div>
+        <div class="tagline">DISTRIBUIR · MULTIPLICAR · ESCALAR</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const banner=document.getElementById('banner');
+    function sp(){const p=document.createElement('div');p.className='particle';p.textContent='✨';p.style.color='#FFD700';p.style.left=Math.random()*100+'%';p.style.fontSize=(Math.random()*8+8)+'px';p.style.animationDuration=(Math.random()*2+2)+'s';banner.appendChild(p);setTimeout(()=>p.remove(),4000);}
+    setInterval(sp,300);for(let i=0;i<10;i++)setTimeout(sp,i*150);
+  </script>
+</body></html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1200px; height:300px; overflow:hidden; font-family:'Inter',Arial,sans-serif; }
+  .banner {
+    position:relative; width:1200px; height:300px; overflow:hidden;
+    background:
+      conic-gradient(from 200deg at 18% 50%, rgba(145,70,255,0.22), transparent 30%),
+      conic-gradient(from 20deg at 82% 50%, rgba(0,229,160,0.18), transparent 30%),
+      linear-gradient(135deg, #0a0612 0%, #050507 50%, #07060f 100%);
+  }
+  .banner::before {
+    content:''; position:absolute; inset:-50%;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(145,70,255,0.18), transparent 24%),
+      radial-gradient(circle at 70% 60%, rgba(0,229,160,0.14), transparent 24%);
+    animation: drift 4s ease-in-out infinite alternate;
+  }
+  @keyframes drift { 0%{transform:translate(0,0);} 100%{transform:translate(40px,20px);} }
+  .banner::after {
+    content:''; position:absolute; top:0; left:-30%; width:30%; height:100%;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+    animation: scan 4s linear infinite;
+  }
+  @keyframes scan { 0%{left:-30%;} 100%{left:130%;} }
+  .bar-left,.bar-right { position:absolute; top:0; width:4px; height:100%; animation:barpulse 2s ease-in-out infinite; }
+  .bar-left { left:0; background:linear-gradient(180deg,#9146FF,#6a2fd0); box-shadow:0 0 20px #9146FF; }
+  .bar-right { right:0; background:linear-gradient(180deg,#00E5A0,#00b584); box-shadow:0 0 20px #00E5A0; animation-delay:1s; }
+  @keyframes barpulse { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+  .confetti { position:absolute; pointer-events:none; animation:fall linear infinite; }
+  @keyframes fall { 0%{transform:translateY(-30px) rotate(0);opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{transform:translateY(330px) rotate(360deg);opacity:0;} }
+  .content { position:absolute; inset:0; display:grid; grid-template-columns:300px 1fr; align-items:center; z-index:5; }
+  .camwrap { position:relative; height:100%; }
+  .ring { position:absolute; top:50%; left:150px; transform:translate(-50%,-50%); border-radius:50%; border:2px solid rgba(0,229,160,0.5); animation:pulse 2s ease-out infinite; }
+  .ring.r1{ width:100px;height:100px;} .ring.r2{ width:100px;height:100px;animation-delay:1s;}
+  @keyframes pulse { 0%{width:100px;height:100px;opacity:0.8;} 100%{width:210px;height:210px;opacity:0;} }
+  .cam { position:absolute; top:50%; left:150px; transform:translate(-50%,-50%); width:96px; height:96px; border-radius:50%;
+    background:linear-gradient(145deg,rgba(145,70,255,0.22),rgba(0,229,160,0.16)); display:flex; align-items:center; justify-content:center; font-size:50px; animation:bob 2s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{transform:translate(-50%,-50%) scale(1);} 50%{transform:translate(-50%,-50%) scale(1.08);} }
+  .right { padding-right:40px; }
+  .eyebrow { font-size:14px; letter-spacing:5px; color:#00E5A0; font-weight:700; text-shadow:0 0 14px rgba(0,229,160,0.6); }
+  .title { font-size:46px; font-weight:900; line-height:1; margin-top:4px; background:linear-gradient(120deg,#fff 30%,#9146FF 70%,#00E5A0); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .divider { width:420px; height:2px; margin:12px 0; background:linear-gradient(90deg,#9146FF,#00E5A0,transparent); animation:dividerGlow 2s ease-in-out infinite; }
+  @keyframes dividerGlow { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+  .steps { display:flex; gap:12px; margin-top:4px; }
+  .step { flex:1; max-width:150px; padding:10px 12px; border-radius:8px; background:rgba(255,255,255,0.04); border:1px solid rgba(145,70,255,0.18); }
+  .step .n{ font-size:11px; color:#9146FF; font-weight:900; letter-spacing:1px; }
+  .step .t{ font-size:12px; color:rgba(255,255,255,0.8); margin-top:3px; line-height:1.2; }
+  .tagline { font-size:11px; letter-spacing:3px; color:#00E5A0; opacity:0.6; margin-top:14px; }
+</style></head><body>
+  <div class="banner" id="banner">
+    <div class="bar-left"></div><div class="bar-right"></div>
+    <div class="content">
+      <div class="camwrap">
+        <div class="ring r1"></div><div class="ring r2"></div>
+        <div class="cam">🎬</div>
+      </div>
+      <div class="right">
+        <div class="eyebrow">MULTICLIPHUB</div>
+        <div class="title">BEM-VINDO À COMUNIDADE</div>
+        <div class="divider"></div>
+        <div class="steps">
+          <div class="step"><div class="n">1 · VERIFICAR</div><div class="t">Vincule sua conta</div></div>
+          <div class="step"><div class="n">2 · CARGO</div><div class="t">Receba seu plano</div></div>
+          <div class="step"><div class="n">3 · RANKING</div><div class="t">Apareça no topo</div></div>
+          <div class="step"><div class="n">4 · CONQUISTAS</div><div class="t">Desbloqueie badges</div></div>
+        </div>
+        <div class="tagline">DISTRIBUIR · MULTIPLICAR · ESCALAR</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const banner=document.getElementById('banner');
+    const colors=['#9146FF','#00E5A0','#FFD700','#ffffff'];
+    function sp(){const p=document.createElement('div');p.className='confetti';const w=Math.random()*6+4;p.style.width=w+'px';p.style.height=(w*0.6)+'px';const c=colors[Math.floor(Math.random()*colors.length)];p.style.background=c;p.style.borderRadius=(Math.random()<0.5?'50%':'2px');p.style.left=Math.random()*100+'%';p.style.animationDuration=(Math.random()*1.5+2)+'s';banner.appendChild(p);setTimeout(()=>p.remove(),4000);}
+    setInterval(sp,180);for(let i=0;i<16;i++)setTimeout(sp,i*120);
+  </script>
+</body></html>
