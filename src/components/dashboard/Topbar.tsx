@@ -1,11 +1,13 @@
 'use client'
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { useUser } from '@/hooks/useUser'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useMobileNav } from '@/components/dashboard/MobileNav'
 import { formatDate } from '@/lib/utils'
 import { UserMenu } from '@/components/app/UserMenu'
+import { LanguageSelector } from '@/components/shared/LanguageSelector'
 
 const notifIcons: Record<string, string> = {
   published: '✅',
@@ -17,6 +19,7 @@ const notifIcons: Record<string, string> = {
 }
 
 export function Topbar({ title }: { title: string }) {
+  const t = useTranslations('topbar')
   const { profile } = useUser()
   const { notifications, unreadCount, markAllRead, markRead } = useNotifications(profile?.id)
   const { toggle } = useMobileNav()
@@ -44,6 +47,8 @@ export function Topbar({ title }: { title: string }) {
       </div>
 
       <div className="flex shrink-0 items-center gap-3">
+        <LanguageSelector />
+
         {/* Notification bell */}
         <div className="relative">
           <button
@@ -70,10 +75,10 @@ export function Topbar({ title }: { title: string }) {
                 className="absolute right-0 top-11 w-80 overflow-hidden rounded-xl border border-white/[0.08] bg-[#111111] shadow-2xl"
               >
                 <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
-                  <span className="text-[13px] font-semibold text-white">Notificações</span>
+                  <span className="text-[13px] font-semibold text-white">{t('notifications')}</span>
                   {unreadCount > 0 && (
                     <button onClick={markAllRead} className="text-[11px] text-[#00E5A0] hover:underline">
-                      Marcar todas como lidas
+                      {t('mark_all_read')}
                     </button>
                   )}
                 </div>
@@ -81,7 +86,7 @@ export function Topbar({ title }: { title: string }) {
                 <div className="max-h-80 overflow-y-auto">
                   {notifications.length === 0 ? (
                     <div className="py-8 text-center text-[13px] text-[#444444]">
-                      Nenhuma notificação ainda
+                      {t('no_notifications')}
                     </div>
                   ) : (
                     notifications.slice(0, 10).map(n => (

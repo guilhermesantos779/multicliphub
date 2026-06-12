@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/hooks/useUser'
 import { useMobileNav } from '@/components/dashboard/MobileNav'
@@ -13,19 +14,20 @@ import { UserMenu } from '@/components/app/UserMenu'
 const navIcon = (name: SystemIconName) => (active: boolean) =>
   <SystemIcon name={name} active={active} size={18} />
 
+// `key` maps to the `menu` i18n namespace; labels are translated at render time.
 const NAV_ITEMS = [
-  { label: 'Dashboard', href: '/dashboard',  icon: navIcon('dashboard') },
-  { label: 'Upload',    href: '/upload',     icon: navIcon('upload')    },
-  { label: 'Canais',    href: '/canais',     icon: navIcon('canais')    },
-  { label: 'Analytics', href: '/analytics',  icon: navIcon('analytics') },
-  { label: 'Ranking',   href: '/ranking',    icon: navIcon('ranking')   },
-  { label: 'Histórico', href: '/historico',  icon: navIcon('historico') },
+  { key: 'dashboard', href: '/dashboard',  icon: navIcon('dashboard') },
+  { key: 'upload',    href: '/upload',     icon: navIcon('upload')    },
+  { key: 'canais',    href: '/canais',     icon: navIcon('canais')    },
+  { key: 'analytics', href: '/analytics',  icon: navIcon('analytics') },
+  { key: 'ranking',   href: '/ranking',    icon: navIcon('ranking')   },
+  { key: 'historico', href: '/historico',  icon: navIcon('historico') },
 ]
 
 // 'Perfil' moved into the user-card dropdown ("Ver perfil") to avoid duplication
 const BOTTOM_ITEMS = [
-  { label: 'Suporte',       href: '/suporte',       icon: navIcon('suporte') },
-  { label: 'Configurações', href: '/configuracoes', icon: navIcon('config') },
+  { key: 'suporte',       href: '/suporte',       icon: navIcon('suporte') },
+  { key: 'configuracoes', href: '/configuracoes', icon: navIcon('config') },
 ]
 
 // Maps a nav href to a tour anchor so ProductTour can spotlight it.
@@ -37,6 +39,7 @@ const TOUR_ANCHOR: Record<string, string> = {
 }
 
 function NavItem({ item, active, onNavigate }: { item: typeof NAV_ITEMS[0]; active: boolean; onNavigate?: () => void }) {
+  const t = useTranslations('menu')
   return (
     <Link
       href={item.href}
@@ -55,7 +58,7 @@ function NavItem({ item, active, onNavigate }: { item: typeof NAV_ITEMS[0]; acti
         />
       )}
       <span className="relative">{item.icon(active)}</span>
-      <span className="relative">{item.label}</span>
+      <span className="relative">{t(item.key)}</span>
       {active && (
         <motion.div
           layoutId="sidebar-pill"
@@ -68,6 +71,7 @@ function NavItem({ item, active, onNavigate }: { item: typeof NAV_ITEMS[0]; acti
 }
 
 export function Sidebar() {
+  const t = useTranslations('menu')
   const pathname = usePathname()
   const { profile, isAdmin } = useUser()
   const { open, setOpen } = useMobileNav()
@@ -125,7 +129,7 @@ export function Sidebar() {
         {profile && postsLimit && (
           <div className="mt-2.5 space-y-1">
             <div className="flex justify-between text-[10px] text-[#444444]">
-              <span>Posts este mês</span>
+              <span>{t('posts_this_month')}</span>
               <span>{postsUsed}/{postsLimit}</span>
             </div>
             <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
@@ -168,7 +172,7 @@ export function Sidebar() {
         {isAdmin && (
           <NavItem
             item={{
-              label: 'Admin',
+              key: 'admin',
               href: '/admin',
               icon: navIcon('admin'),
             }}
@@ -185,6 +189,7 @@ export function Sidebar() {
 }
 
 function LogoutButton() {
+  const t = useTranslations('menu')
   const handleLogout = async () => {
     const { createClient } = await import('@/lib/supabase/client')
     const supabase = createClient()
@@ -200,7 +205,7 @@ function LogoutButton() {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
       </svg>
-      Sair
+      {t('logout')}
     </button>
   )
 }

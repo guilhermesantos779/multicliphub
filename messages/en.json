@@ -53,6 +53,24 @@
     "check_email_activate": "Click the link to activate your account and sign in.",
     "already_confirmed": "Already confirmed → Sign in"
   },
+  "menu": {
+    "dashboard": "Dashboard",
+    "upload": "Upload",
+    "canais": "Channels",
+    "analytics": "Analytics",
+    "ranking": "Ranking",
+    "historico": "History",
+    "suporte": "Support",
+    "configuracoes": "Settings",
+    "admin": "Admin",
+    "logout": "Sign out",
+    "posts_this_month": "Posts this month"
+  },
+  "topbar": {
+    "notifications": "Notifications",
+    "mark_all_read": "Mark all as read",
+    "no_notifications": "No notifications yet"
+  },
   "hero": {
     "badge": "✨ New · Gamified ranking available",
     "title_line1": "Simultaneous distribution",

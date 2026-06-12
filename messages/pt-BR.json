@@ -53,6 +53,24 @@
     "check_email_activate": "Clique no link para ativar sua conta e entrar.",
     "already_confirmed": "Já confirmei → Entrar"
   },
+  "menu": {
+    "dashboard": "Dashboard",
+    "upload": "Upload",
+    "canais": "Canais",
+    "analytics": "Analytics",
+    "ranking": "Ranking",
+    "historico": "Histórico",
+    "suporte": "Suporte",
+    "configuracoes": "Configurações",
+    "admin": "Admin",
+    "logout": "Sair",
+    "posts_this_month": "Posts este mês"
+  },
+  "topbar": {
+    "notifications": "Notificações",
+    "mark_all_read": "Marcar todas como lidas",
+    "no_notifications": "Nenhuma notificação ainda"
+  },
   "hero": {
     "badge": "✨ Novo · Ranking gamificado disponível",
     "title_line1": "Distribuição simultânea",
