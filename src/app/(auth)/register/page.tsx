@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Logo } from '@/components/shared/Logo'
 import { UsernameInput } from '@/components/ui/UsernameInput'
@@ -15,6 +16,7 @@ const GoogleIcon = () => (
 )
 
 export default function RegisterPage() {
+  const t = useTranslations('auth')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
@@ -33,11 +35,11 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.SyntheticEvent) => {
     e.preventDefault()
-    if (usernameChecking) { setError('Aguarde a verificação do nickname'); return }
-    if (usernameAvailable !== true) { setError('Escolha um nickname disponível'); return }
-    if (password !== confirm) { setError('As senhas não coincidem'); return }
-    if (password.length < 8) { setError('Senha deve ter mínimo 8 caracteres'); return }
-    if (!agreed) { setError('Aceite os termos para continuar'); return }
+    if (usernameChecking) { setError(t('err_wait_nickname')); return }
+    if (usernameAvailable !== true) { setError(t('err_choose_nickname')); return }
+    if (password !== confirm) { setError(t('err_password_mismatch')); return }
+    if (password.length < 8) { setError(t('err_password_short')); return }
+    if (!agreed) { setError(t('err_accept_terms')); return }
 
     setLoading(true)
     setError('')
@@ -57,7 +59,7 @@ export default function RegisterPage() {
         setSuccess(true)
       }
     } catch (err) {
-      setError('Erro de conexão: ' + (err instanceof Error ? err.message : String(err)))
+      setError(t('err_connection') + (err instanceof Error ? err.message : String(err)))
     } finally {
       setLoading(false)
     }
@@ -71,17 +73,17 @@ export default function RegisterPage() {
         provider: 'google',
         options: { redirectTo: `${window.location.origin}/auth/callback` },
       })
-      if (error) setError('Erro Google: ' + error.message)
+      if (error) setError(t('google_error') + error.message)
     } catch (err) {
-      setError('Erro ao conectar: ' + (err instanceof Error ? err.message : String(err)))
+      setError(t('connect_error') + (err instanceof Error ? err.message : String(err)))
     }
   }
 
   const fields = [
-    { label: 'Nome completo', value: name, set: setName, type: 'text', placeholder: 'Seu nome' },
-    { label: 'E-mail', value: email, set: setEmail, type: 'email', placeholder: 'seu@email.com' },
-    { label: 'Senha', value: password, set: setPassword, type: 'password', placeholder: 'Mínimo 8 caracteres' },
-    { label: 'Confirmar senha', value: confirm, set: setConfirm, type: 'password', placeholder: 'Repita a senha' },
+    { label: t('full_name'), value: name, set: setName, type: 'text', placeholder: t('name_placeholder') },
+    { label: t('email'), value: email, set: setEmail, type: 'email', placeholder: t('email_placeholder') },
+    { label: t('password'), value: password, set: setPassword, type: 'password', placeholder: t('password_placeholder') },
+    { label: t('confirm_password'), value: confirm, set: setConfirm, type: 'password', placeholder: t('confirm_placeholder') },
   ]
 
   return (
@@ -95,20 +97,20 @@ export default function RegisterPage() {
           {success ? (
             <div className="text-center py-4">
               <div className="mb-3 text-4xl">📧</div>
-              <h2 className="text-[18px] font-semibold text-white mb-2">Confirme seu e-mail</h2>
+              <h2 className="text-[18px] font-semibold text-white mb-2">{t('check_email_title')}</h2>
               <p className="text-[13px] text-[#888888]">
-                Enviamos um link de confirmação para <span className="text-white">{email}</span>.<br />
-                Clique no link para ativar sua conta e entrar.
+                {t('check_email_sent_to')}<span className="text-white">{email}</span>.<br />
+                {t('check_email_activate')}
               </p>
               <Link href="/login" className="mt-5 inline-block text-[13px] text-[#00E5A0] hover:underline">
-                Já confirmei → Entrar
+                {t('already_confirmed')}
               </Link>
             </div>
           ) : (
           <>
           <div className="mb-6 text-center">
-            <h1 className="text-[20px] font-semibold text-white">Crie sua conta</h1>
-            <p className="mt-1 text-[13px] text-[#555555]">7 dias grátis · Sem cartão de crédito</p>
+            <h1 className="text-[20px] font-semibold text-white">{t('create_account_title')}</h1>
+            <p className="mt-1 text-[13px] text-[#555555]">{t('register_subtitle')}</p>
           </div>
 
           <button
@@ -116,12 +118,12 @@ export default function RegisterPage() {
             className="mb-4 flex w-full items-center justify-center gap-2.5 rounded-xl border border-white/[0.1] bg-white py-2.5 text-[13px] font-medium text-black transition-all hover:bg-white/90"
           >
             <GoogleIcon />
-            Continuar com Google
+            {t('continue_google')}
           </button>
 
           <div className="mb-4 flex items-center gap-3">
             <div className="h-px flex-1 bg-white/[0.06]" />
-            <span className="text-[11px] text-[#333333]">ou</span>
+            <span className="text-[11px] text-[#333333]">{t('or')}</span>
             <div className="h-px flex-1 bg-white/[0.06]" />
           </div>
 
@@ -141,7 +143,7 @@ export default function RegisterPage() {
             ))}
 
             <div>
-              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">Nickname</label>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('nickname')}</label>
               <UsernameInput
                 value={username}
                 onChange={setUsername}
@@ -151,7 +153,7 @@ export default function RegisterPage() {
                 }}
               />
               <p className="mt-1 text-[11px] text-[#444444]">
-                Como você será conhecido na plataforma. Pode ser alterado depois nas configurações.
+                {t('nickname_hint')}
               </p>
             </div>
 
@@ -163,10 +165,10 @@ export default function RegisterPage() {
                 className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#9146FF]"
               />
               <span className="text-[11px] leading-relaxed text-[#444444]">
-                Concordo com os{' '}
-                <Link href="/terms" target="_blank" className="text-[#00E5A0] hover:underline">Termos de Uso</Link>
-                {' '}e{' '}
-                <Link href="/privacy" target="_blank" className="text-[#00E5A0] hover:underline">Política de Privacidade</Link>
+                {t('agree_prefix')}
+                <Link href="/terms" target="_blank" className="text-[#00E5A0] hover:underline">{t('terms')}</Link>
+                {t('and')}
+                <Link href="/privacy" target="_blank" className="text-[#00E5A0] hover:underline">{t('privacy')}</Link>
               </span>
             </label>
 
@@ -181,13 +183,13 @@ export default function RegisterPage() {
               disabled={!canSubmit}
               className="w-full rounded-xl bg-[#00E5A0] py-3 text-[13px] font-medium text-[#0B0F19] font-semibold transition-colors hover:bg-[#00B584] disabled:opacity-50"
             >
-              {loading ? 'Criando conta...' : 'Criar minha conta'}
+              {loading ? t('creating') : t('create_my_account')}
             </button>
           </form>
 
           <p className="mt-4 text-center text-[12px] text-[#444444]">
-            Já tem uma conta?{' '}
-            <Link href="/login" className="text-[#00E5A0] hover:underline">Entrar</Link>
+            {t('have_account')}{' '}
+            <Link href="/login" className="text-[#00E5A0] hover:underline">{t('sign_in')}</Link>
           </p>
           </>
           )}

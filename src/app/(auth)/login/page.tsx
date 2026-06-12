@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Logo } from '@/components/shared/Logo'
 
@@ -15,6 +16,7 @@ const GoogleIcon = () => (
 )
 
 export default function LoginPage() {
+  const t = useTranslations('auth')
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -37,7 +39,7 @@ export default function LoginPage() {
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError('E-mail ou senha incorretos. Tente novamente.')
+      setError(t('login_error'))
       setLoading(false)
     } else {
       router.push(safeRedirect())
@@ -53,9 +55,9 @@ export default function LoginPage() {
         provider: 'google',
         options: { redirectTo: `${window.location.origin}/auth/callback?next=${next}` },
       })
-      if (error) setError('Erro Google: ' + error.message)
+      if (error) setError(t('google_error') + error.message)
     } catch (err) {
-      setError('Erro ao conectar: ' + (err instanceof Error ? err.message : String(err)))
+      setError(t('connect_error') + (err instanceof Error ? err.message : String(err)))
     }
   }
 
@@ -68,8 +70,8 @@ export default function LoginPage() {
 
         <div className="rounded-2xl border border-white/[0.08] bg-[#0a0a0a] p-7">
           <div className="mb-6 text-center">
-            <h1 className="text-[20px] font-semibold text-white">Bem-vindo de volta</h1>
-            <p className="mt-1 text-[13px] text-[#555555]">Continue dominando o algoritmo</p>
+            <h1 className="text-[20px] font-semibold text-white">{t('welcome_back')}</h1>
+            <p className="mt-1 text-[13px] text-[#555555]">{t('login_subtitle')}</p>
           </div>
 
           <button
@@ -77,32 +79,32 @@ export default function LoginPage() {
             className="mb-4 flex w-full items-center justify-center gap-2.5 rounded-xl border border-white/[0.1] bg-white py-2.5 text-[13px] font-medium text-black transition-all hover:bg-white/90"
           >
             <GoogleIcon />
-            Continuar com Google
+            {t('continue_google')}
           </button>
 
           <div className="mb-4 flex items-center gap-3">
             <div className="h-px flex-1 bg-white/[0.06]" />
-            <span className="text-[11px] text-[#333333]">ou</span>
+            <span className="text-[11px] text-[#333333]">{t('or')}</span>
             <div className="h-px flex-1 bg-white/[0.06]" />
           </div>
 
           <form onSubmit={handleLogin} className="space-y-3">
             <div>
-              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">E-mail</label>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('email')}</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                placeholder="seu@email.com"
+                placeholder={t('email_placeholder')}
                 className="w-full rounded-lg border border-white/[0.08] bg-[#111111] px-3 py-2.5 text-[13px] text-white placeholder-[#333333] outline-none transition-colors focus:border-[#00E5A0]/50"
               />
             </div>
 
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">Senha</label>
-                <Link href="#" className="text-[11px] text-[#00E5A0] hover:underline">Esqueceu a senha?</Link>
+                <label className="text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('password')}</label>
+                <Link href="#" className="text-[11px] text-[#00E5A0] hover:underline">{t('forgot_password')}</Link>
               </div>
               <div className="relative">
                 <input
@@ -110,7 +112,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  placeholder="Mínimo 8 caracteres"
+                  placeholder={t('password_placeholder')}
                   className="w-full rounded-lg border border-white/[0.08] bg-[#111111] px-3 py-2.5 pr-10 text-[13px] text-white placeholder-[#333333] outline-none transition-colors focus:border-[#00E5A0]/50"
                 />
                 <button
@@ -134,13 +136,13 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full rounded-xl bg-[#00E5A0] py-3 text-[13px] font-medium text-[#0B0F19] font-semibold transition-colors hover:bg-[#00B584] disabled:opacity-50"
             >
-              {loading ? 'Entrando...' : 'Entrar'}
+              {loading ? t('signing_in') : t('sign_in')}
             </button>
           </form>
 
           <p className="mt-4 text-center text-[12px] text-[#444444]">
-            Não tem uma conta?{' '}
-            <Link href="/register" className="text-[#00E5A0] hover:underline">Criar conta grátis</Link>
+            {t('no_account')}{' '}
+            <Link href="/register" className="text-[#00E5A0] hover:underline">{t('create_free')}</Link>
           </p>
         </div>
       </div>
