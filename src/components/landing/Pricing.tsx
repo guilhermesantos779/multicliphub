@@ -3,58 +3,22 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { Check } from 'lucide-react'
 import { AmbientGlow } from './raycast/AmbientGlow'
 import { FadeIn } from '@/components/shared/FadeIn'
 import { AnimatedBorderButton } from '@/components/ui/animated-border-button'
 import { PLAN_PRICES, formatPriceBRL, type PlanId } from '@/config/plans'
 
-// Presentation only — prices come from the centralized PLAN_PRICES config.
+// Presentation only — prices come from PLAN_PRICES; feature/CTA text from i18n.
 const PLANS = [
-  {
-    id: 'clipper' as PlanId,
-    corner: 'none' as const,
-    featured: false,
-    cta: 'Começar grátis',
-    ctaStyle: 'outline' as const,
-    features: [
-      '200 posts por mês',
-      '3 canais conectados',
-      'Analytics básico',
-      'Discord da comunidade',
-    ],
-  },
-  {
-    id: 'pro' as PlanId,
-    corner: 'purple' as const,
-    featured: true,
-    cta: 'Começar grátis',
-    ctaStyle: 'filled' as const,
-    features: [
-      'Posts ilimitados',
-      '9 canais conectados',
-      'IA de legendas + hashtags',
-      'Agendamento inteligente',
-      'Analytics avançado',
-    ],
-  },
-  {
-    id: 'king' as PlanId,
-    corner: 'mint' as const,
-    featured: false,
-    cta: 'Assinar King',
-    ctaStyle: 'outline' as const,
-    features: [
-      'Tudo do Pro +',
-      'Canais ilimitados',
-      'Até 5 membros na equipe',
-      'API access',
-      'Suporte prioritário',
-    ],
-  },
+  { id: 'clipper' as PlanId, corner: 'none' as const, featured: false, ctaStyle: 'outline' as const },
+  { id: 'pro' as PlanId, corner: 'purple' as const, featured: true, ctaStyle: 'filled' as const },
+  { id: 'king' as PlanId, corner: 'mint' as const, featured: false, ctaStyle: 'outline' as const },
 ].map((p) => ({ ...p, ...PLAN_PRICES[p.id] }))
 
 export function Pricing() {
+  const t = useTranslations('pricing')
   const [annual, setAnnual] = useState(false)
 
   return (
@@ -70,16 +34,16 @@ export function Pricing() {
         {/* Header */}
         <FadeIn className="mb-14 text-center">
           <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.16em] text-white/40">
-            preços
+            {t('eyebrow')}
           </p>
           <h2
             className="font-display font-semibold leading-[1.05] tracking-[-0.04em] text-white"
             style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
           >
-            Comece grátis. Escale quando dominar.
+            {t('title')}
           </h2>
           <p className="mt-3 mb-8 text-white/50 text-[15px]">
-            7 dias grátis em qualquer plano. Sem cartão.
+            {t('subtitle')}
           </p>
 
           {/* Toggle */}
@@ -93,7 +57,7 @@ export function Pricing() {
                   : 'text-white/50 hover:text-white/70',
               ].join(' ')}
             >
-              Mensal
+              {t('monthly')}
             </button>
             <button
               onClick={() => setAnnual(true)}
@@ -104,10 +68,10 @@ export function Pricing() {
                   : 'text-white/50 hover:text-white/70',
               ].join(' ')}
             >
-              Anual
+              {t('annual')}
               {annual && (
                 <span className="rounded-full bg-[#00E5A0]/10 px-2 py-0.5 text-[10px] font-semibold text-[#00E5A0]">
-                  Economize até 30%
+                  {t('save')}
                 </span>
               )}
             </button>
@@ -149,7 +113,7 @@ export function Pricing() {
                   <div className="absolute -top-px left-1/2 -translate-x-1/2">
                     <div className="rounded-b-full bg-[#9146FF] px-4 py-1">
                       <span className="text-[10px] font-semibold text-white">
-                        Mais popular
+                        {t('most_popular')}
                       </span>
                     </div>
                   </div>
@@ -165,16 +129,16 @@ export function Pricing() {
                     <span className="font-display font-semibold text-[48px] leading-none tracking-[-0.04em] text-white">
                       {formatPriceBRL(annual ? plan.annualMonthlyPrice : plan.monthlyPrice)}
                     </span>
-                    <span className="mb-1 text-[13px] text-white/40">/mês</span>
+                    <span className="mb-1 text-[13px] text-white/40">{t('per_month')}</span>
                   </div>
                   <p className="mb-6 text-[11px] text-white/35 h-4">
-                    {annual ? `R$ ${formatPriceBRL(plan.annualTotal)} cobrados por ano` : ' '}
+                    {annual ? t('annual_billed', { total: formatPriceBRL(plan.annualTotal) }) : ' '}
                   </p>
 
                   <hr className="border-white/[0.06] mb-5" />
 
                   <ul className="flex flex-col gap-3 flex-1 mb-6">
-                    {plan.features.map((f) => (
+                    {(t.raw(`plans.${plan.id}.features`) as string[]).map((f) => (
                       <li key={f} className="flex items-start gap-2.5">
                         <Check size={14} className="mt-0.5 shrink-0 text-white/60" strokeWidth={2} />
                         <span className="text-[13px] text-white/60">{f}</span>
@@ -185,7 +149,7 @@ export function Pricing() {
                   {plan.featured ? (
                     /* Pro: borda animada purple→mint (único botão com AnimatedBorderButton) */
                     <AnimatedBorderButton href="/register" className="w-full justify-center py-2.5">
-                      {plan.cta}
+                      {plan.id === 'king' ? t('cta_king') : t('cta_start')}
                     </AnimatedBorderButton>
                   ) : (
                     <Link
@@ -197,7 +161,7 @@ export function Pricing() {
                           : 'border border-white/[0.08] text-white/60 hover:border-white/[0.20] hover:text-white',
                       ].join(' ')}
                     >
-                      {plan.cta}
+                      {plan.id === 'king' ? t('cta_king') : t('cta_start')}
                     </Link>
                   )}
                 </div>
@@ -208,7 +172,7 @@ export function Pricing() {
 
         {/* Fine print */}
         <p className="mt-8 text-center text-[12px] text-white/40">
-          Todos os planos incluem 7 dias grátis · cancele quando quiser
+          {t('fine_print')}
         </p>
       </div>
     </section>

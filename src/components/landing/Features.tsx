@@ -1,7 +1,7 @@
 'use client'
 
-import { type ReactNode } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import {
   Upload,
   Sparkles,
@@ -21,65 +21,19 @@ type CornerGlow = 'purple' | 'mint'
 type FeatureCard = {
   id: string
   Icon: LucideIcon
-  title: string
-  description: ReactNode
-  badge?: string
   corner: CornerGlow
+  hasBadge?: boolean
 }
 
-// ─── Data ──────────────────────────────────────────────────────────────────────
+// ─── Data (text lives in messages/*.json under features.cards.{id}) ─────────────
 
 const CARDS: FeatureCard[] = [
-  {
-    id: 'upload',
-    Icon: Upload,
-    corner: 'purple',
-    title: 'Magic upload',
-    description:
-      'Um clipe, uma legenda, publicado em TikTok, Reels e Shorts ao mesmo tempo. Sem abrir três apps diferentes.',
-    badge: '+40 min/dia economizados',
-  },
-  {
-    id: 'ai',
-    Icon: Sparkles,
-    corner: 'mint',
-    title: 'IA que fala cada algoritmo',
-    description:
-      'Adapta legenda e hashtags automaticamente para maximizar o alcance em cada plataforma.',
-  },
-  {
-    id: 'analytics',
-    Icon: BarChart3,
-    corner: 'purple',
-    title: 'Analytics unificado',
-    description:
-      'Views do TikTok, Reels e Shorts em um único dashboard. Veja seu crescimento real.',
-  },
-  {
-    id: 'timing',
-    Icon: Clock,
-    corner: 'mint',
-    title: 'Best time to post',
-    description:
-      'Saiba exatamente quando postar com base no seu histórico. Sugestões personalizadas por plataforma.',
-  },
-  {
-    id: 'ranking',
-    Icon: Trophy,
-    corner: 'purple',
-    title: 'Ranking gamificado',
-    description:
-      'Dois rankings mensais. Top 3 ganham 3 meses grátis e cargos exclusivos no Discord.',
-    badge: 'Exclusivo MultiClip Hub',
-  },
-  {
-    id: 'scheduling',
-    Icon: Calendar,
-    corner: 'mint',
-    title: 'Agendamento inteligente',
-    description:
-      'Programe seus posts e deixe o algoritmo trabalhar enquanto você dorme.',
-  },
+  { id: 'upload', Icon: Upload, corner: 'purple', hasBadge: true },
+  { id: 'ai', Icon: Sparkles, corner: 'mint' },
+  { id: 'analytics', Icon: BarChart3, corner: 'purple' },
+  { id: 'timing', Icon: Clock, corner: 'mint' },
+  { id: 'ranking', Icon: Trophy, corner: 'purple', hasBadge: true },
+  { id: 'scheduling', Icon: Calendar, corner: 'mint' },
 ]
 
 // ─── Animation variants ─────────────────────────────────────────────────────────
@@ -99,6 +53,7 @@ const cardVariants = {
 // ─── Section ────────────────────────────────────────────────────────────────────
 
 export function Features() {
+  const t = useTranslations('features')
   return (
     <section
       id="funcionalidades"
@@ -121,17 +76,18 @@ export function Features() {
           className="mb-16 text-center"
         >
           <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.16em] text-white/40">
-            funcionalidades
+            {t('eyebrow')}
           </p>
           <h2
             className="font-display font-semibold leading-[1.05] tracking-[-0.04em] text-white"
             style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', maxWidth: 700, margin: '0 auto 16px' }}
           >
-            Tudo que você precisa para{' '}
-            <span style={{ color: '#9146FF' }}>dominar</span> o algoritmo
+            {t('title_main')}
+            <span style={{ color: '#9146FF' }}>{t('title_accent')}</span>
+            {t('title_end')}
           </h2>
           <p className="text-white/50 text-[15px]">
-            Uma plataforma. Todas as funcionalidades. Feita por quem entende o jogo.
+            {t('subtitle')}
           </p>
         </motion.div>
 
@@ -158,17 +114,17 @@ export function Features() {
                   </div>
 
                   <h3 className="font-display font-semibold text-[18px] text-white mb-2 tracking-[-0.01em]">
-                    {card.title}
+                    {t(`cards.${card.id}.title`)}
                   </h3>
 
                   <p className="text-[14px] text-white/50 leading-relaxed">
-                    {card.description}
+                    {t(`cards.${card.id}.description`)}
                   </p>
 
-                  {card.badge && (
+                  {card.hasBadge && (
                     <div className="mt-4 inline-flex items-center rounded-full border border-[#00E5A0]/20 bg-[#00E5A0]/[0.06] px-2.5 py-1">
                       <span className="text-[11px] font-medium text-[#00E5A0]">
-                        {card.badge}
+                        {t(`cards.${card.id}.badge`)}
                       </span>
                     </div>
                   )}

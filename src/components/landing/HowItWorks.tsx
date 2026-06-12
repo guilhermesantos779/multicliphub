@@ -1,30 +1,21 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { AmbientGlow } from './raycast/AmbientGlow'
 import { FadeIn } from '@/components/shared/FadeIn'
 
-const STEPS = [
-  {
-    number: '01',
-    title: 'Faça upload do clipe',
-    desc: 'Arraste seu vídeo direto na plataforma. Aceita até 4GB.',
-  },
-  {
-    number: '02',
-    title: 'Escolha as plataformas',
-    desc: 'Marque TikTok, Reels e Shorts. A IA adapta cada formato.',
-  },
-  {
-    number: '03',
-    title: 'Veja a mágica acontecer',
-    desc: 'Publicação simultânea. Métricas em tempo real. Ranking sobe.',
-  },
-]
+const STEP_NUMBERS = ['01', '02', '03'] as const
 
 const EASE = [0.21, 0.47, 0.32, 0.98] as const
 
 export function HowItWorks() {
+  const t = useTranslations('howItWorks')
+  const steps = STEP_NUMBERS.map((number, i) => ({
+    number,
+    title: t(`step${i + 1}_title`),
+    desc: t(`step${i + 1}_desc`),
+  }))
   return (
     <section id="como-funciona" className="relative py-24 overflow-hidden">
       <AmbientGlow
@@ -38,16 +29,16 @@ export function HowItWorks() {
         {/* Header */}
         <FadeIn className="mb-16 text-center">
           <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.16em] text-white/40">
-            como funciona
+            {t('eyebrow')}
           </p>
           <h2
             className="font-display font-semibold leading-[1.05] tracking-[-0.04em] text-white"
             style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
           >
-            Três passos. Zero complicação.
+            {t('title')}
           </h2>
           <p className="mt-3 text-white/50 text-[15px]">
-            Do upload à viralização em menos de um minuto.
+            {t('subtitle')}
           </p>
         </FadeIn>
 
@@ -62,7 +53,7 @@ export function HowItWorks() {
             }}
           />
 
-          {STEPS.map((step, i) => (
+          {steps.map((step, i) => (
             <FadeIn key={step.number} delay={i * 0.12}>
               <motion.div
                 whileInView={{ opacity: 1 }}
@@ -102,8 +93,8 @@ export function HowItWorks() {
               style={{ boxShadow: '0 0 6px rgba(0,229,160,0.6)' }}
             />
             <span className="text-[13px] text-white/50">
-              Tempo médio do primeiro post:{' '}
-              <span className="font-semibold text-white">menos de 3 minutos</span>
+              {t('stat_label')}{' '}
+              <span className="font-semibold text-white">{t('stat_value')}</span>
             </span>
           </div>
         </FadeIn>

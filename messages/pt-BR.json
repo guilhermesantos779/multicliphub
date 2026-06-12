@@ -19,6 +19,107 @@
     "cta_secondary": "Ver como funciona",
     "social_proof": "+2.300 clipadores já usam"
   },
+  "features": {
+    "eyebrow": "funcionalidades",
+    "title_main": "Tudo que você precisa para ",
+    "title_accent": "dominar",
+    "title_end": " o algoritmo",
+    "subtitle": "Uma plataforma. Todas as funcionalidades. Feita por quem entende o jogo.",
+    "cards": {
+      "upload": {
+        "title": "Magic upload",
+        "description": "Um clipe, uma legenda, publicado em TikTok, Reels e Shorts ao mesmo tempo. Sem abrir três apps diferentes.",
+        "badge": "+40 min/dia economizados"
+      },
+      "ai": {
+        "title": "IA que fala cada algoritmo",
+        "description": "Adapta legenda e hashtags automaticamente para maximizar o alcance em cada plataforma."
+      },
+      "analytics": {
+        "title": "Analytics unificado",
+        "description": "Views do TikTok, Reels e Shorts em um único dashboard. Veja seu crescimento real."
+      },
+      "timing": {
+        "title": "Best time to post",
+        "description": "Saiba exatamente quando postar com base no seu histórico. Sugestões personalizadas por plataforma."
+      },
+      "ranking": {
+        "title": "Ranking gamificado",
+        "description": "Dois rankings mensais. Top 3 ganham 3 meses grátis e cargos exclusivos no Discord.",
+        "badge": "Exclusivo MultiClip Hub"
+      },
+      "scheduling": {
+        "title": "Agendamento inteligente",
+        "description": "Programe seus posts e deixe o algoritmo trabalhar enquanto você dorme."
+      }
+    }
+  },
+  "howItWorks": {
+    "eyebrow": "como funciona",
+    "title": "Três passos. Zero complicação.",
+    "subtitle": "Do upload à viralização em menos de um minuto.",
+    "step1_title": "Faça upload do clipe",
+    "step1_desc": "Arraste seu vídeo direto na plataforma. Aceita até 4GB.",
+    "step2_title": "Escolha as plataformas",
+    "step2_desc": "Marque TikTok, Reels e Shorts. A IA adapta cada formato.",
+    "step3_title": "Veja a mágica acontecer",
+    "step3_desc": "Publicação simultânea. Métricas em tempo real. Ranking sobe.",
+    "stat_label": "Tempo médio do primeiro post:",
+    "stat_value": "menos de 3 minutos"
+  },
+  "pricing": {
+    "eyebrow": "preços",
+    "title": "Comece grátis. Escale quando dominar.",
+    "subtitle": "7 dias grátis em qualquer plano. Sem cartão.",
+    "monthly": "Mensal",
+    "annual": "Anual",
+    "save": "Economize até 30%",
+    "per_month": "/mês",
+    "annual_billed": "R$ {total} cobrados por ano",
+    "most_popular": "Mais popular",
+    "fine_print": "Todos os planos incluem 7 dias grátis · cancele quando quiser",
+    "cta_start": "Começar grátis",
+    "cta_king": "Assinar King",
+    "plans": {
+      "clipper": { "features": ["200 posts por mês", "3 canais conectados", "Analytics básico", "Discord da comunidade"] },
+      "pro": { "features": ["Posts ilimitados", "9 canais conectados", "IA de legendas + hashtags", "Agendamento inteligente", "Analytics avançado"] },
+      "king": { "features": ["Tudo do Pro +", "Canais ilimitados", "Até 5 membros na equipe", "API access", "Suporte prioritário"] }
+    }
+  },
+  "faq": {
+    "eyebrow": "perguntas frequentes",
+    "title": "Tudo que você precisa saber.",
+    "subtitle_prefix": "Se algo não estiver aqui, ",
+    "subtitle_link": "fale com a gente",
+    "items": [
+      { "q": "O MultiClip Hub é seguro? Meus tokens estão protegidos?", "a": "Nunca armazenamos suas senhas. Usamos autenticação OAuth oficial de cada plataforma — o mesmo sistema do Buffer e Later. Você se conecta diretamente pela plataforma sem passar credenciais pelo MultiClip Hub." },
+      { "q": "Funciona com contas verificadas / business?", "a": "Sim. As APIs oficiais do TikTok, Instagram e YouTube aceitam contas pessoais, verificadas e business. Basta conectar via OAuth e pronto." },
+      { "q": "E se uma plataforma mudar a API?", "a": "Nossa equipe acompanha os changelogs oficiais em tempo real. Caso uma API mude, atualizamos o conector em até 24h e você recebe uma notificação proativa antes de qualquer impacto." },
+      { "q": "Posso cancelar a qualquer momento?", "a": "Sim, sem multa e sem burocracia. Cancele pelo painel em menos de 30 segundos. Você continua tendo acesso até o fim do período já pago." },
+      { "q": "Quanto tempo demora a publicação?", "a": "A publicação simultânea nas três plataformas leva entre 30 segundos e 3 minutos dependendo do tamanho do vídeo e da fila das APIs. Você recebe notificação quando cada plataforma confirmar." },
+      { "q": "Tem limite de vídeos por mês?", "a": "No plano Clipper são 200 posts/mês. Nos planos Pro e King os posts são ilimitados — o limite fica por conta das cotas de API de cada plataforma (TikTok: 5/dia, Instagram: 25/dia, YouTube: 50/dia)." },
+      { "q": "Como funciona o ranking?", "a": "Os dados vêm direto das APIs oficiais. Apenas vídeos publicados pelo MultiClip Hub são contabilizados. O ranking atualiza a cada 6 horas e reinicia no primeiro dia de cada mês." },
+      { "q": "Posso ter mais de um canal por plataforma?", "a": "No plano Pro você conecta até 3 contas por plataforma (9 canais no total). No plano King os canais são ilimitados, ideal para agências e managers que gerenciam múltiplos criadores." }
+    ]
+  },
+  "ranking": {
+    "eyebrow": "ranking gamificado",
+    "title_main": "Compete. ",
+    "title_accent": "Vence",
+    "title_end": ". Recebe.",
+    "subtitle": "Dois rankings mensais com premiação real.",
+    "kings_title": "Kings of Reach",
+    "kings_desc": "Ranking por views totais no mês",
+    "kings_prize": "Top 3 = 3 meses grátis",
+    "machine_title": "Machine Gun",
+    "machine_desc": "Ranking por consistência de posts",
+    "machine_prize": "Top 3 = cargos exclusivos Discord",
+    "views": "views",
+    "days": "dias",
+    "your_position_label": "Sua posição atual:",
+    "your_position_value": "#8 · 1,2M views",
+    "rising": "↑ Subindo"
+  },
   "cta": {
     "pretitle": "Pronto para escalar?",
     "title_main": "Distribua. Multiplique. ",
