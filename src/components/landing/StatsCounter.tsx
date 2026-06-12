@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { formatNumber } from '@/lib/format'
 import { PlatformIcon } from '@/components/profile/icons/PlatformIcon'
 
@@ -98,9 +99,6 @@ export function StatsCounter({
   totalCreators,
   hasRealData,
 }: StatsCounterProps) {
-  // No real data yet → render nothing. Never show zeros on the landing page.
-  if (!hasRealData) return null
-
   return (
     <section className="border-y border-white/[0.06] py-16 md:py-24">
       <div className="mx-auto max-w-4xl px-4">
@@ -108,18 +106,24 @@ export function StatsCounter({
           Comunidade MultiClip Hub
         </p>
 
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
-          <StatItem
-            value={totalViews}
-            label="Visualizações totais"
-            sublabel="em todas as plataformas"
-            highlight
-          />
-          <StatItem value={totalClips} label="Clipes publicados" />
-          <StatItem value={totalCreators} label="Criadores ativos" />
-        </div>
+        {/* Real numbers once views exist; a pre-launch teaser until then.
+            We never render bare zeros — that would undercut credibility. */}
+        {hasRealData ? (
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
+            <StatItem
+              value={totalViews}
+              label="Visualizações totais"
+              sublabel="em todas as plataformas"
+              highlight
+            />
+            <StatItem value={totalClips} label="Clipes publicados" />
+            <StatItem value={totalCreators} label="Criadores ativos" />
+          </div>
+        ) : (
+          <PreLaunchTeaser />
+        )}
 
-        {/* Platform row below the stats */}
+        {/* Platform row below */}
         <div className="mt-10 flex items-center justify-center gap-6 text-white/20">
           <PlatformIcon platform="tiktok" size={18} />
           <div className="h-4 w-px bg-white/10" />
@@ -129,5 +133,30 @@ export function StatsCounter({
         </div>
       </div>
     </section>
+  )
+}
+
+// Shown before any real views exist: keeps the social-proof slot present
+// without displaying zeros, and invites the first creators in.
+function PreLaunchTeaser() {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <span className="rounded-full border border-[#00E5A0]/30 bg-[#00E5A0]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#00E5A0]">
+        Em breve
+      </span>
+      <h3 className="mt-5 max-w-lg text-2xl font-black tracking-tight text-white sm:text-3xl">
+        Os números da comunidade chegam em breve
+      </h3>
+      <p className="mt-3 max-w-md text-sm leading-relaxed text-white/50">
+        Assim que os primeiros clipes forem publicados, as visualizações de toda a
+        comunidade aparecem aqui em tempo real.
+      </p>
+      <Link
+        href="/register"
+        className="mt-6 rounded-full bg-[#9146FF] px-8 py-3.5 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[#7c3aed]"
+      >
+        Seja um dos primeiros
+      </Link>
+    </div>
   )
 }
