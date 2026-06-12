@@ -3,6 +3,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { MetricCard, MetricCardSkeleton } from '@/components/dashboard/MetricCard'
 import { PostCardSkeleton } from '@/components/shared/Skeleton'
@@ -16,13 +17,14 @@ import type { Platform } from '@/types/api.types'
 function UpgradeSuccessHandler() {
   const searchParams = useSearchParams()
   const { toast } = useToast()
+  const t = useTranslations('dashboard')
 
   useEffect(() => {
     if (searchParams.get('upgrade') === 'success') {
-      toast('🎉 Upgrade realizado com sucesso! Bem-vindo ao novo plano.', 'success')
+      toast(t('upgrade_success'), 'success')
       window.history.replaceState({}, '', '/dashboard')
     }
-  }, [searchParams, toast])
+  }, [searchParams, toast, t])
 
   return null
 }
@@ -36,14 +38,15 @@ interface RecentPost {
   created_at: string
 }
 
-const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-  published: { label: 'Publicado', color: '#DEFF9A', bg: 'rgba(222,255,154,0.08)' },
-  failed:    { label: 'Falhou',    color: '#ef4444', bg: 'rgba(239,68,68,0.08)'   },
-  scheduled: { label: 'Agendado', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)'  },
-  pending:   { label: 'Pendente', color: '#666666', bg: 'rgba(102,102,102,0.08)' },
+const statusConfig: Record<string, { color: string; bg: string }> = {
+  published: { color: '#DEFF9A', bg: 'rgba(222,255,154,0.08)' },
+  failed:    { color: '#ef4444', bg: 'rgba(239,68,68,0.08)'   },
+  scheduled: { color: '#f59e0b', bg: 'rgba(245,158,11,0.08)'  },
+  pending:   { color: '#666666', bg: 'rgba(102,102,102,0.08)' },
 }
 
 export default function DashboardPage() {
+  const t = useTranslations('dashboard')
   const { profile, loading } = useUser()
   const [posts, setPosts] = useState<RecentPost[]>([])
   const [postsLoading, setPostsLoading] = useState(true)
@@ -72,14 +75,16 @@ export default function DashboardPage() {
       : String(profile?.posts_this_month || 0)
 
   const postsSub =
-    profile?.plan === 'pro' || profile?.plan === 'king' ? 'Ilimitado' : '200 posts/mês'
+    profile?.plan === 'pro' || profile?.plan === 'king'
+      ? t('metric_posts_sub_unlimited')
+      : t('metric_posts_sub_limit')
 
   return (
     <div>
       <Suspense fallback={null}>
         <UpgradeSuccessHandler />
       </Suspense>
-      <Topbar title="Dashboard" />
+      <Topbar title={t('title')} />
 
       <div className="p-4 space-y-6 md:p-6">
         {/* Métricas */}
@@ -89,12 +94,12 @@ export default function DashboardPage() {
           ) : (
             <>
               <MetricCard
-                label="Posts este mês"
+                label={t('metric_posts')}
                 value={postsLabel}
                 subLabel={postsSub}
                 iconBg="#1a1030"
                 trend="up"
-                trendValue="este mês"
+                trendValue={t('metric_posts_trend')}
                 icon={
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00E5A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
@@ -102,12 +107,12 @@ export default function DashboardPage() {
                 }
               />
               <MetricCard
-                label="Views Totais"
+                label={t('metric_views')}
                 value={formatViews(profile?.total_views || 0)}
-                subLabel="em todos os canais"
+                subLabel={t('metric_views_sub')}
                 iconBg="#0a2030"
                 trend="up"
-                trendValue="acumulado"
+                trendValue={t('metric_views_trend')}
                 icon={
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
@@ -115,9 +120,9 @@ export default function DashboardPage() {
                 }
               />
               <MetricCard
-                label="Plataformas"
+                label={t('metric_platforms')}
                 value={3}
-                subLabel="Conectadas"
+                subLabel={t('metric_platforms_sub')}
                 iconBg="#1a2a1a"
                 icon={
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -126,12 +131,12 @@ export default function DashboardPage() {
                 }
               />
               <MetricCard
-                label="Sequência"
-                value="7 dias"
-                subLabel="publicações diárias"
+                label={t('metric_streak')}
+                value={t('metric_streak_value')}
+                subLabel={t('metric_streak_sub')}
                 iconBg="#2a1a0a"
                 trend="up"
-                trendValue="recorde!"
+                trendValue={t('metric_streak_trend')}
                 icon={
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fb923c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z" />
@@ -145,9 +150,9 @@ export default function DashboardPage() {
         {/* Posts recentes */}
         <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
           <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
-            <h2 className="text-[14px] font-semibold text-white">Vídeos Recentes</h2>
+            <h2 className="text-[14px] font-semibold text-white">{t('recent_title')}</h2>
             <Link href="/historico" className="text-[12px] text-[#00E5A0] hover:underline">
-              Ver todos
+              {t('see_all')}
             </Link>
           </div>
 
@@ -162,21 +167,22 @@ export default function DashboardPage() {
               <div className="flex flex-col items-center py-12 text-center">
                 <div className="mb-3 text-4xl">🎬</div>
                 <div className="text-[14px] font-medium text-white mb-1">
-                  Nenhum clipe publicado ainda
+                  {t('empty_title')}
                 </div>
                 <div className="mb-4 text-[12px] text-[#444444]">
-                  Envie seu primeiro clipe e domine os algoritmos
+                  {t('empty_subtitle')}
                 </div>
                 <Link
                   href="/upload"
                   className="rounded-lg bg-[#00E5A0] px-4 py-2 text-[13px] font-semibold text-[#0B0F19] hover:bg-[#00B584] transition-colors"
                 >
-                  Enviar primeiro clipe
+                  {t('empty_cta')}
                 </Link>
               </div>
             ) : (
               posts.map((post, i) => {
-                const status = statusConfig[post.status] || statusConfig.pending
+                const statusKey = statusConfig[post.status] ? post.status : 'pending'
+                const status = statusConfig[statusKey]
                 return (
                   <motion.div
                     key={post.id}
@@ -198,7 +204,7 @@ export default function DashboardPage() {
                         </div>
                         <span className="text-[11px] text-[#444444]">{formatDate(post.created_at)}</span>
                         {post.total_views > 0 && (
-                          <span className="text-[11px] text-[#444444]">· {formatViews(post.total_views)} views</span>
+                          <span className="text-[11px] text-[#444444]">· {formatViews(post.total_views)} {t('views')}</span>
                         )}
                       </div>
                     </div>
@@ -206,7 +212,7 @@ export default function DashboardPage() {
                       className="rounded-full px-2.5 py-0.5 text-[11px] font-medium"
                       style={{ color: status.color, background: status.bg }}
                     >
-                      {status.label}
+                      {t(`status_${statusKey}`)}
                     </span>
                   </motion.div>
                 )
@@ -224,16 +230,16 @@ export default function DashboardPage() {
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="text-[14px] font-semibold text-white">Seu trial está ativo ⚠️</div>
+                <div className="text-[14px] font-semibold text-white">{t('trial_title')}</div>
                 <div className="mt-0.5 text-[12px] text-[#888888]">
-                  Escolha um plano para continuar postando após o período de teste
+                  {t('trial_subtitle')}
                 </div>
               </div>
               <Link
                 href="/pricing"
                 className="rounded-lg bg-[#f59e0b] px-4 py-2 text-[13px] font-medium text-black hover:bg-[#d97706] transition-colors"
               >
-                Ver planos
+                {t('trial_cta')}
               </Link>
             </div>
           </motion.div>

@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { PlatformIcon } from '@/components/shared/PlatformIcon'
 import { useUser } from '@/hooks/useUser'
@@ -13,9 +14,9 @@ import type { Platform } from '@/types/api.types'
 type Step = 1 | 2 | 3
 
 const STEPS = [
-  { id: 1 as const, label: 'Vídeo' },
-  { id: 2 as const, label: 'Configurar' },
-  { id: 3 as const, label: 'Publicar' },
+  { id: 1 as const, key: 'step_video' },
+  { id: 2 as const, key: 'step_configure' },
+  { id: 3 as const, key: 'step_publish' },
 ]
 
 const PLATFORMS: Platform[] = ['tiktok', 'instagram', 'youtube']
@@ -36,6 +37,7 @@ const statusIcons: Record<PublishStatus, React.ReactNode> = {
 }
 
 export default function UploadPage() {
+  const t = useTranslations('upload')
   const { canPost, profile } = useUser()
   const { markItem } = useOnboarding()
   const { toast } = useToast()
@@ -55,17 +57,17 @@ export default function UploadPage() {
 
   const handleFile = useCallback((f: File) => {
     if (!f.type.startsWith('video/')) {
-      toast('Arquivo inválido. Envie um arquivo de vídeo (MP4, MOV, WebM)', 'error')
+      toast(t('err_invalid_file'), 'error')
       return
     }
     if (f.size > 500 * 1024 * 1024) {
-      toast('Arquivo muito grande. Máximo 500MB', 'error')
+      toast(t('err_too_large'), 'error')
       return
     }
     setFile(f)
     setTitle(f.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '))
     setStep(2)
-  }, [toast])
+  }, [toast, t])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -83,7 +85,7 @@ export default function UploadPage() {
   const handlePublish = async () => {
     if (!file || selectedPlatforms.length === 0) return
     if (!canPost) {
-      toast('Limite de posts atingido. Faça upgrade para continuar', 'error')
+      toast(t('err_limit'), 'error')
       return
     }
 
@@ -106,7 +108,7 @@ export default function UploadPage() {
     }
 
     setPublishing(false)
-    toast(`Clipe publicado com sucesso em ${selectedPlatforms.length} plataforma${selectedPlatforms.length !== 1 ? 's' : ''}!`, 'success')
+    toast(t('success_published', { count: selectedPlatforms.length }), 'success')
     // Onboarding: first successful publish completes this step.
     markItem('first_upload')
   }
@@ -121,7 +123,7 @@ export default function UploadPage() {
 
   return (
     <div>
-      <Topbar title="Upload de Vídeo" />
+      <Topbar title={t('title')} />
 
       <div className="mx-auto max-w-lg p-6 space-y-6">
         {/* Stepper */}
@@ -140,7 +142,7 @@ export default function UploadPage() {
                   {step > s.id ? '✓' : s.id}
                 </div>
                 <span className={cn('text-[11px]', step >= s.id ? 'text-white' : 'text-[#444444]')}>
-                  {s.label}
+                  {t(s.key)}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
@@ -185,9 +187,9 @@ export default function UploadPage() {
                   </svg>
                 </div>
                 <div className="mb-1 text-[14px] font-medium text-white">
-                  {isDragging ? 'Solte o arquivo aqui' : 'Toque para selecionar o vídeo'}
+                  {isDragging ? t('drop_here') : t('tap_select')}
                 </div>
-                <div className="text-[12px] text-[#444444]">MP4, MOV, WebM · Máximo 500MB</div>
+                <div className="text-[12px] text-[#444444]">{t('file_hint')}</div>
               </div>
             </motion.div>
           )}
@@ -223,20 +225,20 @@ export default function UploadPage() {
               {/* Título e Caption */}
               <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4 space-y-3">
                 <div>
-                  <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">Título</label>
+                  <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('label_title')}</label>
                   <input
                     value={title}
                     onChange={e => setTitle(e.target.value)}
-                    placeholder="Ex: Neymar faz o gol mais insano da temporada 🔥"
+                    placeholder={t('placeholder_title')}
                     className="w-full rounded-lg border border-white/[0.08] bg-[#0a0a0a] px-3 py-2.5 text-[13px] text-white placeholder-[#333333] outline-none transition-colors focus:border-[#00E5A0]/50"
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">Legenda / Caption</label>
+                  <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('label_caption')}</label>
                   <textarea
                     value={caption}
                     onChange={e => setCaption(e.target.value)}
-                    placeholder="Escreva a legenda que será usada em todas as plataformas..."
+                    placeholder={t('placeholder_caption')}
                     rows={3}
                     className="w-full resize-none rounded-lg border border-white/[0.08] bg-[#0a0a0a] px-3 py-2.5 text-[13px] text-white placeholder-[#333333] outline-none transition-colors focus:border-[#00E5A0]/50"
                   />
@@ -245,7 +247,7 @@ export default function UploadPage() {
 
               {/* Plataformas */}
               <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
-                <label className="mb-3 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">Distribuir em</label>
+                <label className="mb-3 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('label_distribute')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {PLATFORMS.map(p => {
                     const selected = selectedPlatforms.includes(p)
@@ -288,8 +290,8 @@ export default function UploadPage() {
                     </svg>
                   </div>
                   <div>
-                    <div className="text-[13px] font-medium text-white">Otimização por IA</div>
-                    <div className="text-[11px] text-[#444444]">Adapta legenda e hashtags para cada algoritmo</div>
+                    <div className="text-[13px] font-medium text-white">{t('ai_title')}</div>
+                    <div className="text-[11px] text-[#444444]">{t('ai_desc')}</div>
                   </div>
                 </div>
                 <button
@@ -319,11 +321,11 @@ export default function UploadPage() {
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
                 </svg>
-                Publicar Agora em {selectedPlatforms.length} plataforma{selectedPlatforms.length !== 1 ? 's' : ''}
+                {t('publish_now', { count: selectedPlatforms.length })}
               </motion.button>
 
               <button type="button" className="w-full text-center text-[12px] text-[#444444] hover:text-[#00E5A0] transition-colors">
-                ou Agendar publicação para outro horário
+                {t('schedule')}
               </button>
             </motion.div>
           )}
@@ -340,12 +342,12 @@ export default function UploadPage() {
               <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
                 <div className="mb-4 text-center">
                   <div className="text-[15px] font-medium text-white mb-1">
-                    {publishing ? 'Publicando seu clipe...' : 'Publicado com sucesso! 🎉'}
+                    {publishing ? t('publishing_title') : t('published_title')}
                   </div>
                   <div className="text-[12px] text-[#444444]">
                     {publishing
-                      ? 'Aguarde enquanto distribuímos para as plataformas'
-                      : `Distribuído para ${selectedPlatforms.length} plataforma${selectedPlatforms.length !== 1 ? 's' : ''}`}
+                      ? t('publishing_desc')
+                      : t('published_desc', { count: selectedPlatforms.length })}
                   </div>
                 </div>
 
@@ -358,9 +360,9 @@ export default function UploadPage() {
                         <div className="flex-1">
                           <div className="text-[13px] font-medium text-white">{platformNames[p]}</div>
                           <div className="text-[11px] text-[#444444]">
-                            {result === 'pending' ? 'Aguardando...' :
-                             result === 'publishing' ? 'Enviando...' :
-                             result === 'published' ? 'Publicado ✓' : 'Falhou'}
+                            {result === 'pending' ? t('result_pending') :
+                             result === 'publishing' ? t('result_publishing') :
+                             result === 'published' ? t('result_published') : t('result_failed')}
                           </div>
                         </div>
                         <div className="grid h-6 w-6 place-items-center">
@@ -378,13 +380,13 @@ export default function UploadPage() {
                     onClick={resetForm}
                     className="flex-1 rounded-xl border border-white/[0.1] py-3 text-[13px] font-medium text-white transition-colors hover:border-white/[0.2]"
                   >
-                    Publicar novo clipe
+                    {t('publish_new')}
                   </button>
                   <a
                     href="/historico"
                     className="flex-1 rounded-xl bg-[#00E5A0] py-3 text-center text-[13px] font-semibold text-[#0B0F19] transition-colors hover:bg-[#00B584]"
                   >
-                    Ver no Histórico
+                    {t('see_history')}
                   </a>
                 </div>
               )}
