@@ -10,6 +10,10 @@
   "language": {
     "select": "Selecionar idioma"
   },
+  "meta": {
+    "title": "MultiClip Hub — O escritório digital do clipador profissional",
+    "description": "Distribua seus clipes para TikTok, Reels e Shorts com um único upload."
+  },
   "auth": {
     "welcome_back": "Bem-vindo de volta",
     "login_subtitle": "Continue dominando o algoritmo",
@@ -132,6 +136,28 @@
     "result_failed": "Falhou",
     "publish_new": "Publicar novo clipe",
     "see_history": "Ver no Histórico"
+  },
+  "settings": {
+    "title": "Configurações",
+    "current_plan": "Plano atual",
+    "you_are_on": "Você está no plano {plan}",
+    "loading": "Carregando...",
+    "monthly": "Mensal",
+    "annual": "Anual",
+    "most_popular": "MAIS POPULAR",
+    "per_month": "/mês",
+    "billed_annually": "Cobrado R$ {total} anualmente",
+    "current": "Plano atual",
+    "wait": "Aguarde...",
+    "subscribe": "Assinar {plan}",
+    "account": "Conta",
+    "no_name": "Sem nome definido",
+    "contact_note": "Para cancelar ou solicitar exclusão de dados, entre em contato:",
+    "plans": {
+      "clipper": { "description": "Para quem está começando", "features": ["Até 200 posts/mês", "3 canais totais", "1 canal por plataforma", "Histórico 30 dias", "Suporte por e-mail"] },
+      "pro": { "description": "Para creators sérios", "features": ["Posts ilimitados", "9 canais totais", "3 por plataforma", "Analytics avançado", "Histórico ilimitado", "Suporte prioritário"] },
+      "king": { "description": "Para agências e profissionais", "features": ["Tudo do Pro", "Canais ilimitados", "Relatório avançado", "API Access", "Onboarding dedicado", "Suporte VIP"] }
+    }
   },
   "hero": {
     "badge": "✨ Novo · Ranking gamificado disponível",

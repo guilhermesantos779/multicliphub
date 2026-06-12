@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { useUser } from '@/hooks/useUser'
 import { useSubscription } from '@/hooks/useSubscription'
@@ -7,70 +8,33 @@ import type { PlanKey } from '@/lib/stripe'
 import { PLAN_PRICES, formatPriceBRL } from '@/config/plans'
 import { cn } from '@/lib/utils'
 
-// Presentation only — prices come from the centralized PLAN_PRICES config.
+// Presentation only — prices from PLAN_PRICES; description/features from i18n.
 const PLANS_CONFIG = [
-  {
-    id: 'clipper' as PlanKey,
-    icon: '⚡',
-    description: 'Para quem está começando',
-    features: [
-      'Até 200 posts/mês',
-      '3 canais totais',
-      '1 canal por plataforma',
-      'Histórico 30 dias',
-      'Suporte por e-mail',
-    ],
-    featured: false,
-  },
-  {
-    id: 'pro' as PlanKey,
-    icon: '🏆',
-    description: 'Para creators sérios',
-    features: [
-      'Posts ilimitados',
-      '9 canais totais',
-      '3 por plataforma',
-      'Analytics avançado',
-      'Histórico ilimitado',
-      'Suporte prioritário',
-    ],
-    featured: true,
-  },
-  {
-    id: 'king' as PlanKey,
-    icon: '👑',
-    description: 'Para agências e profissionais',
-    features: [
-      'Tudo do Pro',
-      'Canais ilimitados',
-      'Relatório avançado',
-      'API Access',
-      'Onboarding dedicado',
-      'Suporte VIP',
-    ],
-    featured: false,
-  },
+  { id: 'clipper' as PlanKey, icon: '⚡', featured: false },
+  { id: 'pro' as PlanKey, icon: '🏆', featured: true },
+  { id: 'king' as PlanKey, icon: '👑', featured: false },
 ].map((p) => ({ ...p, ...PLAN_PRICES[p.id] }))
 
 export default function ConfiguracoesPage() {
+  const t = useTranslations('settings')
   const { profile } = useUser()
   const { subscribe, loading } = useSubscription()
   const [annual, setAnnual] = useState(false)
 
   return (
     <div>
-      <Topbar title="Configurações" />
+      <Topbar title={t('title')} />
 
       <div className="p-6 space-y-8">
         {/* Planos */}
         <section>
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-[16px] font-semibold text-white">Plano atual</h2>
+              <h2 className="text-[16px] font-semibold text-white">{t('current_plan')}</h2>
               <p className="mt-0.5 text-[13px] text-[#888888]">
                 {profile?.plan
-                  ? `Você está no plano ${profile.plan.charAt(0).toUpperCase() + profile.plan.slice(1)}`
-                  : 'Carregando...'}
+                  ? t('you_are_on', { plan: profile.plan.charAt(0).toUpperCase() + profile.plan.slice(1) })
+                  : t('loading')}
               </p>
             </div>
 
@@ -83,7 +47,7 @@ export default function ConfiguracoesPage() {
                   !annual ? 'bg-white/[0.08] text-white' : 'text-[#888888] hover:text-white'
                 )}
               >
-                Mensal
+                {t('monthly')}
               </button>
               <button
                 onClick={() => setAnnual(true)}
@@ -92,7 +56,7 @@ export default function ConfiguracoesPage() {
                   annual ? 'bg-white/[0.08] text-white' : 'text-[#888888] hover:text-white'
                 )}
               >
-                Anual
+                {t('annual')}
                 <span className="rounded-full bg-[#00E5A0]/20 px-1.5 py-0.5 text-[10px] font-semibold text-[#00E5A0]">
                   −30%
                 </span>
@@ -117,14 +81,14 @@ export default function ConfiguracoesPage() {
                 >
                   {plan.featured && (
                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#00E5A0] px-3 py-0.5 text-[11px] font-bold text-[#0B0F19]">
-                      MAIS POPULAR
+                      {t('most_popular')}
                     </span>
                   )}
 
                   <div className="mb-4">
                     <span className="text-2xl">{plan.icon}</span>
                     <h3 className="mt-2 text-[16px] font-bold text-white">{plan.name}</h3>
-                    <p className="text-[12px] text-[#888888]">{plan.description}</p>
+                    <p className="text-[12px] text-[#888888]">{t(`plans.${plan.id}.description`)}</p>
                   </div>
 
                   <div className="mb-6">
@@ -132,17 +96,17 @@ export default function ConfiguracoesPage() {
                       <span className="text-[32px] font-bold leading-none text-white">
                         R$ {formatPriceBRL(price)}
                       </span>
-                      <span className="mb-1 text-[13px] text-[#888888]">/mês</span>
+                      <span className="mb-1 text-[13px] text-[#888888]">{t('per_month')}</span>
                     </div>
                     {annual && (
                       <p className="mt-1 text-[11px] text-[#00E5A0]">
-                        Cobrado R$ {formatPriceBRL(plan.annualTotal)} anualmente
+                        {t('billed_annually', { total: formatPriceBRL(plan.annualTotal) })}
                       </p>
                     )}
                   </div>
 
                   <ul className="mb-6 space-y-2.5">
-                    {plan.features.map(f => (
+                    {(t.raw(`plans.${plan.id}.features`) as string[]).map(f => (
                       <li key={f} className="flex items-center gap-2 text-[12px] text-[#888888]">
                         <span className="shrink-0 text-[#00E5A0]">✓</span>
                         {f}
@@ -162,7 +126,7 @@ export default function ConfiguracoesPage() {
                         : 'border border-[#00E5A0]/50 text-[#00E5A0] hover:bg-[#00E5A0]/10'
                     )}
                   >
-                    {isCurrent ? 'Plano atual' : loading ? 'Aguarde...' : `Assinar ${plan.name}`}
+                    {isCurrent ? t('current') : loading ? t('wait') : t('subscribe', { plan: plan.name })}
                   </button>
                 </div>
               )
@@ -172,12 +136,12 @@ export default function ConfiguracoesPage() {
 
         {/* Conta */}
         <section className="rounded-xl border border-white/[0.08] bg-[#111111] p-6">
-          <h2 className="mb-4 text-[14px] font-semibold text-white">Conta</h2>
+          <h2 className="mb-4 text-[14px] font-semibold text-white">{t('account')}</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between border-b border-white/[0.04] pb-3">
               <div>
                 <div className="text-[13px] text-white">
-                  {profile?.full_name || 'Sem nome definido'}
+                  {profile?.full_name || t('no_name')}
                 </div>
                 <div className="text-[11px] text-[#888888]">{profile?.email || '—'}</div>
               </div>

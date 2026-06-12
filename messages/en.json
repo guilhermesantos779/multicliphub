@@ -10,6 +10,10 @@
   "language": {
     "select": "Select language"
   },
+  "meta": {
+    "title": "MultiClip Hub — The digital office for professional clippers",
+    "description": "Distribute your clips to TikTok, Reels and Shorts with a single upload."
+  },
   "auth": {
     "welcome_back": "Welcome back",
     "login_subtitle": "Keep dominating the algorithm",
@@ -132,6 +136,28 @@
     "result_failed": "Failed",
     "publish_new": "Publish new clip",
     "see_history": "View in History"
+  },
+  "settings": {
+    "title": "Settings",
+    "current_plan": "Current plan",
+    "you_are_on": "You're on the {plan} plan",
+    "loading": "Loading...",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "most_popular": "MOST POPULAR",
+    "per_month": "/mo",
+    "billed_annually": "Billed R$ {total} annually",
+    "current": "Current plan",
+    "wait": "Please wait...",
+    "subscribe": "Subscribe to {plan}",
+    "account": "Account",
+    "no_name": "No name set",
+    "contact_note": "To cancel or request data deletion, contact us:",
+    "plans": {
+      "clipper": { "description": "For those just getting started", "features": ["Up to 200 posts/mo", "3 total channels", "1 channel per platform", "30-day history", "Email support"] },
+      "pro": { "description": "For serious creators", "features": ["Unlimited posts", "9 total channels", "3 per platform", "Advanced analytics", "Unlimited history", "Priority support"] },
+      "king": { "description": "For agencies and professionals", "features": ["Everything in Pro", "Unlimited channels", "Advanced reporting", "API Access", "Dedicated onboarding", "VIP support"] }
+    }
   },
   "hero": {
     "badge": "✨ New · Gamified ranking available",
