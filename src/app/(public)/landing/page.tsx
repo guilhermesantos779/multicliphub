@@ -11,6 +11,8 @@ import { SectionDivider }   from '@/components/landing/raycast/SectionDivider'
 import { TextReveal }       from '@/components/ui/text-reveal'
 // Client wrapper with ssr:false so three.js loads after first paint (LCP protection)
 import { WebGLShaderLazy }  from '@/components/ui/web-gl-shader-lazy'
+import { StatsCounter }     from '@/components/landing/StatsCounter'
+import { getPlatformStats } from '@/lib/stats/platform'
 
 export const metadata = {
   title: 'MultiClip Hub — O escritório digital do clipador profissional',
@@ -18,7 +20,13 @@ export const metadata = {
     'Distribua seus clipes para TikTok, Reels e Shorts com um único upload. Ranking global. Analytics unificado.',
 }
 
-export default function LandingPage() {
+// Stats come from a cookieless public RPC, so the page can stay ISR (no
+// per-request dynamic rendering, LCP unaffected). Refreshed at most once a minute.
+export const revalidate = 60
+
+export default async function LandingPage() {
+  const stats = await getPlatformStats()
+
   return (
     <div className="relative min-h-screen text-white antialiased">
       {/* Background animado — carregado após o primeiro paint (three.js lazy) */}
@@ -29,6 +37,15 @@ export default function LandingPage() {
         <Navbar />
         <main>
           <HeroWrapper />
+
+          {/* Social proof — only renders once real views exist (returns null otherwise) */}
+          <StatsCounter
+            totalViews={stats.total_views}
+            totalClips={stats.total_clips}
+            totalCreators={stats.total_creators}
+            hasRealData={stats.has_real_data}
+          />
+
           <SectionDivider />
           <Features />
           <SectionDivider eyebrow="manifesto" />

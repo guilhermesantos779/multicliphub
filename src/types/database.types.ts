@@ -743,6 +743,8 @@ export type Database = {
     Functions: {
       is_admin: { Args: { uid: string }; Returns: boolean }
       sync_my_achievements: { Args: Record<PropertyKey, never>; Returns: undefined }
+      get_platform_stats: { Args: Record<PropertyKey, never>; Returns: Json }
+      get_total_platform_views: { Args: Record<PropertyKey, never>; Returns: number }
     }
     Enums: {
       [_ in never]: never
