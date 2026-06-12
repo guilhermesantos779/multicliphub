@@ -1,27 +1,6 @@
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Logo } from '@/components/shared/Logo'
-
-const PRODUTO = [
-  { label: 'Funcionalidades', href: '#funcionalidades' },
-  { label: 'Como funciona',   href: '#como-funciona'   },
-  { label: 'Preços',          href: '#precos'           },
-  { label: 'Ranking',         href: '#ranking'          },
-  { label: 'Changelog',       href: '#'                 },
-]
-
-const EMPRESA = [
-  { label: 'Sobre',                 href: '#'         },
-  { label: 'Discord da comunidade', href: '#'         },
-  { label: 'Blog',                  href: '#'         },
-  { label: 'Contato',               href: 'mailto:suportemulticliphub@gmail.com' },
-]
-
-const LEGAL = [
-  { label: 'Termos de uso',           href: '/terms'   },
-  { label: 'Política de privacidade', href: '/privacy' },
-  { label: 'Política de cookies',     href: '#'         },
-  { label: 'LGPD',                    href: '#'         },
-]
 
 function ColTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -49,6 +28,26 @@ function ColLinks({ links }: { links: { label: string; href: string }[] }) {
 }
 
 export function Footer() {
+  const t = useTranslations()
+  const PRODUTO = [
+    { label: t('nav.features'),     href: '#funcionalidades' },
+    { label: t('nav.howItWorks'),   href: '#como-funciona'   },
+    { label: t('nav.pricing'),      href: '#precos'          },
+    { label: t('nav.ranking'),      href: '#ranking'         },
+    { label: t('footer.changelog'), href: '#'                },
+  ]
+  const EMPRESA = [
+    { label: t('footer.about'),   href: '#' },
+    { label: t('footer.discord'), href: '#' },
+    { label: t('footer.blog'),    href: '#' },
+    { label: t('footer.contact'), href: 'mailto:suportemulticliphub@gmail.com' },
+  ]
+  const LEGAL = [
+    { label: t('footer.terms'),   href: '/terms'   },
+    { label: t('footer.privacy'), href: '/privacy' },
+    { label: t('footer.cookies'), href: '#'        },
+    { label: t('footer.lgpd'),    href: '#'        },
+  ]
   return (
     <footer className="border-t border-white/[0.04] py-16 px-6">
       <div className="mx-auto max-w-6xl">
@@ -94,19 +93,19 @@ export function Footer() {
 
           {/* Produto */}
           <div>
-            <ColTitle>produto</ColTitle>
+            <ColTitle>{t('footer.col_product')}</ColTitle>
             <ColLinks links={PRODUTO} />
           </div>
 
           {/* Empresa */}
           <div>
-            <ColTitle>empresa</ColTitle>
+            <ColTitle>{t('footer.col_company')}</ColTitle>
             <ColLinks links={EMPRESA} />
           </div>
 
           {/* Legal */}
           <div>
-            <ColTitle>legal</ColTitle>
+            <ColTitle>{t('footer.col_legal')}</ColTitle>
             <ColLinks links={LEGAL} />
           </div>
         </div>
@@ -114,9 +113,9 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-t border-white/[0.04] pt-8">
           <p className="text-[12px] text-white/35">
-            © 2025 MultiClip Hub. Todos os direitos reservados.
+            {t('footer.copyright', { year: new Date().getFullYear() })}
           </p>
-          <p className="text-[12px] text-white/35">Feito no Brasil 🇧🇷</p>
+          <p className="text-[12px] text-white/35">{t('footer.made_in')}</p>
         </div>
       </div>
     </footer>

@@ -9,5 +9,42 @@
   },
   "language": {
     "select": "Selecionar idioma"
+  },
+  "hero": {
+    "badge": "✨ Novo · Ranking gamificado disponível",
+    "title_line1": "Distribuição simultânea",
+    "title_line2": "para TikTok, Reels e Shorts",
+    "subtitle": "Um upload publica nas 3 plataformas ao mesmo tempo. Zero trabalho braçal. Máximo alcance.",
+    "cta_primary": "Começar grátis →",
+    "cta_secondary": "Ver como funciona",
+    "social_proof": "+2.300 clipadores já usam"
+  },
+  "cta": {
+    "pretitle": "Pronto para escalar?",
+    "title_main": "Distribua. Multiplique. ",
+    "title_accent": "Escale",
+    "subtitle": "Comece a usar o MultiClip Hub gratuitamente hoje. 7 dias completos. Sem cartão de crédito.",
+    "cta_primary": "Criar conta grátis →",
+    "cta_secondary": "Falar com a gente",
+    "trust1": "2.300+ clipadores ativos",
+    "trust2": "+47M views distribuídos",
+    "trust3": "99,9% uptime"
+  },
+  "footer": {
+    "tagline": "Distribuição inteligente para clipadores profissionais.",
+    "col_product": "produto",
+    "col_company": "empresa",
+    "col_legal": "legal",
+    "changelog": "Changelog",
+    "about": "Sobre",
+    "discord": "Discord da comunidade",
+    "blog": "Blog",
+    "contact": "Contato",
+    "terms": "Termos de uso",
+    "privacy": "Política de privacidade",
+    "cookies": "Política de cookies",
+    "lgpd": "LGPD",
+    "copyright": "© {year} MultiClip Hub. Todos os direitos reservados.",
+    "made_in": "Feito no Brasil 🇧🇷"
   }
 }

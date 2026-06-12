@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { BrowserFrame } from './BrowserFrame'
 import type { ScreenId } from './AppDashboard'
 
@@ -14,6 +15,7 @@ const AVATAR_INITIALS  = ['FB', 'LC', 'AP', 'KR', 'MG']
 const EASE = [0.25, 0.4, 0.25, 1] as const
 
 export function Hero() {
+  const t = useTranslations('hero')
   const sectionRef = useRef<HTMLElement>(null)
   const [activeScreen, setActiveScreen] = useState<ScreenId>('dashboard')
 
@@ -90,7 +92,7 @@ export function Hero() {
               style={{ boxShadow: '0 0 6px rgba(0,229,160,0.8)' }}
             />
             <span className="text-[12px] text-white/70">
-              ✨ Novo · Ranking gamificado disponível
+              {t('badge')}
             </span>
           </div>
 
@@ -99,9 +101,9 @@ export function Hero() {
             className="font-display font-semibold leading-[1.05] tracking-[-0.045em]"
             style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', maxWidth: 840 }}
           >
-            <span className="block text-white">Distribuição simultânea</span>
+            <span className="block text-white">{t('title_line1')}</span>
             <span className="block text-white/40">
-              para TikTok, Reels e Shorts
+              {t('title_line2')}
             </span>
           </h1>
 
@@ -110,8 +112,7 @@ export function Hero() {
             className="text-white/50 leading-relaxed"
             style={{ fontSize: 16, maxWidth: 480 }}
           >
-            Um upload publica nas 3 plataformas ao mesmo tempo.
-            Zero trabalho braçal. Máximo alcance.
+            {t('subtitle')}
           </p>
 
           {/* CTAs */}
@@ -120,13 +121,13 @@ export function Hero() {
               href="/register"
               className="rounded-full bg-[#9146FF] px-6 py-3 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[#7c3aed]"
             >
-              Começar grátis →
+              {t('cta_primary')}
             </Link>
             <Link
               href="#como-funciona"
               className="rounded-full border border-white/[0.12] px-6 py-3 text-[14px] text-white/70 transition-all duration-200 hover:border-white/[0.25] hover:text-white"
             >
-              Ver como funciona
+              {t('cta_secondary')}
             </Link>
           </div>
 
@@ -162,7 +163,7 @@ export function Hero() {
                 ★★★★★ 4.9/5
               </div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>
-                +2.300 clipadores já usam
+                {t('social_proof')}
               </div>
             </div>
           </div>
