@@ -349,6 +349,75 @@ export type Database = {
           },
         ]
       }
+      publications: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          instagram_likes: number | null
+          instagram_url: string | null
+          instagram_views: number | null
+          published_at: string | null
+          status: string | null
+          thumbnail_url: string | null
+          tiktok_likes: number | null
+          tiktok_url: string | null
+          tiktok_views: number | null
+          title: string | null
+          total_likes: number | null
+          total_views: number | null
+          updated_at: string | null
+          user_id: string
+          youtube_likes: number | null
+          youtube_url: string | null
+          youtube_views: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          instagram_likes?: number | null
+          instagram_url?: string | null
+          instagram_views?: number | null
+          published_at?: string | null
+          status?: string | null
+          thumbnail_url?: string | null
+          tiktok_likes?: number | null
+          tiktok_url?: string | null
+          tiktok_views?: number | null
+          title?: string | null
+          total_likes?: number | null
+          total_views?: number | null
+          updated_at?: string | null
+          user_id: string
+          youtube_likes?: number | null
+          youtube_url?: string | null
+          youtube_views?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          instagram_likes?: number | null
+          instagram_url?: string | null
+          instagram_views?: number | null
+          published_at?: string | null
+          status?: string | null
+          thumbnail_url?: string | null
+          tiktok_likes?: number | null
+          tiktok_url?: string | null
+          tiktok_views?: number | null
+          title?: string | null
+          total_likes?: number | null
+          total_views?: number | null
+          updated_at?: string | null
+          user_id?: string
+          youtube_likes?: number | null
+          youtube_url?: string | null
+          youtube_views?: number | null
+        }
+        Relationships: []
+      }
       profile_links: {
         Row: {
           created_at: string | null

@@ -6,6 +6,8 @@ import { ProfileLinks } from '@/components/profile/ProfileLinks'
 import { AchievementGrid } from '@/components/profile/AchievementGrid'
 import { ActivityHeatmap } from '@/components/profile/ActivityHeatmap'
 import { PlatformRanking } from '@/components/profile/PlatformRanking'
+import { ClipsGrid } from '@/components/profile/ClipsGrid'
+import { getProfileClips } from '@/lib/profile/clips'
 
 interface PageProps {
   params: Promise<{ username: string }>
@@ -66,7 +68,7 @@ export default async function ProfilePage({ params }: PageProps) {
     await supabase.rpc('sync_my_achievements')
   }
 
-  const [linksRes, userAchRes, allAchRes] = await Promise.all([
+  const [linksRes, userAchRes, allAchRes, clips] = await Promise.all([
     supabase
       .from('profile_links')
       .select('*')
@@ -77,6 +79,7 @@ export default async function ProfilePage({ params }: PageProps) {
       .select('achievement_slug, unlocked_at')
       .eq('user_id', profile.id),
     supabase.from('achievements').select('*'),
+    getProfileClips(profile.id),
   ])
 
   const links = linksRes.data ?? []
@@ -92,6 +95,9 @@ export default async function ProfilePage({ params }: PageProps) {
 
       <div className="mx-auto mt-8 grid max-w-4xl gap-8 px-4">
         <ProfileLinks links={links} isOwnProfile={isOwnProfile} />
+
+        <ClipsGrid clips={clips} isOwnProfile={isOwnProfile} username={username} />
+
         <AchievementGrid
           achievements={achievements}
           unlockedMap={unlockedMap}
