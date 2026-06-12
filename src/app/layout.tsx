@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { Inter } from 'next/font/google'
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale } from 'next-intl/server'
 import './globals.css'
 import { IconDefs } from '@/components/icons/IconDefs'
 
@@ -33,12 +35,15 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale()
   return (
-    <html lang="pt-BR" className={`${GeistSans.variable} ${inter.variable} h-full`}>
+    <html lang={locale} className={`${GeistSans.variable} ${inter.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-black text-white antialiased">
-        <IconDefs />
-        {children}
+        <NextIntlClientProvider>
+          <IconDefs />
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   )

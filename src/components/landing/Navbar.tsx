@@ -2,16 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Logo } from '@/components/shared/Logo'
+import { LanguageSelector } from '@/components/shared/LanguageSelector'
 
 const NAV_LINKS = [
-  { label: 'Funcionalidades', href: '#funcionalidades' },
-  { label: 'Como funciona',   href: '#como-funciona'   },
-  { label: 'Ranking',         href: '#ranking'         },
-  { label: 'Preços',          href: '#precos'          },
-]
+  { key: 'features',    href: '#funcionalidades' },
+  { key: 'howItWorks',  href: '#como-funciona'   },
+  { key: 'ranking',     href: '#ranking'         },
+  { key: 'pricing',     href: '#precos'          },
+] as const
 
 export function Navbar() {
+  const t = useTranslations('nav')
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -62,13 +65,13 @@ export function Navbar() {
 
         {/* Center nav — desktop */}
         <ul className="hidden md:flex items-center gap-7">
-          {NAV_LINKS.map(({ label, href }) => (
+          {NAV_LINKS.map(({ key, href }) => (
             <li key={href}>
               <Link
                 href={href}
                 className="text-[13px] text-white/60 hover:text-white transition-colors duration-200"
               >
-                {label}
+                {t(key)}
               </Link>
             </li>
           ))}
@@ -76,17 +79,18 @@ export function Navbar() {
 
         {/* Right CTAs */}
         <div className="flex items-center gap-2">
+          <LanguageSelector />
           <Link
             href="/login"
             className="hidden md:inline text-[13px] text-white/60 hover:text-white transition-colors px-3 py-2"
           >
-            Entrar
+            {t('login')}
           </Link>
           <Link
             href="/register"
             className="rounded-full bg-[#9146FF] px-4 py-2 text-[13px] font-medium text-white transition-colors duration-200 hover:bg-[#7c3aed]"
           >
-            Começar grátis
+            {t('signup')}
           </Link>
 
           {/* Mobile hamburger */}
@@ -115,14 +119,14 @@ export function Navbar() {
       {/* Mobile dropdown */}
       {menuOpen && (
         <div className="absolute inset-x-0 top-full mt-2 rounded-2xl border border-white/[0.08] bg-black/90 px-5 py-4 backdrop-blur-xl md:hidden">
-          {NAV_LINKS.map(({ label, href }) => (
+          {NAV_LINKS.map(({ key, href }) => (
             <Link
               key={href}
               href={href}
               onClick={() => setMenuOpen(false)}
               className="block py-2.5 text-[14px] text-white/60 transition-colors hover:text-white"
             >
-              {label}
+              {t(key)}
             </Link>
           ))}
           <div className="mt-4 flex flex-col gap-2 border-t border-white/[0.06] pt-4">
@@ -130,13 +134,13 @@ export function Navbar() {
               href="/login"
               className="py-2 text-center text-[14px] text-white/60 hover:text-white"
             >
-              Entrar
+              {t('login')}
             </Link>
             <Link
               href="/register"
               className="rounded-full bg-[#9146FF] py-2.5 text-center text-[14px] font-medium text-white hover:bg-[#7c3aed]"
             >
-              Começar grátis
+              {t('signup')}
             </Link>
           </div>
         </div>

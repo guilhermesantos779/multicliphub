@@ -1,0 +1,13 @@
+{
+  "nav": {
+    "features": "Features",
+    "howItWorks": "How it works",
+    "ranking": "Ranking",
+    "pricing": "Pricing",
+    "login": "Sign in",
+    "signup": "Get started free"
+  },
+  "language": {
+    "select": "Select language"
+  }
+}
