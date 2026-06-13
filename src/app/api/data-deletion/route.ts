@@ -3,13 +3,16 @@ import crypto from 'crypto'
 import { createClient } from '@supabase/supabase-js'
 
 // Admin client (service role) — bypasses RLS to revoke tokens and write the
-// audit log. Untyped on purpose: this isolated route doesn't need the full
-// Database generic.
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
+// audit log. Created lazily INSIDE the handler: instantiating it at module
+// scope runs during `next build` page-data collection (where env may be
+// absent) and throws "supabaseUrl is required", failing the build.
+function getAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://multicliphub.com.br'
 
@@ -53,6 +56,8 @@ export async function POST(request: NextRequest) {
     const metaUserId: string | undefined = data.user_id
 
     const confirmationCode = crypto.randomBytes(16).toString('hex')
+
+    const supabaseAdmin = getAdminClient()
 
     // Best-effort revoke: find the Instagram channel linked to this Meta user
     // and delete it. channel_id stores the platform account id.
