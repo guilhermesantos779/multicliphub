@@ -166,9 +166,9 @@ export default function RegisterPage() {
               />
               <span className="text-[11px] leading-relaxed text-[#444444]">
                 {t('agree_prefix')}
-                <Link href="/terms" target="_blank" className="text-[#00E5A0] hover:underline">{t('terms')}</Link>
+                <Link href="/termos" target="_blank" className="text-[#00E5A0] hover:underline">{t('terms')}</Link>
                 {t('and')}
-                <Link href="/privacy" target="_blank" className="text-[#00E5A0] hover:underline">{t('privacy')}</Link>
+                <Link href="/privacidade" target="_blank" className="text-[#00E5A0] hover:underline">{t('privacy')}</Link>
               </span>
             </label>
 

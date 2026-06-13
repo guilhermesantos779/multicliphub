@@ -8,7 +8,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 // '/api/webhooks' is public: external platforms (Meta/Instagram) hit it with no
 // session cookie, so the middleware must not redirect them to /login — the
 // route handler verifies the request itself (verify token / X-Hub-Signature).
-const PUBLIC_ROUTES = ['/', '/landing', '/terms', '/privacy', '/login', '/register', '/auth/callback', '/api/auth', '/api/username', '/api/discord', '/api/webhooks', '/demo']
+const PUBLIC_ROUTES = ['/', '/landing', '/terms', '/privacy', '/termos', '/privacidade', '/login', '/register', '/auth/callback', '/api/auth', '/api/username', '/api/discord', '/api/webhooks', '/api/data-deletion', '/demo']
 const AUTH_ROUTES = ['/login', '/register']
 const ADMIN_ROUTES = ['/admin']
 

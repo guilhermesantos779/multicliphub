@@ -9,6 +9,7 @@ import { useOnboarding } from '@/hooks/useOnboarding'
 import { useToast } from '@/components/shared/Toast'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
+import { TikTokOptions, type TikTokPostOptions } from '@/components/upload/TikTokOptions'
 import type { Platform } from '@/types/api.types'
 
 type Step = 1 | 2 | 3
@@ -48,6 +49,7 @@ export default function UploadPage() {
   const [title, setTitle] = useState('')
   const [caption, setCaption] = useState('')
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(['tiktok', 'instagram', 'youtube'])
+  const [tiktokOptions, setTiktokOptions] = useState<TikTokPostOptions | null>(null)
   const [useAI, setUseAI] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const [publishing, setPublishing] = useState(false)
@@ -91,6 +93,12 @@ export default function UploadPage() {
 
     setStep(3)
     setPublishing(true)
+
+    // TikTok requires these post settings on the real publish call (OAuth pending).
+    const tiktokConfig = selectedPlatforms.includes('tiktok') ? tiktokOptions : null
+    if (tiktokConfig) {
+      console.debug('[upload] TikTok options ready for publish', tiktokConfig)
+    }
 
     for (const platform of selectedPlatforms) {
       setPublishResults(prev => ({ ...prev, [platform]: 'publishing' }))
@@ -280,6 +288,14 @@ export default function UploadPage() {
                   })}
                 </div>
               </div>
+
+              {/* TikTok compliance options — shown only when TikTok is a destination */}
+              {selectedPlatforms.includes('tiktok') && (
+                <TikTokOptions
+                  creatorUsername={profile?.username ?? 'sua conta'}
+                  onChange={setTiktokOptions}
+                />
+              )}
 
               {/* Toggle IA */}
               <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-[#111111] px-4 py-3">

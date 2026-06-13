@@ -43,8 +43,8 @@ export function Footer() {
     { label: t('footer.contact'), href: 'mailto:multicliphubempresa@multicliphub.com.br' },
   ]
   const LEGAL = [
-    { label: t('footer.terms'),   href: '/terms'   },
-    { label: t('footer.privacy'), href: '/privacy' },
+    { label: t('footer.terms'),   href: '/termos'   },
+    { label: t('footer.privacy'), href: '/privacidade' },
     { label: t('footer.cookies'), href: '#'        },
     { label: t('footer.lgpd'),    href: '#'        },
   ]
