@@ -50,7 +50,7 @@ export function CTASection() {
               {t('cta_primary')}
             </Link>
             <Link
-              href="mailto:suportemulticliphub@gmail.com"
+              href="mailto:multicliphubempresa@multicliphub.com.br"
               className="rounded-full border border-white/[0.12] px-8 py-3.5 text-[14px] text-white/70 transition-all duration-200 hover:border-white/[0.25] hover:text-white"
             >
               {t('cta_secondary')}

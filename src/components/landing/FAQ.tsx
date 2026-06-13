@@ -28,7 +28,7 @@ export function FAQ() {
           <p className="text-[15px] text-white/50">
             {t('subtitle_prefix')}
             <Link
-              href="mailto:suportemulticliphub@gmail.com"
+              href="mailto:multicliphubempresa@multicliphub.com.br"
               className="text-white/70 underline underline-offset-2 hover:text-white transition-colors"
             >
               {t('subtitle_link')}

@@ -39,7 +39,7 @@ const SECTIONS = [
   {
     title: '7. Contato',
     content:
-      'E-mail de privacidade: privacidademulticliphub@gmail.com · Suporte: suportemulticliphub@gmail.com',
+      'E-mail de privacidade: privacidademulticliphub@gmail.com · Suporte: multicliphubempresa@multicliphub.com.br',
   },
 ]
 

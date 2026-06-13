@@ -151,8 +151,8 @@ export default function ConfiguracoesPage() {
             </div>
             <p className="text-[12px] text-[#444444]">
               Para cancelar ou solicitar exclusão de dados, entre em contato:{' '}
-              <a href="mailto:suportemulticliphub@gmail.com" className="text-[#00E5A0] hover:underline">
-                suportemulticliphub@gmail.com
+              <a href="mailto:multicliphubempresa@multicliphub.com.br" className="text-[#00E5A0] hover:underline">
+                multicliphubempresa@multicliphub.com.br
               </a>
             </p>
           </div>

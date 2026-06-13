@@ -40,7 +40,7 @@ export function Footer() {
     { label: t('footer.about'),   href: '#' },
     { label: t('footer.discord'), href: '#' },
     { label: t('footer.blog'),    href: '#' },
-    { label: t('footer.contact'), href: 'mailto:suportemulticliphub@gmail.com' },
+    { label: t('footer.contact'), href: 'mailto:multicliphubempresa@multicliphub.com.br' },
   ]
   const LEGAL = [
     { label: t('footer.terms'),   href: '/terms'   },

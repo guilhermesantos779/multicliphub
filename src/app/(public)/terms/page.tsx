@@ -44,7 +44,7 @@ const SECTIONS = [
   {
     title: '8. Contato',
     content:
-      'Para dúvidas sobre estes Termos: suportemulticliphub@gmail.com · Tempo de resposta: até 5 dias úteis.',
+      'Para dúvidas sobre estes Termos: multicliphubempresa@multicliphub.com.br · Tempo de resposta: até 5 dias úteis.',
   },
 ]
 
