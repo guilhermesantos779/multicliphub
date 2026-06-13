@@ -5,7 +5,10 @@ import { NextResponse, type NextRequest } from 'next/server'
 // own auth + token handling and must run even for logged-out users (otherwise
 // the middleware would redirect to /login?redirect=...token=... — a URL that
 // Google Safe Browsing flags as phishing).
-const PUBLIC_ROUTES = ['/', '/landing', '/terms', '/privacy', '/login', '/register', '/auth/callback', '/api/auth', '/api/username', '/api/discord', '/demo']
+// '/api/webhooks' is public: external platforms (Meta/Instagram) hit it with no
+// session cookie, so the middleware must not redirect them to /login — the
+// route handler verifies the request itself (verify token / X-Hub-Signature).
+const PUBLIC_ROUTES = ['/', '/landing', '/terms', '/privacy', '/login', '/register', '/auth/callback', '/api/auth', '/api/username', '/api/discord', '/api/webhooks', '/demo']
 const AUTH_ROUTES = ['/login', '/register']
 const ADMIN_ROUTES = ['/admin']
 
