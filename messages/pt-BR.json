@@ -63,6 +63,8 @@
     "canais": "Canais",
     "analytics": "Analytics",
     "ranking": "Ranking",
+    "campanhas": "Campanhas",
+    "soon": "Em breve",
     "historico": "Histórico",
     "suporte": "Suporte",
     "configuracoes": "Configurações",
@@ -158,6 +160,20 @@
       "pro": { "description": "Para creators sérios", "features": ["Posts ilimitados", "9 canais totais", "3 por plataforma", "Analytics avançado", "Histórico ilimitado", "Suporte prioritário"] },
       "king": { "description": "Para agências e profissionais", "features": ["Tudo do Pro", "Canais ilimitados", "Relatório avançado", "API Access", "Onboarding dedicado", "Suporte VIP"] }
     }
+  },
+  "support": {
+    "title": "Suporte",
+    "subtitle": "Precisa de ajuda? Abra um chamado.",
+    "new_ticket": "Abrir novo chamado",
+    "discord_title": "Atendimento prioritário no Discord",
+    "discord_desc": "Assinantes têm atendimento prioritário por chat e call na nossa comunidade.",
+    "discord_cta": "Entre no Discord →",
+    "your_tickets": "Seus chamados",
+    "loading": "Carregando...",
+    "empty": "Você ainda não abriu nenhum chamado.",
+    "team_reply": "Resposta da equipe",
+    "category": { "bug": "Bug", "duvida": "Dúvida", "pagamento": "Pagamento", "sugestao": "Sugestão" },
+    "status": { "aberto": "Aberto", "em_analise": "Em análise", "aguardando_usuario": "Aguardando usuário", "resolvido": "Resolvido", "fechado": "Fechado" }
   },
   "hero": {
     "badge": "✨ Novo · Ranking gamificado disponível",

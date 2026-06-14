@@ -5,6 +5,7 @@ import type { CSSProperties, ReactNode } from 'react'
 export type SystemIconName =
   | 'dashboard' | 'upload' | 'analytics' | 'ranking' | 'perfil'
   | 'canais' | 'historico' | 'config' | 'notificacoes' | 'admin' | 'suporte'
+  | 'campanhas'
 
 interface SystemIconProps {
   name: SystemIconName
@@ -104,6 +105,14 @@ const ICONS: Record<SystemIconName, (paint: string) => ReactNode> = {
       <g stroke={p} strokeWidth="2" strokeLinecap="round">
         <path d="M5.6 5.6 L9.4 9.4 M18.4 5.6 L14.6 9.4 M5.6 18.4 L9.4 14.6 M18.4 18.4 L14.6 14.6" />
       </g>
+    </g>
+  ),
+  campanhas: (p) => (
+    <g fill={p}>
+      {/* flared megaphone cone — narrow at left, open at right */}
+      <path d="M3 9 H6 L18 4.5 V19.5 L6 15 H3 Z" />
+      {/* handle */}
+      <path d="M5.5 15 H9 L10.5 20 H7 Z" />
     </g>
   ),
 }

@@ -14,18 +14,26 @@ import { UserMenu } from '@/components/app/UserMenu'
 const navIcon = (name: SystemIconName) => (active: boolean) =>
   <SystemIcon name={name} active={active} size={18} />
 
-// `key` maps to the `menu` i18n namespace; labels are translated at render time.
-const NAV_ITEMS = [
+// `key` and `badge` map to the `menu` i18n namespace; labels are translated at render time.
+type NavEntry = {
+  key: string
+  href: string
+  icon: ReturnType<typeof navIcon>
+  badge?: string
+}
+
+const NAV_ITEMS: NavEntry[] = [
   { key: 'dashboard', href: '/dashboard',  icon: navIcon('dashboard') },
   { key: 'upload',    href: '/upload',     icon: navIcon('upload')    },
   { key: 'canais',    href: '/canais',     icon: navIcon('canais')    },
   { key: 'analytics', href: '/analytics',  icon: navIcon('analytics') },
   { key: 'ranking',   href: '/ranking',    icon: navIcon('ranking')   },
+  { key: 'campanhas', href: '/campanhas',  icon: navIcon('campanhas'), badge: 'soon' },
   { key: 'historico', href: '/historico',  icon: navIcon('historico') },
 ]
 
 // 'Perfil' moved into the user-card dropdown ("Ver perfil") to avoid duplication
-const BOTTOM_ITEMS = [
+const BOTTOM_ITEMS: NavEntry[] = [
   { key: 'suporte',       href: '/suporte',       icon: navIcon('suporte') },
   { key: 'configuracoes', href: '/configuracoes', icon: navIcon('config') },
 ]
@@ -38,7 +46,7 @@ const TOUR_ANCHOR: Record<string, string> = {
   '/suporte': 'suporte',
 }
 
-function NavItem({ item, active, onNavigate }: { item: typeof NAV_ITEMS[0]; active: boolean; onNavigate?: () => void }) {
+function NavItem({ item, active, onNavigate }: { item: NavEntry; active: boolean; onNavigate?: () => void }) {
   const t = useTranslations('menu')
   return (
     <Link
@@ -59,6 +67,11 @@ function NavItem({ item, active, onNavigate }: { item: typeof NAV_ITEMS[0]; acti
       )}
       <span className="relative">{item.icon(active)}</span>
       <span className="relative">{t(item.key)}</span>
+      {item.badge && (
+        <span className="relative ml-auto rounded-full border border-[#00E5A0]/20 bg-[#00E5A0]/10 px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-wide text-[#00E5A0]">
+          {t(item.badge)}
+        </span>
+      )}
       {active && (
         <motion.div
           layoutId="sidebar-pill"

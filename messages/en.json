@@ -63,6 +63,8 @@
     "canais": "Channels",
     "analytics": "Analytics",
     "ranking": "Ranking",
+    "campanhas": "Campaigns",
+    "soon": "Soon",
     "historico": "History",
     "suporte": "Support",
     "configuracoes": "Settings",
@@ -158,6 +160,20 @@
       "pro": { "description": "For serious creators", "features": ["Unlimited posts", "9 total channels", "3 per platform", "Advanced analytics", "Unlimited history", "Priority support"] },
       "king": { "description": "For agencies and professionals", "features": ["Everything in Pro", "Unlimited channels", "Advanced reporting", "API Access", "Dedicated onboarding", "VIP support"] }
     }
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "Need help? Open a ticket.",
+    "new_ticket": "Open new ticket",
+    "discord_title": "Priority support on Discord",
+    "discord_desc": "Subscribers get priority support via chat and call in our community.",
+    "discord_cta": "Join the Discord →",
+    "your_tickets": "Your tickets",
+    "loading": "Loading...",
+    "empty": "You haven't opened any tickets yet.",
+    "team_reply": "Team reply",
+    "category": { "bug": "Bug", "duvida": "Question", "pagamento": "Payment", "sugestao": "Suggestion" },
+    "status": { "aberto": "Open", "em_analise": "Under review", "aguardando_usuario": "Awaiting user", "resolvido": "Resolved", "fechado": "Closed" }
   },
   "hero": {
     "badge": "✨ New · Gamified ranking available",
