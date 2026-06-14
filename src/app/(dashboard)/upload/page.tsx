@@ -10,6 +10,10 @@ import { useToast } from '@/components/shared/Toast'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { TikTokOptions, type TikTokPostOptions } from '@/components/upload/TikTokOptions'
+import { VideoPreview } from '@/components/upload/VideoPreview'
+import { ThumbnailSelector, type ThumbnailSource } from '@/components/upload/ThumbnailSelector'
+import { HashtagsInput } from '@/components/upload/HashtagsInput'
+import { CaptionField, type CaptionValue } from '@/components/upload/CaptionField'
 import type { Platform } from '@/types/api.types'
 
 type Step = 1 | 2 | 3
@@ -47,7 +51,10 @@ export default function UploadPage() {
   const [step, setStep] = useState<Step>(1)
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
-  const [caption, setCaption] = useState('')
+  const [caption, setCaption] = useState<CaptionValue>('')
+  const [thumbnail, setThumbnail] = useState<ThumbnailSource>(null)
+  const [capturedFrames, setCapturedFrames] = useState<Array<{ dataUrl: string; time: number }>>([])
+  const [hashtags, setHashtags] = useState<string[]>([])
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(['tiktok', 'instagram', 'youtube'])
   const [tiktokOptions, setTiktokOptions] = useState<TikTokPostOptions | null>(null)
   const [useAI, setUseAI] = useState(true)
@@ -100,6 +107,24 @@ export default function UploadPage() {
       console.debug('[upload] TikTok options ready for publish', tiktokConfig)
     }
 
+    // Assemble the publish payload. When real OAuth publishing lands, this is the
+    // shape the publish API receives (caption is always normalized per-platform).
+    const payload = {
+      title,
+      caption: typeof caption === 'string'
+        ? { tiktok: caption, instagram: caption, youtube: caption }
+        : caption,
+      hashtags,
+      thumbnail: thumbnail?.type === 'frame'
+        ? thumbnail.dataUrl            // base64 data URL for a captured frame
+        : thumbnail?.type === 'upload'
+        ? thumbnail.file               // File object for a custom image
+        : null,
+      platforms: selectedPlatforms,
+      useAI,
+    }
+    console.debug('[upload] publish payload ready', payload)
+
     for (const platform of selectedPlatforms) {
       setPublishResults(prev => ({ ...prev, [platform]: 'publishing' }))
       await new Promise(r => setTimeout(r, 1200 + Math.random() * 800))
@@ -126,6 +151,9 @@ export default function UploadPage() {
     setFile(null)
     setTitle('')
     setCaption('')
+    setThumbnail(null)
+    setCapturedFrames([])
+    setHashtags([])
     setPublishResults({ tiktok: 'pending', instagram: 'pending', youtube: 'pending' })
   }
 
@@ -212,45 +240,58 @@ export default function UploadPage() {
               transition={{ duration: 0.2 }}
               className="space-y-4"
             >
-              {/* Preview do arquivo */}
-              <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-[#111111] p-3">
-                <div className="grid h-10 w-10 place-items-center rounded-lg bg-[#1a1a1a]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00E5A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="truncate text-[13px] font-medium text-white">{file.name}</div>
-                  <div className="text-[11px] text-[#444444]">{(file.size / (1024 * 1024)).toFixed(1)} MB</div>
-                </div>
-                <button onClick={() => { setFile(null); setStep(1) }} className="text-[#444444] hover:text-white transition-colors">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
+              {/* Video preview com player inline */}
+              <VideoPreview
+                file={file}
+                onFrameCapture={(dataUrl, time) => {
+                  // Keep the last 5 captured frames for the thumbnail strip.
+                  setCapturedFrames(prev => [{ dataUrl, time }, ...prev].slice(0, 5))
+                  setThumbnail({ type: 'frame', dataUrl, time })
+                }}
+              />
+
+              {/* Trocar vídeo */}
+              <button
+                type="button"
+                onClick={() => { setFile(null); setStep(1) }}
+                className="-mt-2 inline-flex items-center gap-1.5 text-[12px] font-medium text-[#666666] transition-colors hover:text-white"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                </svg>
+                Trocar vídeo
+              </button>
+
+              {/* Seletor de capa */}
+              <ThumbnailSelector
+                value={thumbnail}
+                onChange={setThumbnail}
+                capturedFrames={capturedFrames}
+              />
+
+              {/* Título */}
+              <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+                <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('label_title')}</label>
+                <input
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  placeholder={t('placeholder_title')}
+                  className="w-full rounded-lg border border-white/[0.08] bg-[#0a0a0a] px-3 py-2.5 text-[13px] text-white placeholder-[#333333] outline-none transition-colors focus:border-[#00E5A0]/50"
+                />
               </div>
 
-              {/* Título e Caption */}
-              <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4 space-y-3">
-                <div>
-                  <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('label_title')}</label>
-                  <input
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                    placeholder={t('placeholder_title')}
-                    className="w-full rounded-lg border border-white/[0.08] bg-[#0a0a0a] px-3 py-2.5 text-[13px] text-white placeholder-[#333333] outline-none transition-colors focus:border-[#00E5A0]/50"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('label_caption')}</label>
-                  <textarea
-                    value={caption}
-                    onChange={e => setCaption(e.target.value)}
-                    placeholder={t('placeholder_caption')}
-                    rows={3}
-                    className="w-full resize-none rounded-lg border border-white/[0.08] bg-[#0a0a0a] px-3 py-2.5 text-[13px] text-white placeholder-[#333333] outline-none transition-colors focus:border-[#00E5A0]/50"
-                  />
-                </div>
+              {/* Legenda (única ou por plataforma) + Hashtags */}
+              <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+                <CaptionField
+                  platforms={selectedPlatforms}
+                  value={caption}
+                  onChange={setCaption}
+                />
+                <HashtagsInput
+                  value={hashtags}
+                  onChange={setHashtags}
+                  platforms={selectedPlatforms}
+                />
               </div>
 
               {/* Plataformas */}
