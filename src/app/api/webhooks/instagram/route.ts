@@ -40,26 +40,34 @@ export async function POST(request: NextRequest) {
   // case it is ever configured under that name.
   const APP_SECRET =
     process.env.INSTAGRAM_CLIENT_SECRET ?? process.env.META_APP_SECRET
-  const body = await request.text()
 
-  // Validate Meta's X-Hub-Signature-256 header (HMAC-SHA256 of the raw body).
+  // Require the app secret to be configured — never accept unsigned events.
+  if (!APP_SECRET) {
+    console.error('[instagram-webhook] App secret not configured (INSTAGRAM_CLIENT_SECRET)')
+    return new NextResponse('Server configuration error', { status: 500 })
+  }
+
+  const body = await request.text()
   const signature = request.headers.get('x-hub-signature-256')
 
-  if (APP_SECRET && signature) {
-    const expected =
-      'sha256=' +
-      crypto.createHmac('sha256', APP_SECRET).update(body).digest('hex')
+  // Reject requests with no signature header.
+  if (!signature) {
+    console.warn('[instagram-webhook] Missing signature header')
+    return new NextResponse('Missing signature', { status: 401 })
+  }
 
-    // Constant-time comparison to avoid timing attacks.
-    const sigBuf = Buffer.from(signature)
-    const expBuf = Buffer.from(expected)
-    const valid =
-      sigBuf.length === expBuf.length && crypto.timingSafeEqual(sigBuf, expBuf)
-
-    if (!valid) {
-      console.warn('[instagram-webhook] Invalid signature')
-      return new NextResponse('Invalid signature', { status: 401 })
-    }
+  // Validate Meta's X-Hub-Signature-256 (HMAC-SHA256 of the raw body). The length
+  // guard is required: timingSafeEqual throws on a length mismatch.
+  const expected =
+    'sha256=' +
+    crypto.createHmac('sha256', APP_SECRET).update(body).digest('hex')
+  const sigBuf = Buffer.from(signature)
+  const expBuf = Buffer.from(expected)
+  const valid =
+    sigBuf.length === expBuf.length && crypto.timingSafeEqual(sigBuf, expBuf)
+  if (!valid) {
+    console.warn('[instagram-webhook] Invalid signature')
+    return new NextResponse('Invalid signature', { status: 401 })
   }
 
   try {

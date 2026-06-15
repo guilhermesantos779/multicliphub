@@ -138,7 +138,10 @@ export async function POST(req: NextRequest) {
       }
     }
   } catch (err) {
-    console.error('Webhook handler error:', err)
+    // Return 500 so Stripe retries — a swallowed DB failure here would mean the
+    // user paid but never got their plan, with no redelivery.
+    console.error(`Webhook handler error for ${event.type}:`, err)
+    return NextResponse.json({ error: 'Handler failed, will retry' }, { status: 500 })
   }
 
   return NextResponse.json({ received: true })
