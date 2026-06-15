@@ -31,7 +31,9 @@ export function Topbar({ title }: { title: string }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-white/[0.06] bg-[#0a0a0a]/90 px-4 backdrop-blur-sm md:px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-white/[0.06] bg-obsidiana/70 px-4 backdrop-blur-xl md:px-6">
+      {/* Bottom border shine */}
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
       <div className="flex min-w-0 items-center gap-2">
         {/* Hamburger — opens the nav drawer on mobile */}
         <button
@@ -72,7 +74,7 @@ export function Topbar({ title }: { title: string }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 4, scale: 0.96 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 top-11 w-80 overflow-hidden rounded-xl border border-white/[0.08] bg-[#111111] shadow-2xl"
+                className="absolute right-0 top-11 w-80 overflow-hidden rounded-xl border border-white/[0.12] bg-surface-high/95 backdrop-blur-xl shadow-[0_16px_48px_rgba(0,0,0,0.6)]"
               >
                 <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
                   <span className="text-[13px] font-semibold text-white">{t('notifications')}</span>

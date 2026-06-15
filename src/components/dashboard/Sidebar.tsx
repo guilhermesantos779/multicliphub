@@ -116,11 +116,16 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          'fixed left-0 top-0 z-50 flex h-screen w-56 flex-col border-r border-white/[0.06] bg-obsidiana',
+          'fixed left-0 top-0 z-50 flex h-screen w-56 flex-col border-r border-white/[0.06] bg-obsidiana/80 backdrop-blur-xl',
           'transition-transform duration-300 ease-out md:z-40 md:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
       >
+      {/* Top shine line */}
+      <div className="pointer-events-none absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      {/* Ambient glow — top, purple */}
+      <div className="pointer-events-none absolute left-0 right-0 top-0 h-40 bg-gradient-to-b from-purple/[0.06] to-transparent" />
+
       {/* Logo + mobile close */}
       <div className="flex h-14 items-center justify-between border-b border-white/[0.06] px-4">
         <LogoSidebar />

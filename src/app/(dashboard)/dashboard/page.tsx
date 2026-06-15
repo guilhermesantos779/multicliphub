@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Topbar } from '@/components/dashboard/Topbar'
+import { SpotGlow } from '@/components/ui/brand'
 import { MetricCard, MetricCardSkeleton } from '@/components/dashboard/MetricCard'
 import { PostCardSkeleton } from '@/components/shared/Skeleton'
 import { PlatformIcon } from '@/components/shared/PlatformIcon'
@@ -86,7 +87,10 @@ export default function DashboardPage() {
       </Suspense>
       <Topbar title={t('title')} />
 
-      <div className="p-4 space-y-6 md:p-6">
+      <div className="relative p-4 space-y-6 md:p-6">
+        {/* Ambient depth */}
+        <SpotGlow color="mint" size="lg" position="top-right" />
+
         {/* Métricas */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {loading ? (
@@ -148,7 +152,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Posts recentes */}
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+        <div className="relative rounded-2xl border border-white/[0.08] bg-white/[0.05] backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
             <h2 className="text-[14px] font-semibold text-white">{t('recent_title')}</h2>
             <Link href="/historico" className="text-[12px] text-[#00E5A0] hover:underline">
