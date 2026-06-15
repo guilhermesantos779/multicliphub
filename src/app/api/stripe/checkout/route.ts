@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getStripe, PLANS, type PlanKey } from '@/lib/stripe'
+import { getStripe, PLANS } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
+import { parseBody, checkoutSchema } from '@/lib/schemas'
 
 export async function POST(req: NextRequest) {
   try {
-    const { plan, billing } = await req.json() as {
-      plan: PlanKey
-      billing: 'monthly' | 'annual'
-    }
+    const parsed = await parseBody(req, checkoutSchema)
+    if (!parsed.success) return parsed.error
+    const { plan, billing } = parsed.data
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
