@@ -20,7 +20,9 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: https:",
+              "img-src 'self' data: blob: https:",
+              // Local video preview + custom thumbnail use blob: object URLs.
+              "media-src 'self' blob:",
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com",
               "frame-src https://js.stripe.com https://hooks.stripe.com",
             ].join('; ')
