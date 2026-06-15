@@ -265,6 +265,12 @@ video, canvas {
   50%      { transform: scale(1.2); opacity: 1;   }
 }
 
+/* Skeleton shimmer sweep (Design Layer 3). */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 /* ─────────────────────────────────────────────────────────────
    Design Layer 2 — depth utilities
    Gradient borders, top-edge shine, and surface hierarchy.

@@ -1,11 +1,12 @@
 'use client'
 import { useEffect, useState, Suspense } from 'react'
 import { motion } from 'framer-motion'
+import { Film } from 'lucide-react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Topbar } from '@/components/dashboard/Topbar'
-import { SpotGlow } from '@/components/ui/brand'
+import { SpotGlow, EmptyState, StaggerContainer, StaggerItem } from '@/components/ui/brand'
 import { MetricCard, MetricCardSkeleton } from '@/components/dashboard/MetricCard'
 import { PostCardSkeleton } from '@/components/shared/Skeleton'
 import { PlatformIcon } from '@/components/shared/PlatformIcon'
@@ -48,6 +49,7 @@ const statusConfig: Record<string, { color: string; bg: string }> = {
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard')
+  const router = useRouter()
   const { profile, loading } = useUser()
   const [posts, setPosts] = useState<RecentPost[]>([])
   const [postsLoading, setPostsLoading] = useState(true)
@@ -92,64 +94,72 @@ export default function DashboardPage() {
         <SpotGlow color="mint" size="lg" position="top-right" />
 
         {/* Métricas */}
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StaggerContainer className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {loading ? (
             Array.from({ length: 4 }).map((_, i) => <MetricCardSkeleton key={i} />)
           ) : (
             <>
-              <MetricCard
-                label={t('metric_posts')}
-                value={postsLabel}
-                subLabel={postsSub}
-                iconBg="#1a1030"
-                trend="up"
-                trendValue={t('metric_posts_trend')}
-                icon={
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00E5A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
-                }
-              />
-              <MetricCard
-                label={t('metric_views')}
-                value={formatViews(profile?.total_views || 0)}
-                subLabel={t('metric_views_sub')}
-                iconBg="#0a2030"
-                trend="up"
-                trendValue={t('metric_views_trend')}
-                icon={
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
-                  </svg>
-                }
-              />
-              <MetricCard
-                label={t('metric_platforms')}
-                value={3}
-                subLabel={t('metric_platforms_sub')}
-                iconBg="#1a2a1a"
-                icon={
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
-                  </svg>
-                }
-              />
-              <MetricCard
-                label={t('metric_streak')}
-                value={t('metric_streak_value')}
-                subLabel={t('metric_streak_sub')}
-                iconBg="#2a1a0a"
-                trend="up"
-                trendValue={t('metric_streak_trend')}
-                icon={
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fb923c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z" />
-                  </svg>
-                }
-              />
+              <StaggerItem>
+                <MetricCard
+                  label={t('metric_posts')}
+                  value={postsLabel}
+                  subLabel={postsSub}
+                  iconBg="#1a1030"
+                  trend="up"
+                  trendValue={t('metric_posts_trend')}
+                  icon={
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00E5A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                  }
+                />
+              </StaggerItem>
+              <StaggerItem>
+                <MetricCard
+                  label={t('metric_views')}
+                  value={formatViews(profile?.total_views || 0)}
+                  subLabel={t('metric_views_sub')}
+                  iconBg="#0a2030"
+                  trend="up"
+                  trendValue={t('metric_views_trend')}
+                  icon={
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+                    </svg>
+                  }
+                />
+              </StaggerItem>
+              <StaggerItem>
+                <MetricCard
+                  label={t('metric_platforms')}
+                  value={3}
+                  subLabel={t('metric_platforms_sub')}
+                  iconBg="#1a2a1a"
+                  icon={
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
+                    </svg>
+                  }
+                />
+              </StaggerItem>
+              <StaggerItem>
+                <MetricCard
+                  label={t('metric_streak')}
+                  value={t('metric_streak_value')}
+                  subLabel={t('metric_streak_sub')}
+                  iconBg="#2a1a0a"
+                  trend="up"
+                  trendValue={t('metric_streak_trend')}
+                  icon={
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fb923c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z" />
+                    </svg>
+                  }
+                />
+              </StaggerItem>
             </>
           )}
-        </div>
+        </StaggerContainer>
 
         {/* Posts recentes */}
         <div className="relative rounded-2xl border border-white/[0.08] bg-white/[0.05] backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
@@ -168,21 +178,13 @@ export default function DashboardPage() {
                 </div>
               ))
             ) : posts.length === 0 ? (
-              <div className="flex flex-col items-center py-12 text-center">
-                <div className="mb-3 text-4xl">🎬</div>
-                <div className="text-[14px] font-medium text-white mb-1">
-                  {t('empty_title')}
-                </div>
-                <div className="mb-4 text-[12px] text-[#444444]">
-                  {t('empty_subtitle')}
-                </div>
-                <Link
-                  href="/upload"
-                  className="rounded-lg bg-[#00E5A0] px-4 py-2 text-[13px] font-semibold text-[#0B0F19] hover:bg-[#00B584] transition-colors"
-                >
-                  {t('empty_cta')}
-                </Link>
-              </div>
+              <EmptyState
+                variant="compact"
+                icon={<Film className="h-full w-full" style={{ color: 'rgba(0,229,160,0.6)' }} />}
+                title={t('empty_title')}
+                description={t('empty_subtitle')}
+                action={{ label: t('empty_cta'), onClick: () => router.push('/upload') }}
+              />
             ) : (
               posts.map((post, i) => {
                 const statusKey = statusConfig[post.status] ? post.status : 'pending'

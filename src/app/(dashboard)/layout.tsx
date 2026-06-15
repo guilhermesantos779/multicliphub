@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/dashboard/Sidebar'
+import { PageTransition } from '@/components/ui/brand'
 import { MobileNavProvider } from '@/components/dashboard/MobileNav'
 import { ToastProvider } from '@/components/shared/Toast'
 import { ProfileProvider } from '@/components/app/ProfileProvider'
@@ -32,7 +33,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div className="flex min-h-screen bg-obsidiana">
               <Sidebar />
               <main className="flex-1 min-w-0 md:ml-56">
-                {children}
+                <PageTransition>
+                  {children}
+                </PageTransition>
               </main>
             </div>
           </MobileNavProvider>

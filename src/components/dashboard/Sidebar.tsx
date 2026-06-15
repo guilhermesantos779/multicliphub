@@ -54,7 +54,7 @@ function NavItem({ item, active, onNavigate }: { item: NavEntry; active: boolean
       onClick={onNavigate}
       data-tour={TOUR_ANCHOR[item.href]}
       className={cn(
-        'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors duration-200',
+        'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200 hover:translate-x-0.5',
         active ? 'text-white' : 'text-[#555555] hover:text-[#888888]'
       )}
     >
