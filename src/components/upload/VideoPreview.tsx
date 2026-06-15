@@ -14,6 +14,7 @@ export function VideoPreview({ file, objectUrl, onFrameCapture }: VideoPreviewPr
   const [playing, setPlaying] = useState(false)
   const [muted, setMuted] = useState(true)
   const [progress, setProgress] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [url, setUrl] = useState<string | null>(null)
 
@@ -37,6 +38,7 @@ export function VideoPreview({ file, objectUrl, onFrameCapture }: VideoPreviewPr
     const v = videoRef.current
     if (!v) return
     setProgress(v.currentTime / (v.duration || 1))
+    setCurrentTime(v.currentTime)
   }
 
   const handleLoadedMetadata = () => {
@@ -136,7 +138,7 @@ export function VideoPreview({ file, objectUrl, onFrameCapture }: VideoPreviewPr
                 }
               </button>
               <span className="text-xs text-white/60 font-mono">
-                {formatTime((videoRef.current?.currentTime) ?? 0)}
+                {formatTime(currentTime)}
                 {' / '}
                 {formatTime(duration)}
               </span>
