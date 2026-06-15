@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { Topbar } from '@/components/dashboard/Topbar'
@@ -14,6 +14,10 @@ import { VideoPreview } from '@/components/upload/VideoPreview'
 import { ThumbnailSelector, type ThumbnailSource } from '@/components/upload/ThumbnailSelector'
 import { HashtagsInput } from '@/components/upload/HashtagsInput'
 import { CaptionField, type CaptionValue } from '@/components/upload/CaptionField'
+import { YouTubeOptions, type YouTubeOptionsData } from '@/components/upload/YouTubeOptions'
+import { LocationField } from '@/components/upload/LocationField'
+import { CollabTags } from '@/components/upload/CollabTags'
+import { PlatformPreview } from '@/components/upload/PlatformPreview'
 import type { Platform } from '@/types/api.types'
 
 type Step = 1 | 2 | 3
@@ -55,14 +59,41 @@ export default function UploadPage() {
   const [thumbnail, setThumbnail] = useState<ThumbnailSource>(null)
   const [capturedFrames, setCapturedFrames] = useState<Array<{ dataUrl: string; time: number }>>([])
   const [hashtags, setHashtags] = useState<string[]>([])
+  const [location, setLocation] = useState('')
+  const [collabTags, setCollabTags] = useState<string[]>([])
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(['tiktok', 'instagram', 'youtube'])
   const [tiktokOptions, setTiktokOptions] = useState<TikTokPostOptions | null>(null)
+  const [youtubeOptions, setYoutubeOptions] = useState<YouTubeOptionsData>({
+    categoryId: '20',          // Gaming as default
+    madeForKids: false,
+    selfDeclaredMadeForKids: false,
+  })
   const [useAI, setUseAI] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [publishResults, setPublishResults] = useState<Record<Platform, PublishStatus>>({
     tiktok: 'pending', instagram: 'pending', youtube: 'pending',
   })
+
+  // Single object URL for the uploaded video, shared by the inline player and
+  // the platform preview mockup. Owned here so both consume the same blob URL.
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  useEffect(() => {
+    if (!file) { setVideoUrl(null); return }
+    const u = URL.createObjectURL(file)
+    setVideoUrl(u)
+    return () => URL.revokeObjectURL(u)
+  }, [file])
+
+  // Caption shown in the preview: unified string or the first platform's text.
+  const previewCaption = typeof caption === 'string'
+    ? caption
+    : caption[selectedPlatforms[0]] ?? ''
+  const previewThumbnail = thumbnail?.type === 'frame'
+    ? thumbnail.dataUrl
+    : thumbnail?.type === 'upload'
+    ? thumbnail.previewUrl
+    : null
 
   const handleFile = useCallback((f: File) => {
     if (!f.type.startsWith('video/')) {
@@ -120,6 +151,13 @@ export default function UploadPage() {
         : thumbnail?.type === 'upload'
         ? thumbnail.file               // File object for a custom image
         : null,
+      location,
+      collabTags,
+      youtube: {
+        categoryId: youtubeOptions.categoryId,
+        madeForKids: youtubeOptions.madeForKids,
+        selfDeclaredMadeForKids: youtubeOptions.selfDeclaredMadeForKids,
+      },
       platforms: selectedPlatforms,
       useAI,
     }
@@ -154,6 +192,8 @@ export default function UploadPage() {
     setThumbnail(null)
     setCapturedFrames([])
     setHashtags([])
+    setLocation('')
+    setCollabTags([])
     setPublishResults({ tiktok: 'pending', instagram: 'pending', youtube: 'pending' })
   }
 
@@ -243,6 +283,7 @@ export default function UploadPage() {
               {/* Video preview com player inline */}
               <VideoPreview
                 file={file}
+                objectUrl={videoUrl}
                 onFrameCapture={(dataUrl, time) => {
                   // Keep the last 5 captured frames for the thumbnail strip.
                   setCapturedFrames(prev => [{ dataUrl, time }, ...prev].slice(0, 5))
@@ -269,6 +310,17 @@ export default function UploadPage() {
                 capturedFrames={capturedFrames}
               />
 
+              {/* Pré-visualização por plataforma (recolhida por padrão) */}
+              <PlatformPreview
+                videoUrl={videoUrl}
+                thumbnailUrl={previewThumbnail}
+                title={title}
+                caption={previewCaption}
+                hashtags={hashtags}
+                username={profile?.username ?? 'usuario'}
+                platforms={selectedPlatforms}
+              />
+
               {/* Título */}
               <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
                 <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('label_title')}</label>
@@ -293,6 +345,18 @@ export default function UploadPage() {
                   platforms={selectedPlatforms}
                 />
               </div>
+
+              {/* Localização (Instagram + YouTube) e colaboradores (Instagram) */}
+              <LocationField
+                value={location}
+                onChange={setLocation}
+                platforms={selectedPlatforms}
+              />
+              <CollabTags
+                value={collabTags}
+                onChange={setCollabTags}
+                platforms={selectedPlatforms}
+              />
 
               {/* Plataformas */}
               <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
@@ -335,6 +399,14 @@ export default function UploadPage() {
                 <TikTokOptions
                   creatorUsername={profile?.username ?? 'sua conta'}
                   onChange={setTiktokOptions}
+                />
+              )}
+
+              {/* YouTube options — shown only when YouTube is a destination */}
+              {selectedPlatforms.includes('youtube') && (
+                <YouTubeOptions
+                  value={youtubeOptions}
+                  onChange={setYoutubeOptions}
                 />
               )}
 
