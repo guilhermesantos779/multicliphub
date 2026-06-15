@@ -252,7 +252,7 @@ function StepWelcome({ onNext }: { onNext: () => void }) {
 
       <button
         onClick={onNext}
-        className="mt-8 w-full rounded-xl bg-[#9146FF] py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#7c3aed]"
+        className="mt-8 w-full rounded-xl bg-purple py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#7c3aed]"
       >
         Vamos lá →
       </button>
@@ -292,7 +292,7 @@ function StepNickname({
       <button
         onClick={onNext}
         disabled={!canAdvance}
-        className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-[#9146FF] py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#7c3aed] disabled:cursor-not-allowed disabled:opacity-40"
+        className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-purple py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#7c3aed] disabled:cursor-not-allowed disabled:opacity-40"
       >
         {saving && <Loader2 size={16} className="animate-spin" />}
         Continuar →
@@ -324,7 +324,7 @@ function StepPhoto({
 
       <button
         onClick={onPick}
-        className="group relative mb-6 h-32 w-32 overflow-hidden rounded-full border-2 border-white/[0.12] bg-[#9146FF]/[0.12]"
+        className="group relative mb-6 h-32 w-32 overflow-hidden rounded-full border-2 border-white/[0.12] bg-purple/[0.12]"
       >
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -347,7 +347,7 @@ function StepPhoto({
         {photoAdded ? (
           <button
             onClick={onNext}
-            className="flex-1 rounded-xl bg-[#9146FF] py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#7c3aed]"
+            className="flex-1 rounded-xl bg-purple py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#7c3aed]"
           >
             Continuar →
           </button>
@@ -403,7 +403,7 @@ function StepChannels({
             <span className="text-[12px] font-medium text-white">{labels[p]}</span>
             <button
               onClick={() => onConnect(p)}
-              className="w-full rounded-lg border border-[#9146FF]/30 bg-[#9146FF]/[0.08] py-1.5 text-[11px] font-medium text-[#9146FF] transition-colors hover:bg-[#9146FF]/[0.15]"
+              className="w-full rounded-lg border border-purple/30 bg-purple/[0.08] py-1.5 text-[11px] font-medium text-purple transition-colors hover:bg-purple/[0.15]"
             >
               Conectar
             </button>
@@ -414,7 +414,7 @@ function StepChannels({
       <div className="mt-8 flex gap-3">
         <button
           onClick={onNext}
-          className="flex-1 rounded-xl bg-[#9146FF] py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#7c3aed]"
+          className="flex-1 rounded-xl bg-purple py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#7c3aed]"
         >
           Conectar canais →
         </button>
@@ -450,9 +450,9 @@ function StepDone({
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 14, delay: 0.1 }}
-        className="mt-6 mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#00E5A0]/[0.12]"
+        className="mt-6 mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-mint/[0.12]"
       >
-        <Check size={32} className="text-[#00E5A0]" strokeWidth={3} />
+        <Check size={32} className="text-mint" strokeWidth={3} />
       </motion.div>
 
       <h2 className="font-display text-[24px] font-bold tracking-[-0.02em] text-white">
@@ -469,7 +469,7 @@ function StepDone({
             key={f.label}
             className="flex flex-col items-center gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3"
           >
-            <f.icon size={22} className="text-[#9146FF]" />
+            <f.icon size={22} className="text-purple" />
             <span className="text-[11px] leading-tight text-white/70">{f.label}</span>
           </div>
         ))}
@@ -478,7 +478,7 @@ function StepDone({
       <button
         onClick={onStartTour}
         disabled={finishing}
-        className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-[#9146FF] py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#7c3aed] disabled:opacity-50"
+        className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-purple py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#7c3aed] disabled:opacity-50"
       >
         {finishing && <Loader2 size={16} className="animate-spin" />}
         Iniciar tour →

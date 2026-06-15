@@ -114,9 +114,9 @@ const CLIPPER_STEPS = [
 function ComingSoonBadge() {
   return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1
-      bg-[#00E5A0]/10 border border-[#00E5A0]/20 rounded-full
-      text-[11px] font-bold text-[#00E5A0] tracking-widest uppercase">
-      <span className="w-1.5 h-1.5 rounded-full bg-[#00E5A0]
+      bg-mint/10 border border-mint/20 rounded-full
+      text-[11px] font-bold text-mint tracking-widest uppercase">
+      <span className="w-1.5 h-1.5 rounded-full bg-mint
         animate-pulse" />
       Em breve
     </span>
@@ -130,17 +130,17 @@ function FlowDiagram() {
       {/* Streamer side */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-2 h-2 rounded-full bg-[#9146FF]
+          <div className="w-2 h-2 rounded-full bg-purple
             shadow-[0_0_8px_#9146FF]" />
           <span className="text-[11px] font-bold tracking-widest
-            uppercase text-[#9146FF]">
+            uppercase text-purple">
             Streamer
           </span>
         </div>
         {[
-          { icon: '🎮', title: 'Cria a campanha', desc: 'Define orçamento, regras e período.', tag: 'Define o budget', tagColor: 'text-[#9146FF] bg-[#9146FF]/10' },
-          { icon: '📊', title: 'Monitora em tempo real', desc: 'Views e clipes por plataforma.', tag: 'Dashboard', tagColor: 'text-[#9146FF] bg-[#9146FF]/10' },
-          { icon: '💸', title: 'Paga pelo resultado', desc: 'Só paga por views verificados.', tag: 'CPM garantido', tagColor: 'text-[#FFD700] bg-[#FFD700]/10' },
+          { icon: '🎮', title: 'Cria a campanha', desc: 'Define orçamento, regras e período.', tag: 'Define o budget', tagColor: 'text-purple bg-purple/10' },
+          { icon: '📊', title: 'Monitora em tempo real', desc: 'Views e clipes por plataforma.', tag: 'Dashboard', tagColor: 'text-purple bg-purple/10' },
+          { icon: '💸', title: 'Paga pelo resultado', desc: 'Só paga por views verificados.', tag: 'CPM garantido', tagColor: 'text-gold bg-gold/10' },
         ].map((card, i) => (
           <FlowCard key={i} {...card} />
         ))}
@@ -150,9 +150,9 @@ function FlowDiagram() {
       <div className="hidden md:flex flex-col items-center
         justify-center px-6 pt-16">
         <div className="w-px h-16 bg-gradient-to-b from-transparent
-          via-[#9146FF] to-[#00E5A0]" />
+          via-purple to-mint" />
         <div className="w-12 h-12 rounded-full
-          bg-gradient-to-br from-[#3CFFB8] to-[#9146FF]
+          bg-gradient-to-br from-mint-bright to-purple
           flex items-center justify-center text-xl
           shadow-[0_0_24px_rgba(0,229,160,0.3)] my-2
           flex-shrink-0">
@@ -162,24 +162,24 @@ function FlowDiagram() {
           tracking-widest text-center mt-1">
           MAGIC<br/>UPLOAD
         </div>
-        <div className="w-px h-16 bg-gradient-to-b from-[#00E5A0]
-          via-[#9146FF] to-transparent" />
+        <div className="w-px h-16 bg-gradient-to-b from-mint
+          via-purple to-transparent" />
       </div>
 
       {/* Clipper side */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-2 h-2 rounded-full bg-[#00E5A0]
+          <div className="w-2 h-2 rounded-full bg-mint
             shadow-[0_0_8px_#00E5A0]" />
           <span className="text-[11px] font-bold tracking-widest
-            uppercase text-[#00E5A0]">
+            uppercase text-mint">
             Clipador
           </span>
         </div>
         {[
-          { icon: '🎬', title: 'Entra na campanha', desc: 'Escolhe streamers que curte.', tag: 'Escolhe', tagColor: 'text-[#00E5A0] bg-[#00E5A0]/10' },
-          { icon: '🚀', title: 'Publica com 1 upload', desc: 'TikTok + Instagram + YouTube juntos.', tag: 'Magic Upload', tagColor: 'text-[#00E5A0] bg-[#00E5A0]/10' },
-          { icon: '💰', title: 'Ganha por view', desc: 'Views das 3 plataformas somados.', tag: 'Pago via Stripe', tagColor: 'text-[#FFD700] bg-[#FFD700]/10' },
+          { icon: '🎬', title: 'Entra na campanha', desc: 'Escolhe streamers que curte.', tag: 'Escolhe', tagColor: 'text-mint bg-mint/10' },
+          { icon: '🚀', title: 'Publica com 1 upload', desc: 'TikTok + Instagram + YouTube juntos.', tag: 'Magic Upload', tagColor: 'text-mint bg-mint/10' },
+          { icon: '💰', title: 'Ganha por view', desc: 'Views das 3 plataformas somados.', tag: 'Pago via Stripe', tagColor: 'text-gold bg-gold/10' },
         ].map((card, i) => (
           <FlowCard key={i} {...card} />
         ))}
@@ -216,14 +216,14 @@ function FlowCard({
 
 function BenefitCard({ icon: Icon, title, desc, type, color }: Benefit) {
   const bgMap: Record<BenefitType, string> = {
-    streamer: 'bg-[#9146FF]/[0.07]',
-    clipper:  'bg-[#00E5A0]/[0.07]',
-    both:     'bg-[#FFD700]/[0.07]',
+    streamer: 'bg-purple/[0.07]',
+    clipper:  'bg-mint/[0.07]',
+    both:     'bg-gold/[0.07]',
   }
   const borderMap: Record<BenefitType, string> = {
-    streamer: 'border-[#9146FF]/20',
-    clipper:  'border-[#00E5A0]/15',
-    both:     'border-[#FFD700]/20',
+    streamer: 'border-purple/20',
+    clipper:  'border-mint/15',
+    both:     'border-gold/20',
   }
   return (
     <div className={`p-5 rounded-xl border ${bgMap[type]} ${borderMap[type]}
@@ -293,8 +293,8 @@ export function CampanhasContent() {
         <h1 className="mt-6 text-3xl md:text-4xl font-black
           tracking-tight leading-[1.1]">
           Sua ferramenta.
-          <span className="block bg-gradient-to-r from-[#3CFFB8]
-            to-[#00B584] bg-clip-text text-transparent">
+          <span className="block bg-gradient-to-r from-mint-bright
+            to-mint-dark bg-clip-text text-transparent">
             Sua campanha.
           </span>
           Seu dinheiro.
@@ -314,7 +314,7 @@ export function CampanhasContent() {
           <div className="flex justify-between text-xs font-semibold
             text-white/30 mb-2">
             <span>Desenvolvimento</span>
-            <span className="text-[#00E5A0]">78% concluído</span>
+            <span className="text-mint">78% concluído</span>
           </div>
           <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
             <div
@@ -333,8 +333,8 @@ export function CampanhasContent() {
         {/* Waitlist */}
         {submitted ? (
           <div className="mt-6 inline-flex items-center gap-2
-            px-4 py-2 bg-[#00E5A0]/10 border border-[#00E5A0]/20
-            rounded-xl text-sm font-semibold text-[#00E5A0]">
+            px-4 py-2 bg-mint/10 border border-mint/20
+            rounded-xl text-sm font-semibold text-mint">
             <CheckCircle2 size={16} />
             Você está na lista! Avisaremos em breve.
           </div>
@@ -352,7 +352,7 @@ export function CampanhasContent() {
               className="flex-1 bg-white/[0.05] border
                 border-white/[0.08] rounded-xl px-4 py-2.5
                 text-sm text-white placeholder:text-white/30
-                outline-none focus:border-[#00E5A0]/40 transition"
+                outline-none focus:border-mint/40 transition"
             />
             <button
               type="submit"
@@ -373,7 +373,7 @@ export function CampanhasContent() {
       {/* ── HOW IT WORKS ── */}
       <section>
         <p className="text-[11px] font-bold tracking-[4px]
-          uppercase text-[#00E5A0] mb-2">
+          uppercase text-mint mb-2">
           Mecânica
         </p>
         <h2 className="text-2xl font-black tracking-tight mb-8">
@@ -385,7 +385,7 @@ export function CampanhasContent() {
       {/* ── BENEFITS ── */}
       <section>
         <p className="text-[11px] font-bold tracking-[4px]
-          uppercase text-[#00E5A0] mb-2">
+          uppercase text-mint mb-2">
           Vantagens
         </p>
         <h2 className="text-2xl font-black tracking-tight mb-6">
@@ -402,7 +402,7 @@ export function CampanhasContent() {
       {/* ── TABS ── */}
       <section>
         <p className="text-[11px] font-bold tracking-[4px]
-          uppercase text-[#00E5A0] mb-2">
+          uppercase text-mint mb-2">
           Detalhes
         </p>
         <h2 className="text-2xl font-black tracking-tight mb-6">
@@ -450,7 +450,7 @@ export function CampanhasContent() {
       {/* ── PRIZE PANEL ── */}
       <section>
         <div className="relative rounded-2xl overflow-hidden
-          border border-[#FFD700]/20 p-8 text-center"
+          border border-gold/20 p-8 text-center"
           style={{
             background: `
               radial-gradient(ellipse 60% 80% at 50% 0%,

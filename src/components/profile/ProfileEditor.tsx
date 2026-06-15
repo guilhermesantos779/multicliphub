@@ -282,8 +282,8 @@ export function ProfileEditor({
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       {setupMode && (
-        <div className="mb-6 rounded-2xl border border-[#00E5A0]/30 bg-[#00E5A0]/[0.06] px-5 py-4">
-          <p className="text-[14px] font-semibold text-[#00E5A0]">
+        <div className="mb-6 rounded-2xl border border-mint/30 bg-mint/[0.06] px-5 py-4">
+          <p className="text-[14px] font-semibold text-mint">
             Escolha seu nickname para acessar seu perfil público.
           </p>
           <p className="mt-1 text-[13px] text-white/60">
@@ -299,7 +299,7 @@ export function ProfileEditor({
         <button
           onClick={handleSave}
           disabled={saving || uploading !== null || usernameChecking || usernameAvailable === false}
-          className="inline-flex items-center gap-2 rounded-full bg-[#9146FF] px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#7c3aed] disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-full bg-purple px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#7c3aed] disabled:opacity-50"
         >
           {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
           {saving ? 'Salvando...' : 'Salvar alterações'}
@@ -388,7 +388,7 @@ export function ProfileEditor({
               maxLength={MAX_DISPLAY_NAME_LENGTH}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Seu nome"
-              className="mb-1 w-full rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2.5 text-[14px] text-white outline-none focus:border-[#9146FF]/50"
+              className="mb-1 w-full rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2.5 text-[14px] text-white outline-none focus:border-purple/50"
             />
             <div className="mb-4 text-right text-[11px] text-white/30">
               {displayName.length}/{MAX_DISPLAY_NAME_LENGTH}
@@ -402,7 +402,7 @@ export function ProfileEditor({
               onChange={(e) => setBio(e.target.value)}
               rows={3}
               placeholder="Conte um pouco sobre você e seu conteúdo."
-              className="w-full resize-none rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2.5 text-[14px] text-white outline-none focus:border-[#9146FF]/50"
+              className="w-full resize-none rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2.5 text-[14px] text-white outline-none focus:border-purple/50"
             />
             <div className="text-right text-[11px] text-white/30">
               {bio.length}/{MAX_BIO_LENGTH}
@@ -494,14 +494,14 @@ export function ProfileEditor({
                         className={[
                           'relative rounded-xl border p-2 transition-colors',
                           active
-                            ? 'border-[#00E5A0]/40 bg-[#00E5A0]/[0.06]'
+                            ? 'border-mint/40 bg-mint/[0.06]'
                             : 'border-white/[0.06] hover:border-white/[0.15]',
                         ].join(' ')}
                         title={a.name}
                       >
                         <AchievementIcon iconType={a.icon_type} tier={a.tier as AchievementTier} size={44} />
                         {active && (
-                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#00E5A0] text-black">
+                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-mint text-black">
                             <Check size={11} strokeWidth={3} />
                           </span>
                         )}
@@ -568,7 +568,7 @@ function SortableLinkRow({
           <select
             value={link.platform}
             onChange={(e) => onChange({ platform: e.target.value as ProfilePlatform })}
-            className="rounded-lg border border-white/[0.08] bg-black/40 px-2.5 py-2 text-[13px] text-white outline-none focus:border-[#9146FF]/50"
+            className="rounded-lg border border-white/[0.08] bg-black/40 px-2.5 py-2 text-[13px] text-white outline-none focus:border-purple/50"
           >
             {PLATFORM_ORDER.map((p) => (
               <option key={p} value={p} className="bg-[#15151c]">
@@ -586,7 +586,7 @@ function SortableLinkRow({
             value={link.url}
             onChange={(e) => onChange({ url: e.target.value })}
             placeholder={PLATFORM_META[link.platform].placeholder}
-            className="min-w-0 flex-1 rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2 text-[13px] text-white outline-none focus:border-[#9146FF]/50"
+            className="min-w-0 flex-1 rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2 text-[13px] text-white outline-none focus:border-purple/50"
           />
         </div>
         <div className="flex gap-2">
@@ -594,13 +594,13 @@ function SortableLinkRow({
             value={link.display_name}
             onChange={(e) => onChange({ display_name: e.target.value })}
             placeholder="@usuário (opcional)"
-            className="min-w-0 flex-1 rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2 text-[13px] text-white outline-none focus:border-[#9146FF]/50"
+            className="min-w-0 flex-1 rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2 text-[13px] text-white outline-none focus:border-purple/50"
           />
           <input
             value={link.followers_count}
             onChange={(e) => onChange({ followers_count: e.target.value })}
             placeholder="Seguidores (ex: 2.3M)"
-            className="w-40 rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2 text-[13px] text-white outline-none focus:border-[#9146FF]/50"
+            className="w-40 rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2 text-[13px] text-white outline-none focus:border-purple/50"
           />
         </div>
       </div>
@@ -639,7 +639,7 @@ function SortableFeaturedChip({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-2 rounded-full border border-[#00E5A0]/30 bg-[#00E5A0]/[0.06] py-1 pl-1 pr-2"
+      className="flex items-center gap-2 rounded-full border border-mint/30 bg-mint/[0.06] py-1 pl-1 pr-2"
     >
       <button
         {...attributes}

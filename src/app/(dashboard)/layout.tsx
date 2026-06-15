@@ -29,7 +29,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <ToastProvider>
         <OnboardingProvider>
           <MobileNavProvider>
-            <div className="flex min-h-screen bg-[#0a0a0a]">
+            <div className="flex min-h-screen bg-obsidiana">
               <Sidebar />
               <main className="flex-1 min-w-0 md:ml-56">
                 {children}

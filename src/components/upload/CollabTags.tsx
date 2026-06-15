@@ -63,18 +63,18 @@ export function CollabTags({
               <div
                 key={tag}
                 className="flex items-center gap-1.5 px-3 py-1
-                  bg-[#9146FF]/10 border border-[#9146FF]/20
+                  bg-purple/10 border border-purple/20
                   rounded-full"
               >
-                <AtSign size={12} className="text-[#9146FF]" />
+                <AtSign size={12} className="text-purple" />
                 <span className="text-xs font-semibold
-                  text-[#9146FF]">
+                  text-purple">
                   {tag}
                 </span>
                 <button
                   type="button"
                   onClick={() => remove(tag)}
-                  className="text-[#9146FF]/60 hover:text-[#9146FF]
+                  className="text-purple/60 hover:text-purple
                     transition"
                 >
                   <X size={10} />
@@ -107,8 +107,8 @@ export function CollabTags({
               onClick={add}
               disabled={!input.trim()}
               className="px-3 py-2 rounded-lg text-sm font-semibold
-                bg-[#9146FF]/15 text-[#9146FF] border
-                border-[#9146FF]/20 hover:bg-[#9146FF]/25
+                bg-purple/15 text-purple border
+                border-purple/20 hover:bg-purple/25
                 transition disabled:opacity-30 disabled:cursor-not-allowed"
             >
               Adicionar

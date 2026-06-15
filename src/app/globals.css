@@ -7,8 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans:    var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-geist-sans), var(--font-inter), system-ui, sans-serif;
+  --font-sans:    var(--font-manrope), var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-manrope), var(--font-geist-sans), system-ui, sans-serif;
   --font-mono:    var(--font-geist-mono);
   --font-heading: var(--font-display);
 
@@ -71,16 +71,61 @@
   --color-content-secondary: rgba(255,255,255,0.60);
   --color-content-tertiary:  rgba(255,255,255,0.40);
   --color-content-muted:     rgba(255,255,255,0.25);
+
+  /* ── Design Layer 1 — canonical token aliases ──────────────────
+     Short, intent-named utilities (bg-mint, text-purple, bg-obsidiana,
+     text-gold…). These mirror design-tokens.ts and supersede the older
+     brand- and surface- prefixed names, which remain for back-compat. */
+  --color-obsidiana:      #0B0F19;
+  --color-obsidiana-low:  #080C14;
+  --color-surface:        #111827;
+  --color-surface-high:   #1a2035;
+
+  --color-mint:           #00E5A0;
+  --color-mint-bright:    #3CFFB8;
+  --color-mint-dark:      #00B584;
+
+  --color-purple:         #9146FF;
+  --color-purple-bright:  #A569FF;
+  --color-purple-dark:    #7B2FE0;
+
+  --color-gold:           #FFD700;
+  --color-gold-dark:      #B8860B;
+  --color-silver:         #C0C0C0;
+  --color-bronze:         #CD7F32;
+  --color-diamond:        #00E5FF;
+
+  /* Glow shadows → shadow-glow-mint / shadow-glow-purple / shadow-glow-gold */
+  --shadow-glow-mint:    0 0 20px rgba(0,229,160,0.30);
+  --shadow-glow-purple:  0 0 20px rgba(145,70,255,0.30);
+  --shadow-glow-gold:    0 0 20px rgba(255,215,0,0.30);
+
+  /* Spring easing → ease-spring */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 :root {
-  --background:    #000000;
+  /* Primary background is now obsidiana (Design Layer 1 rebrand). */
+  --background:    #0B0F19;
   --foreground:    #FFFFFF;
 
   --brand-mint:      #00E5A0;
   --brand-mint-deep: #00B584;
   --brand-mint-glow: #3CFFB8;
   --brand-purple:    #9146FF;
+
+  /* Faint/subtle tints for inline styles (opacity modifiers don't compose on
+     rgba theme tokens, so these stay as plain vars). */
+  --color-mint-faint:    rgba(0,229,160,0.08);
+  --color-mint-subtle:   rgba(0,229,160,0.15);
+  --color-purple-faint:  rgba(145,70,255,0.08);
+  --color-purple-subtle: rgba(145,70,255,0.15);
+
+  /* Motion tokens */
+  --transition-fast:   150ms ease;
+  --transition-base:   200ms ease;
+  --transition-slow:   300ms ease;
+  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   --surface-card:    rgba(255,255,255,0.02);
   --surface-elevated:#111111;
@@ -132,19 +177,35 @@ html {
 }
 
 body {
-  background: #000000;
+  background: var(--background);
   color: #FFFFFF;
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-manrope), var(--font-inter), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
   /* Clip stray horizontal overflow from decorative glows/blurs so phones never
      get a horizontal scrollbar. `clip` (not `hidden`) avoids creating a scroll
      container, so position: sticky headers keep working. */
   overflow-x: clip;
 }
 
+/* Heading defaults — explicit Tailwind classes still override these per-element. */
+h1 { font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; }
+h2 { font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+h3 { font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
+h4 { font-weight: 700; letter-spacing: -0.01em; line-height: 1.3; }
+
+/* Eyebrow — small uppercase label above headings. */
+.eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-mint);
+}
+
 ::selection {
-  background: rgba(145,70,255,0.30);
+  background: rgba(0,229,160,0.22);
   color: #ffffff;
 }
 

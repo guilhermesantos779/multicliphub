@@ -96,7 +96,7 @@ export function ProfileFrame({
               👑 KING
             </span>
           ) : (
-            <span className="inline-flex items-center rounded-full bg-[#9146FF] px-2 py-0.5 text-[9px] font-bold uppercase text-white">
+            <span className="inline-flex items-center rounded-full bg-purple px-2 py-0.5 text-[9px] font-bold uppercase text-white">
               {tier === 'pro' ? 'Pro' : 'Clipper'}
             </span>
           )}
