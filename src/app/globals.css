@@ -272,6 +272,35 @@ video, canvas {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   Design Layer 4 — finishing details
+   ───────────────────────────────────────────────────────────── */
+
+/* Accessible mint focus ring for focusable elements that don't ship their own.
+   The base-ui Button keeps its built-in ring (avoid a doubled indicator). */
+:focus-visible {
+  outline: 2px solid rgba(0,229,160,0.5);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+[data-slot="button"]:focus-visible { outline: none; }
+
+/* Links ease their color/opacity changes. */
+a { transition: color 150ms ease, opacity 150ms ease; }
+
+/* Disabled affordance. */
+[disabled], [aria-disabled="true"] { cursor: not-allowed; }
+
+/* Crisper monospace rendering. */
+code, pre, .font-mono { font-feature-settings: 'calt' 1, 'liga' 0; }
+
+/* Count-up entrance for freshly revealed numbers/stats. */
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.count-up { animation: count-up 0.4s ease forwards; }
+
+/* ─────────────────────────────────────────────────────────────
    Design Layer 2 — depth utilities
    Gradient borders, top-edge shine, and surface hierarchy.
    ───────────────────────────────────────────────────────────── */

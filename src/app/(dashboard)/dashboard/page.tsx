@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Topbar } from '@/components/dashboard/Topbar'
-import { SpotGlow, EmptyState, StaggerContainer, StaggerItem } from '@/components/ui/brand'
+import { SpotGlow, EmptyState, StaggerContainer, StaggerItem, AnimatedNumber } from '@/components/ui/brand'
 import { MetricCard, MetricCardSkeleton } from '@/components/dashboard/MetricCard'
 import { PostCardSkeleton } from '@/components/shared/Skeleton'
 import { PlatformIcon } from '@/components/shared/PlatformIcon'
@@ -117,7 +117,7 @@ export default function DashboardPage() {
               <StaggerItem>
                 <MetricCard
                   label={t('metric_views')}
-                  value={formatViews(profile?.total_views || 0)}
+                  value={<AnimatedNumber value={profile?.total_views || 0} format={formatViews} />}
                   subLabel={t('metric_views_sub')}
                   iconBg="#0a2030"
                   trend="up"
