@@ -50,6 +50,7 @@
     "err_choose_nickname": "Choose an available nickname",
     "err_password_mismatch": "Passwords don't match",
     "err_password_short": "Password must be at least 8 characters",
+    "err_password_weak": "That password is too common or easy to guess. Please choose a stronger one.",
     "err_accept_terms": "Accept the terms to continue",
     "err_connection": "Connection error: ",
     "check_email_title": "Confirm your email",

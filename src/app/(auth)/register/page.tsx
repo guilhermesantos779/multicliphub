@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { isWeakPassword } from '@/lib/auth/weakPasswords'
 import { Logo } from '@/components/shared/Logo'
 import { UsernameInput } from '@/components/ui/UsernameInput'
 
@@ -39,6 +40,8 @@ export default function RegisterPage() {
     if (usernameAvailable !== true) { setError(t('err_choose_nickname')); return }
     if (password !== confirm) { setError(t('err_password_mismatch')); return }
     if (password.length < 8) { setError(t('err_password_short')); return }
+    // Offline weak-password guard (HIBP is a Supabase Pro feature, not available here).
+    if (isWeakPassword(password, { email, username })) { setError(t('err_password_weak')); return }
     if (!agreed) { setError(t('err_accept_terms')); return }
 
     setLoading(true)

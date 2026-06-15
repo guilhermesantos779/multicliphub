@@ -50,6 +50,7 @@
     "err_choose_nickname": "Escolha um nickname disponível",
     "err_password_mismatch": "As senhas não coincidem",
     "err_password_short": "Senha deve ter mínimo 8 caracteres",
+    "err_password_weak": "Essa senha é muito comum ou fácil de adivinhar. Escolha uma mais forte.",
     "err_accept_terms": "Aceite os termos para continuar",
     "err_connection": "Erro de conexão: ",
     "check_email_title": "Confirme seu e-mail",
