@@ -89,9 +89,9 @@ export function ActivityHeatmap({ userId }: ActivityHeatmapProps) {
   const monthLabels: { col: number; text: string }[] = []
   let lastMonth = -1
   weeks.forEach((week, i) => {
-    const m = week[0].getMonth()
+    const m = week[0]!.getMonth()
     if (m !== lastMonth) {
-      monthLabels.push({ col: i, text: MONTHS_PT[m] })
+      monthLabels.push({ col: i, text: MONTHS_PT[m]! })
       lastMonth = m
     }
   })

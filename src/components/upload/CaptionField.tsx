@@ -39,7 +39,8 @@ export function CaptionField({ platforms, value, onChange }: CaptionFieldProps) 
       onChange(perP)
     } else {
       // Convert back to unified (use first platform's text)
-      const first = !isString ? value[platforms[0]] ?? '' : ''
+      const firstPlatform = platforms[0]
+      const first = (!isString && firstPlatform) ? value[firstPlatform] ?? '' : ''
       onChange(first)
     }
     setPerPlatform(!perPlatform)

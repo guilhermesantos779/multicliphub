@@ -46,7 +46,8 @@ export function PlatformPreview({
   if (platforms.length === 0) return null
 
   // The active tab can become stale when its platform is deselected.
-  const activePlatform = platforms.includes(active) ? active : platforms[0]
+  // platforms is non-empty here (guarded above), so platforms[0] is defined.
+  const activePlatform = platforms.includes(active) ? active : platforms[0]!
   const config = PLATFORM_CONFIG[activePlatform]
 
   // Build caption with hashtags

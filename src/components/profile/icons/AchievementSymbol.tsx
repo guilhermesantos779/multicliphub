@@ -118,7 +118,7 @@ interface AchievementSymbolProps {
 }
 
 export function AchievementSymbol({ name, color, size = 24, className }: AchievementSymbolProps) {
-  const render = S[name] ?? S.star
+  const render = S[name] ?? S.star!
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
       {render(color)}

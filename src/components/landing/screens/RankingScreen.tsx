@@ -8,7 +8,7 @@ const ENTRIES = [
 
 const MEDALS = ['🥇', '🥈', '🥉']
 
-const PODIUM_ORDER = [ENTRIES[1], ENTRIES[0], ENTRIES[2]] // 2nd, 1st, 3rd
+const PODIUM_ORDER = [ENTRIES[1]!, ENTRIES[0]!, ENTRIES[2]!] // 2nd, 1st, 3rd
 
 export function RankingScreen() {
   return (

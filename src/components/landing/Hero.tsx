@@ -36,7 +36,7 @@ export function Hero() {
         Math.floor(progress * SCREEN_ORDER.length),
         SCREEN_ORDER.length - 1,
       )
-      const target = SCREEN_ORDER[index]
+      const target = SCREEN_ORDER[index]! // index is clamped to a valid position
       setActiveScreen((prev) => (prev !== target ? target : prev))
     }
     window.addEventListener('scroll', onScroll, { passive: true })

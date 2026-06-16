@@ -167,7 +167,7 @@ export default function AdminUsersPage() {
                   <div key={i} className="h-12 animate-pulse bg-white/[0.02] px-4" />
                 ))
               : filtered.map(user => {
-                  const rc = ROLE_COLORS[user.role] || ROLE_COLORS.trial
+                  const rc = ROLE_COLORS[user.role] || ROLE_COLORS.trial!
                   return (
                     <div
                       key={user.id}

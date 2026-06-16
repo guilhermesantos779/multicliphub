@@ -78,7 +78,7 @@ export function RankingCarousel() {
     else if (info.offset.x > SWIPE_THRESHOLD) paginate(-1)
   }
 
-  const slide = SLIDES[index]
+  const slide = SLIDES[index]! // index is kept within bounds by paginate()
   const Icon = slide.icon
 
   return (

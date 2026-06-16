@@ -52,7 +52,7 @@ export function ProductTour() {
   const measure = () => {
     if (typeof window === 'undefined') return
     setVp({ w: window.innerWidth, h: window.innerHeight })
-    const el = document.querySelector(`[data-tour="${STEPS[step].anchor}"]`)
+    const el = document.querySelector(`[data-tour="${STEPS[step]!.anchor}"]`)
     if (el) {
       const r = el.getBoundingClientRect()
       setRect({ x: r.left - PAD, y: r.top - PAD, width: r.width + PAD * 2, height: r.height + PAD * 2 })
@@ -132,8 +132,8 @@ export function ProductTour() {
           className="absolute w-[280px] rounded-2xl border border-[#9146FF]/30 bg-[#0a0a0a] p-4 shadow-2xl"
           style={{ left: cardLeft, top: cardTop }}
         >
-          <p className="font-display text-[15px] font-semibold text-white">{STEPS[step].title}</p>
-          <p className="mt-2 text-[12.5px] leading-relaxed text-white/60">{STEPS[step].body}</p>
+          <p className="font-display text-[15px] font-semibold text-white">{STEPS[step]!.title}</p>
+          <p className="mt-2 text-[12.5px] leading-relaxed text-white/60">{STEPS[step]!.body}</p>
 
           <div className="mt-4 flex items-center justify-between">
             <button

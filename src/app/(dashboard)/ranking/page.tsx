@@ -214,7 +214,7 @@ export default function RankingPage() {
                   <span className="text-[15px] font-bold text-white">
                     #{myPosition}
                     <span className="ml-2 text-[12px] font-normal text-[#888888]">
-                      {formatViews(entries[myPosition - 1].score)} {unit}
+                      {formatViews(entries[myPosition - 1]!.score)} {unit}
                     </span>
                   </span>
                 ) : (

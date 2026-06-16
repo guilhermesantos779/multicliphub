@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
         const sub     = event.data.object as Stripe.Subscription
         const userId  = sub.metadata?.supabase_user_id
         const priceId = sub.items.data[0]?.price.id
-        const plan    = PLAN_FROM_PRICE[priceId]
+        const plan    = priceId ? PLAN_FROM_PRICE[priceId] : undefined
         if (userId && plan) {
           await updateUserPlan(userId, plan, sub.id)
         }

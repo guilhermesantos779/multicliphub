@@ -188,7 +188,7 @@ export default function DashboardPage() {
             ) : (
               posts.map((post, i) => {
                 const statusKey = statusConfig[post.status] ? post.status : 'pending'
-                const status = statusConfig[statusKey]
+                const status = statusConfig[statusKey]! // statusKey is always a valid key
                 return (
                   <motion.div
                     key={post.id}

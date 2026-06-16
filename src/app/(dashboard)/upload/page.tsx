@@ -86,9 +86,10 @@ export default function UploadPage() {
   }, [file])
 
   // Caption shown in the preview: unified string or the first platform's text.
+  const firstPlatform = selectedPlatforms[0]
   const previewCaption = typeof caption === 'string'
     ? caption
-    : caption[selectedPlatforms[0]] ?? ''
+    : (firstPlatform ? caption[firstPlatform] ?? '' : '')
   const previewThumbnail = thumbnail?.type === 'frame'
     ? thumbnail.dataUrl
     : thumbnail?.type === 'upload'

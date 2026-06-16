@@ -139,7 +139,7 @@ export default function HistoricoPage() {
               </div>
             </div>
           ) : filtered.map((post, i) => {
-            const status = STATUS_CONFIG[post.status] || STATUS_CONFIG.pending
+            const status = STATUS_CONFIG[post.status] || STATUS_CONFIG.pending!
             return (
               <motion.div
                 key={post.id}

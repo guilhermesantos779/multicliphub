@@ -63,7 +63,7 @@ function StatItem({ value, label, sublabel, highlight }: StatItemProps) {
     if (!node) return
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setVisible(true)
+        if (entry?.isIntersecting) setVisible(true)
       },
       { threshold: 0.3 }
     )
