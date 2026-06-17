@@ -183,25 +183,37 @@ export default function UploadPage() {
     const supabase = createClient()
 
     // TikTok needs a real fetchable file: upload the clip to Storage once.
+    // Show progress on the TikTok row and surface any failure to the user
+    // instead of leaving the step silently stuck.
     let videoPublicUrl: string | null = null
-    if (selectedPlatforms.includes('tiktok') && profile?.id) {
-      try {
-        const ext = file.name.split('.').pop() || 'mp4'
-        const path = `${profile.id}/${Date.now()}.${ext}`
-        const { error: upErr } = await supabase.storage
-          .from('videos')
-          .upload(path, file, { contentType: file.type, upsert: false })
-        if (upErr) throw upErr
-        videoPublicUrl = supabase.storage.from('videos').getPublicUrl(path).data.publicUrl
-      } catch (e) {
-        console.error('[upload] Storage upload failed:', e)
+    const wantsTikTok = selectedPlatforms.includes('tiktok')
+    if (wantsTikTok) {
+      setPublishResults(prev => ({ ...prev, tiktok: 'publishing' }))
+      if (!profile?.id) {
+        toast('Perfil ainda carregando — tente novamente em instantes', 'error')
+      } else {
+        try {
+          const ext = file.name.split('.').pop() || 'mp4'
+          const path = `${profile.id}/${Date.now()}.${ext}`
+          const { error: upErr } = await supabase.storage
+            .from('videos')
+            .upload(path, file, { contentType: file.type, upsert: false })
+          if (upErr) throw upErr
+          videoPublicUrl = supabase.storage.from('videos').getPublicUrl(path).data.publicUrl
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : 'erro desconhecido'
+          console.error('[upload] Storage upload failed:', e)
+          toast(`Falha ao enviar o vídeo: ${msg}`, 'error')
+        }
       }
     }
 
     // Per-platform: TikTok publishes for real; Instagram/YouTube stay simulated
     // until their integrations land.
     for (const platform of selectedPlatforms) {
-      setPublishResults(prev => ({ ...prev, [platform]: 'publishing' }))
+      if (platform !== 'tiktok') {
+        setPublishResults(prev => ({ ...prev, [platform]: 'publishing' }))
+      }
 
       let ok = true
       if (platform === 'tiktok') {
