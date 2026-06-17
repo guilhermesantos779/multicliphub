@@ -123,6 +123,53 @@ export default function UploadPage() {
     )
   }
 
+  // Real TikTok publish: starts the post and polls until it completes or fails.
+  // Returns true only on PUBLISH_COMPLETE.
+  const publishTikTok = async (videoPublicUrl: string): Promise<boolean> => {
+    const tiktokCaption = typeof caption === 'string' ? caption : (caption.tiktok ?? '')
+    try {
+      const res = await fetch('/api/publish/tiktok', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          video_url: videoPublicUrl,
+          title,
+          caption: tiktokCaption,
+          hashtags,
+          // Sandbox apps can only post privately. Switch to tiktokOptions.privacyLevel
+          // once the app is approved for production.
+          privacy_level: 'SELF_ONLY',
+          comment_disabled: tiktokOptions?.commentDisabled ?? false,
+          duet_disabled: tiktokOptions?.duetDisabled ?? false,
+          stitch_disabled: tiktokOptions?.stitchDisabled ?? false,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.success) {
+        console.error('[upload] TikTok publish failed:', data)
+        return false
+      }
+
+      // Poll status every 3s for up to ~3 minutes.
+      const publishId = data.publish_id as string
+      for (let i = 0; i < 60; i++) {
+        await new Promise(r => setTimeout(r, 3000))
+        const sres = await fetch(`/api/publish/tiktok/status?publish_id=${encodeURIComponent(publishId)}`)
+        const sdata = await sres.json()
+        if (sdata.completed) return true
+        if (sdata.failed) {
+          console.error('[upload] TikTok publish failed:', sdata.fail_reason)
+          return false
+        }
+      }
+      console.warn('[upload] TikTok publish timed out — check TikTok Studio')
+      return false
+    } catch (e) {
+      console.error('[upload] TikTok publish error:', e)
+      return false
+    }
+  }
+
   const handlePublish = async () => {
     if (!file || selectedPlatforms.length === 0) return
     if (!canPost) {
@@ -133,45 +180,40 @@ export default function UploadPage() {
     setStep(3)
     setPublishing(true)
 
-    // TikTok requires these post settings on the real publish call (OAuth pending).
-    const tiktokConfig = selectedPlatforms.includes('tiktok') ? tiktokOptions : null
-    if (tiktokConfig) {
-      console.debug('[upload] TikTok options ready for publish', tiktokConfig)
+    const supabase = createClient()
+
+    // TikTok needs a real fetchable file: upload the clip to Storage once.
+    let videoPublicUrl: string | null = null
+    if (selectedPlatforms.includes('tiktok') && profile?.id) {
+      try {
+        const ext = file.name.split('.').pop() || 'mp4'
+        const path = `${profile.id}/${Date.now()}.${ext}`
+        const { error: upErr } = await supabase.storage
+          .from('videos')
+          .upload(path, file, { contentType: file.type, upsert: false })
+        if (upErr) throw upErr
+        videoPublicUrl = supabase.storage.from('videos').getPublicUrl(path).data.publicUrl
+      } catch (e) {
+        console.error('[upload] Storage upload failed:', e)
+      }
     }
 
-    // Assemble the publish payload. When real OAuth publishing lands, this is the
-    // shape the publish API receives (caption is always normalized per-platform).
-    const payload = {
-      title,
-      caption: typeof caption === 'string'
-        ? { tiktok: caption, instagram: caption, youtube: caption }
-        : caption,
-      hashtags,
-      thumbnail: thumbnail?.type === 'frame'
-        ? thumbnail.dataUrl            // base64 data URL for a captured frame
-        : thumbnail?.type === 'upload'
-        ? thumbnail.file               // File object for a custom image
-        : null,
-      location,
-      collabTags,
-      youtube: {
-        categoryId: youtubeOptions.categoryId,
-        madeForKids: youtubeOptions.madeForKids,
-        selfDeclaredMadeForKids: youtubeOptions.selfDeclaredMadeForKids,
-      },
-      platforms: selectedPlatforms,
-      useAI,
-    }
-    console.debug('[upload] publish payload ready', payload)
-
+    // Per-platform: TikTok publishes for real; Instagram/YouTube stay simulated
+    // until their integrations land.
     for (const platform of selectedPlatforms) {
       setPublishResults(prev => ({ ...prev, [platform]: 'publishing' }))
-      await new Promise(r => setTimeout(r, 1200 + Math.random() * 800))
-      setPublishResults(prev => ({ ...prev, [platform]: 'published' }))
-      // Count this publication toward the activity heatmap + monthly ranking.
-      // When real OAuth publishing lands, keep this call at the success point.
-      if (profile?.id) {
-        const supabase = createClient()
+
+      let ok = true
+      if (platform === 'tiktok') {
+        ok = videoPublicUrl ? await publishTikTok(videoPublicUrl) : false
+      } else {
+        await new Promise(r => setTimeout(r, 1200 + Math.random() * 800))
+      }
+
+      setPublishResults(prev => ({ ...prev, [platform]: ok ? 'published' : 'failed' }))
+
+      // Count successful publications toward the activity heatmap + ranking.
+      if (ok && profile?.id) {
         await supabase.rpc('register_publication', {
           p_user_id: profile.id,
           p_platform: platform,
