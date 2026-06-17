@@ -146,6 +146,8 @@ export default function UploadPage() {
       })
       const data = await res.json()
       if (!res.ok || !data.success) {
+        const detail = data?.details?.code || data?.details?.message || ''
+        toast(`TikTok: ${data?.error ?? 'falha ao publicar'}${detail ? ` (${detail})` : ''}`, 'error')
         console.error('[upload] TikTok publish failed:', data)
         return false
       }
@@ -158,6 +160,7 @@ export default function UploadPage() {
         const sdata = await sres.json()
         if (sdata.completed) return true
         if (sdata.failed) {
+          toast(`TikTok falhou: ${sdata.fail_reason ?? 'motivo desconhecido'}`, 'error')
           console.error('[upload] TikTok publish failed:', sdata.fail_reason)
           return false
         }
