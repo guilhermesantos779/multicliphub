@@ -85,6 +85,24 @@ export default function UploadPage() {
     return () => URL.revokeObjectURL(u)
   }, [file])
 
+  // Name of the connected TikTok account, shown as "Publicando como @...".
+  // The OAuth callback already stores the TikTok display_name in channels.channel_name.
+  const [tiktokAccount, setTiktokAccount] = useState<string | null>(null)
+  useEffect(() => {
+    if (!profile?.id) return
+    const supabase = createClient()
+    supabase
+      .from('channels')
+      .select('channel_name')
+      .eq('user_id', profile.id)
+      .eq('platform', 'tiktok')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => { if (data?.channel_name) setTiktokAccount(data.channel_name) })
+  }, [profile?.id])
+
   // Caption shown in the preview: unified string or the first platform's text.
   const firstPlatform = selectedPlatforms[0]
   const previewCaption = typeof caption === 'string'
@@ -455,7 +473,7 @@ export default function UploadPage() {
               {/* TikTok compliance options — shown only when TikTok is a destination */}
               {selectedPlatforms.includes('tiktok') && (
                 <TikTokOptions
-                  creatorUsername={profile?.username ?? 'sua conta'}
+                  creatorUsername={tiktokAccount ?? profile?.username ?? 'sua conta'}
                   onChange={setTiktokOptions}
                 />
               )}
