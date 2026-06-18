@@ -105,8 +105,39 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
 
+  // Meta validates this URL with a plain GET and expects a 200 — a redirect
+  // (307) is rejected. Serve a human-readable info page instead of redirecting.
   if (!code) {
-    return NextResponse.redirect(new URL('/privacidade', request.url))
+    return new NextResponse(
+      `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Exclusão de dados — MultiClip Hub</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0B0F19; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; margin: 0; padding: 24px; box-sizing: border-box; }
+    .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px; padding: 40px; max-width: 480px; text-align: center; }
+    h1 { color: #00E5A0; font-size: 1.5rem; margin-bottom: 12px; }
+    p { color: rgba(255,255,255,0.6); line-height: 1.6; }
+    a { color: #00E5A0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Exclusão de dados</h1>
+    <p>Este é o endpoint de exclusão de dados do MultiClip Hub. Para solicitar a
+    remoção dos seus dados, remova o app nas configurações do Instagram/Meta ou
+    escreva para <a href="mailto:privacidademulticliphub@gmail.com">privacidademulticliphub@gmail.com</a>.</p>
+    <p style="margin-top:16px">Saiba mais na nossa <a href="/privacidade">Política de Privacidade</a>.</p>
+  </div>
+</body>
+</html>`,
+      { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+    )
   }
 
   return new NextResponse(
