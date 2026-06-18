@@ -24,6 +24,23 @@ const PLATFORM_INFO: Record<Platform, { name: string; color: string; desc: strin
   youtube:   { name: 'YouTube Shorts',    color: '#ff0000', desc: 'Suba Shorts direto do painel' },
 }
 
+// Friendly messages for the ?error= codes returned by the OAuth callbacks.
+const OAUTH_ERRORS: Record<string, string> = {
+  instagram_no_account: 'Nenhuma conta Instagram Business/Creator encontrada. Converta sua conta para profissional e tente de novo.',
+  instagram_denied: 'Autorização negada pelo Instagram.',
+  instagram_token: 'Falha ao obter o token do Instagram. Tente novamente.',
+  instagram_config: 'Credenciais do Instagram não configuradas.',
+  instagram_state: 'Sessão de conexão expirada. Tente novamente.',
+  instagram_db: 'Erro ao salvar a conta. Tente novamente.',
+  instagram_unexpected: 'Erro inesperado ao conectar o Instagram.',
+  tiktok_denied: 'Autorização negada pelo TikTok.',
+  tiktok_token: 'Falha ao obter o token do TikTok. Tente novamente.',
+  tiktok_state: 'Sessão de conexão expirada. Tente novamente.',
+  tiktok_config: 'Credenciais do TikTok não configuradas.',
+  tiktok_db: 'Erro ao salvar a conta. Tente novamente.',
+  tiktok_unexpected: 'Erro inesperado ao conectar o TikTok.',
+}
+
 export default function CanaisPage() {
   const { profile } = useUser()
   const { markItem } = useOnboarding()
@@ -49,6 +66,16 @@ export default function CanaisPage() {
     }
     load()
   }, [profile, markItem])
+
+  // Surface the OAuth result carried back by the callback redirect.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const ok = params.get('success')
+    const err = params.get('error')
+    if (ok) toast(`${PLATFORM_INFO[ok as Platform]?.name ?? 'Canal'} conectado!`, 'success')
+    else if (err) toast(OAUTH_ERRORS[err] ?? 'Falha ao conectar o canal', 'error')
+    if (ok || err) window.history.replaceState({}, '', '/canais')
+  }, [toast])
 
   const handleDisconnect = async (id: string) => {
     const supabase = createClient()
