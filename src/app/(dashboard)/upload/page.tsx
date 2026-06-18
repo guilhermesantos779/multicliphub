@@ -231,6 +231,7 @@ export default function UploadPage() {
 
     // Per-platform: TikTok publishes for real; Instagram/YouTube stay simulated
     // until their integrations land.
+    let anySucceeded = false
     for (const platform of selectedPlatforms) {
       if (platform !== 'tiktok') {
         setPublishResults(prev => ({ ...prev, [platform]: 'publishing' }))
@@ -242,6 +243,7 @@ export default function UploadPage() {
       } else {
         await new Promise(r => setTimeout(r, 1200 + Math.random() * 800))
       }
+      if (ok) anySucceeded = true
 
       setPublishResults(prev => ({ ...prev, [platform]: ok ? 'published' : 'failed' }))
 
@@ -252,6 +254,17 @@ export default function UploadPage() {
           p_platform: platform,
         })
       }
+    }
+
+    // Record one entry in the upload history (the Histórico page reads `posts`).
+    if (profile?.id) {
+      await supabase.from('posts').insert({
+        user_id: profile.id,
+        title: title || 'Clipe',
+        caption: typeof caption === 'string' ? caption : (caption.tiktok ?? ''),
+        status: anySucceeded ? 'published' : 'failed',
+        platforms: selectedPlatforms,
+      })
     }
 
     setPublishing(false)

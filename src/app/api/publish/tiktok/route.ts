@@ -96,7 +96,9 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         post_info: {
-          title: (data.title || fullCaption || 'MultiClip Hub').slice(0, 150),
+          // TikTok uses `title` as the post caption — it must carry the
+          // caption + hashtags (not the short internal title), up to 2200 chars.
+          title: (fullCaption || data.title || 'MultiClip Hub').slice(0, 2200),
           privacy_level: data.privacy_level,
           disable_comment: data.comment_disabled,
           disable_duet: data.duet_disabled,

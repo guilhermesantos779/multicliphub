@@ -16,6 +16,7 @@ interface AdminUser {
   total_views: number
   created_at: string
   stripe_customer_id: string | null
+  last_sign_in_at?: string | null
 }
 
 const ROLE_COLORS: Record<string, { text: string; bg: string }> = {
@@ -57,9 +58,32 @@ export default function AdminUsersPage() {
     if (filterRole !== 'all') query = query.eq('role', filterRole)
 
     const { data } = await query
-    setUsers((data as AdminUser[]) || [])
+    let list = (data as AdminUser[]) || []
+
+    // Merge auth-only fields (last sign-in) from the admin API.
+    try {
+      const res = await fetch('/api/admin/users')
+      if (res.ok) {
+        const { users: authUsers } = await res.json()
+        const map = new Map<string, string | null>(
+          (authUsers as { id: string; last_sign_in_at: string | null }[]).map(u => [u.id, u.last_sign_in_at])
+        )
+        list = list.map(u => ({ ...u, last_sign_in_at: map.get(u.id) ?? null }))
+      }
+    } catch { /* non-critical: page still works without last sign-in */ }
+
+    setUsers(list)
     setLoading(false)
   }, [filterRole])
+
+  // Human-readable activity label from last sign-in.
+  const activityLabel = (iso?: string | null) => {
+    if (!iso) return { text: 'Nunca', color: '#555555' }
+    const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
+    if (days <= 7) return { text: 'Ativo', color: '#00E5A0' }
+    if (days <= 30) return { text: `${days}d atrás`, color: '#f59e0b' }
+    return { text: `${Math.floor(days / 30)}m atrás`, color: '#ef4444' }
+  }
 
   useEffect(() => { fetchUsers() }, [fetchUsers])
 
@@ -232,12 +256,19 @@ export default function AdminUsersPage() {
                   { label: 'Posts/mês',    value: String(selected.posts_this_month) },
                   { label: 'Total posts',  value: String(selected.total_posts) },
                   { label: 'Cadastro',     value: formatDate(selected.created_at) },
+                  { label: 'Último login', value: selected.last_sign_in_at ? formatDate(selected.last_sign_in_at) : 'Nunca' },
                 ].map(item => (
                   <div key={item.label} className="flex justify-between gap-2 text-[11px]">
                     <span className="text-[#555555]">{item.label}</span>
                     <span className="truncate text-right text-white">{item.value}</span>
                   </div>
                 ))}
+                <div className="flex justify-between gap-2 text-[11px]">
+                  <span className="text-[#555555]">Atividade</span>
+                  <span className="font-medium" style={{ color: activityLabel(selected.last_sign_in_at).color }}>
+                    {activityLabel(selected.last_sign_in_at).text}
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-3 border-t border-white/[0.06] pt-3">

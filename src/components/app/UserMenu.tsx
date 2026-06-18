@@ -98,8 +98,8 @@ export function UserMenu({ profile, layout, avatarSize = 36 }: UserMenuProps) {
 
   const dropdownPos =
     layout === 'sidebar'
-      ? 'bottom-full mb-2 left-0' // open upward
-      : 'top-full mt-2 right-0'   // open downward, right-aligned
+      ? 'top-full mt-2 left-0'  // user card sits at the top of the sidebar → open downward
+      : 'top-full mt-2 right-0' // open downward, right-aligned
 
   return (
     <div ref={containerRef} className="relative">

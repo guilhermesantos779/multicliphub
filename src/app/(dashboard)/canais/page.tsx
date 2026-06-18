@@ -31,6 +31,7 @@ export default function CanaisPage() {
   const [channels, setChannels] = useState<Channel[]>([])
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
   useEffect(() => {
     if (!profile) return
@@ -54,6 +55,17 @@ export default function CanaisPage() {
     await supabase.from('channels').update({ is_active: false }).eq('id', id)
     setChannels(prev => prev.map(c => c.id === id ? { ...c, is_active: false } : c))
     toast('Canal desconectado', 'info')
+  }
+
+  // Permanently removes the channel row (token included), unlike disconnect
+  // which only deactivates it.
+  const handleDelete = async (id: string) => {
+    const supabase = createClient()
+    const { error } = await supabase.from('channels').delete().eq('id', id)
+    if (error) { toast('Erro ao excluir conta', 'error'); return }
+    setChannels(prev => prev.filter(c => c.id !== id))
+    setConfirmDelete(null)
+    toast('Conta excluída', 'info')
   }
 
   const handleConnect = (platform: Platform) => {
@@ -150,6 +162,30 @@ export default function CanaisPage() {
                         className="rounded-lg border border-[#9146FF]/30 bg-[#9146FF]/[0.08] px-3 py-1.5 text-[11px] text-[#9146FF] transition-colors hover:bg-[#9146FF]/[0.15]"
                       >
                         Reconectar
+                      </button>
+                    )}
+                    {confirmDelete === ch.id ? (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleDelete(ch.id)}
+                          className="text-[11px] font-semibold text-[#ef4444] hover:text-[#ff6b6b]"
+                        >
+                          Confirmar
+                        </button>
+                        <button
+                          onClick={() => setConfirmDelete(null)}
+                          className="text-[11px] text-[#555555] hover:text-white"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDelete(ch.id)}
+                        title="Excluir conta permanentemente"
+                        className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-[11px] text-[#555555] transition-colors hover:border-[#ef4444]/30 hover:text-[#ef4444]"
+                      >
+                        Excluir
                       </button>
                     )}
                   </div>
