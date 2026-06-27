@@ -1,0 +1,260 @@
+# MULTICLIPHUB — SUBSTITUIR FAVICON E ÍCONE DO APP
+# Usar o modelo haiku para leitura e execução de comandos
+
+---
+
+# LANGUAGE RULES
+1. Communicate with user exclusively in PT-BR.
+2. Code, file names, comments in English.
+
+---
+
+# OBJETIVO
+Substituir o favicon bugado pelo novo ícone oficial
+(play mint, fundo obsidiana, bordas arredondadas).
+
+Os arquivos PNG já foram gerados externamente e serão
+copiados manualmente. O Claude Code precisa apenas:
+1. Identificar onde os arquivos de ícone existem hoje
+2. Substituir pelos novos
+3. Atualizar as referências no código
+4. Fazer o deploy
+
+---
+
+# PART 1 — DIAGNÓSTICO (haiku)
+
+```bash
+# Encontrar ícones atuais
+find public -name "favicon*" -o -name "icon*" -o \
+  -name "apple-touch*" | sort
+
+# Verificar app/icon.png (Next.js App Router)
+ls src/app/icon* 2>/dev/null || ls app/icon* 2>/dev/null
+
+# Ver referências no código
+grep -rn "favicon\|apple-touch-icon\|manifest" \
+  src/app/ --include="*.tsx" --include="*.ts" | head -20
+
+# Ver manifest.json se existir
+cat public/manifest.json 2>/dev/null || \
+  cat public/site.webmanifest 2>/dev/null || \
+  echo "manifest não encontrado"
+
+# Ver metadata no layout.tsx
+grep -rn "icons\|favicon\|themeColor\|manifest" \
+  src/app/layout.tsx 2>/dev/null | head -20
+```
+
+Reporte em PT-BR: localização exata de todos os arquivos
+de ícone encontrados no projeto.
+
+---
+
+# PART 2 — INSTRUÇÕES PARA O USUÁRIO
+
+Diga ao usuário em PT-BR:
+
+"Baixe os arquivos de ícone gerados no chat e copie para
+as seguintes pastas no projeto:
+
+public/
+  favicon.ico          ← substituir o atual
+  favicon_16.png       ← substituir
+  favicon_32.png       ← substituir
+  favicon_48.png       ← substituir (se existir)
+  favicon_180.png      ← substituir (apple-touch-icon)
+  favicon_192.png      ← substituir (android/PWA)
+  favicon_512.png      ← substituir (PWA)
+
+src/app/
+  icon.png             ← substituir com app_icon.png
+                          (renomear app_icon.png para icon.png)
+
+Se algum desses arquivos não existir na pasta, criar mesmo assim.
+Me avise quando os arquivos estiverem copiados."
+
+---
+
+# PART 3 — ATUALIZAR METADATA NO LAYOUT
+
+Após o usuário copiar os arquivos, atualizar o layout.tsx
+para garantir que todas as referências estão corretas.
+
+Ler o arquivo:
+```bash
+cat src/app/layout.tsx | head -80
+```
+
+Verificar se o metadata já exporta os icons corretamente.
+Se não estiver completo, atualizar:
+
+```tsx
+// src/app/layout.tsx — metadata de icons
+export const metadata: Metadata = {
+  // ... manter campos existentes ...
+  icons: {
+    icon: [
+      { url: '/favicon_16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon_32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon_48.png', sizes: '48x48', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/favicon_180.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { url: '/favicon_192.png', sizes: '192x192', rel: 'icon' },
+    ],
+  },
+}
+```
+
+IMPORTANTE: NÃO substituir o metadata inteiro — apenas
+adicionar ou atualizar a seção `icons` dentro do objeto
+existente. Manter title, description e todos os outros
+campos que já existem.
+
+---
+
+# PART 4 — ATUALIZAR MANIFEST (se existir)
+
+```bash
+cat public/manifest.json 2>/dev/null || \
+  cat public/site.webmanifest 2>/dev/null
+```
+
+Se existir, atualizar os ícones:
+
+```json
+{
+  "icons": [
+    {
+      "src": "/favicon_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+```
+
+Se não existir manifest, criar public/manifest.json com
+o conteúdo completo:
+
+```json
+{
+  "name": "MultiClipHub",
+  "short_name": "MultiClipHub",
+  "description": "Distribuir. Multiplicar. Escalar.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0F19",
+  "theme_color": "#00E5A0",
+  "icons": [
+    {
+      "src": "/favicon_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+```
+
+E adicionar referência no layout.tsx:
+```tsx
+export const metadata: Metadata = {
+  // ... campos existentes ...
+  manifest: '/manifest.json',
+}
+```
+
+---
+
+# PART 5 — VERIFICAR app/icon.png (Next.js App Router)
+
+O Next.js App Router usa `src/app/icon.png` ou `app/icon.png`
+automaticamente como favicon quando presente.
+
+```bash
+# Verificar se existe
+ls src/app/icon* 2>/dev/null
+ls app/icon* 2>/dev/null
+```
+
+Se existir `icon.png` na pasta app/, deve ser substituído
+pelo novo arquivo (app_icon.png renomeado para icon.png).
+
+Se não existir, NÃO criar — o Next.js vai usar o favicon.ico
+da pasta public/ que já foi substituído.
+
+---
+
+# PART 6 — BUILD E VERIFICAÇÃO
+
+```bash
+npm run build
+```
+
+Verificar se o build passou. Depois:
+
+```bash
+git add public/favicon* public/manifest.json \
+        src/app/icon.png src/app/layout.tsx 2>/dev/null
+git add -A
+git commit -m "feat: update favicon and app icons with official MultiClipHub logo"
+git push origin main
+```
+
+Após deploy na Vercel (30-60s), verificar:
+
+```bash
+# Favicon acessível em produção
+curl -o /dev/null -s -w "%{http_code}" \
+  https://multicliphub.com.br/favicon.ico
+# Esperado: 200
+
+curl -o /dev/null -s -w "%{http_code}" \
+  https://multicliphub.com.br/favicon_32.png
+# Esperado: 200
+```
+
+Instruir o usuário em PT-BR:
+"Após o deploy, abra multicliphub.com.br no navegador.
+Se o favicon antigo ainda aparecer, isso é cache do
+navegador. Limpe com Ctrl+Shift+R (Windows/Linux) ou
+Cmd+Shift+R (Mac). Se ainda persistir, abra em aba
+anônima para confirmar que o novo ícone está funcionando."
+
+---
+
+# CHECKLIST (reporte em PT-BR)
+
+□ Arquivos de ícone atuais mapeados
+□ Usuário confirmou que copiou os novos arquivos
+□ favicon.ico substituído em public/
+□ favicon_16/32/48/180/192/512.png substituídos
+□ src/app/icon.png substituído (se existia)
+□ metadata.icons atualizado no layout.tsx
+□ manifest.json criado ou atualizado
+□ Build passou sem erros
+□ Deploy na Vercel confirmado
+□ curl retornou 200 para favicon.ico e favicon_32.png
+□ Favicon novo aparece na aba do navegador
+
+Reporte em PT-BR:
+1. Quais arquivos de ícone existiam antes
+2. Se o manifest existia ou foi criado
+3. Confirmação visual do favicon na aba do browser
