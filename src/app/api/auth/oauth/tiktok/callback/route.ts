@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
         'Cache-Control': 'no-cache',
       },
       body: new URLSearchParams({
-        client_key: process.env.TIKTOK_CLIENT_KEY!,
+        client_key: (process.env.TIKTOK_CLIENT_ID ?? process.env.TIKTOK_CLIENT_KEY)!,
         client_secret: process.env.TIKTOK_CLIENT_SECRET!,
         code,
         grant_type: 'authorization_code',

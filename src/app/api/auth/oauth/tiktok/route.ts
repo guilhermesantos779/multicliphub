@@ -4,7 +4,7 @@ import crypto from 'crypto'
 // Starts the TikTok OAuth flow: builds the authorize URL and stores a CSRF
 // `state` in an httpOnly cookie that the callback verifies.
 export async function GET(request: NextRequest) {
-  const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY
+  const CLIENT_KEY = process.env.TIKTOK_CLIENT_ID ?? process.env.TIKTOK_CLIENT_KEY
   const REDIRECT_URI = process.env.TIKTOK_REDIRECT_URI
 
   if (!CLIENT_KEY || !REDIRECT_URI) {
