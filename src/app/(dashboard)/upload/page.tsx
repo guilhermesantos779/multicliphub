@@ -36,13 +36,14 @@ const platformNames: Record<Platform, string> = {
   youtube: 'Shorts',
 }
 
-type PublishStatus = 'pending' | 'publishing' | 'published' | 'failed'
+type PublishStatus = 'pending' | 'publishing' | 'published' | 'failed' | 'unavailable'
 
 const statusIcons: Record<PublishStatus, React.ReactNode> = {
   pending: <div className="h-4 w-4 rounded-full border border-white/[0.2]" />,
   publishing: <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#00E5A0] border-t-transparent" />,
   published: <span className="text-[#DEFF9A] font-bold text-sm">✓</span>,
   failed: <span className="text-[#ef4444] font-bold text-sm">✗</span>,
+  unavailable: <span className="text-[#555555] text-sm font-bold">–</span>,
 }
 
 export default function UploadPage() {
@@ -74,6 +75,7 @@ export default function UploadPage() {
   const [publishResults, setPublishResults] = useState<Record<Platform, PublishStatus>>({
     tiktok: 'pending', instagram: 'pending', youtube: 'pending',
   })
+  const [publishErrors, setPublishErrors] = useState<Partial<Record<Platform, string>>>({})
 
   // Single object URL for the uploaded video, shared by the inline player and
   // the platform preview mockup. Owned here so both consume the same blob URL.
@@ -141,6 +143,19 @@ export default function UploadPage() {
     )
   }
 
+  const getTikTokTip = (error: string | undefined): string => {
+    if (!error) return 'Tente novamente ou verifique sua conta no TikTok Studio.'
+    const e = error.toLowerCase()
+    if (e.includes('spam')) return 'Aguarde 24h antes de publicar novamente.'
+    if (e.includes('expirado') || e.includes('expired') || e.includes('token')) return 'Desconecte e reconecte sua conta TikTok na página de Canais.'
+    if (e.includes('não conectada') || e.includes('não conectado')) return 'Conecte sua conta TikTok na página de Canais.'
+    if (e.includes('64mb') || e.includes('tamanho')) return 'Reduza o vídeo para menos de 64MB antes de publicar.'
+    if (e.includes('tempo') || e.includes('timeout')) return 'Verifique o TikTok Studio — a publicação pode ter sido concluída.'
+    if (e.includes('rejected') || e.includes('audit')) return 'Conteúdo rejeitado pelo TikTok — revise as diretrizes da comunidade.'
+    if (e.includes('duration') || e.includes('duração')) return 'O vídeo deve ter entre 5 segundos e 10 minutos.'
+    return 'Tente novamente ou verifique sua conta no TikTok Studio.'
+  }
+
   // Real TikTok publish: starts the post and polls until it completes or fails.
   // Returns true only on PUBLISH_COMPLETE.
   const publishTikTok = async (videoPublicUrl: string): Promise<boolean> => {
@@ -165,8 +180,10 @@ export default function UploadPage() {
       const data = await res.json()
       if (!res.ok || !data.success) {
         const detail = data?.details?.code || data?.details?.message || ''
-        toast(`TikTok: ${data?.error ?? 'falha ao publicar'}${detail ? ` (${detail})` : ''}`, 'error')
+        const errMsg = `${data?.error ?? 'falha ao publicar'}${detail ? ` (${detail})` : ''}`
+        toast(`TikTok: ${errMsg}`, 'error')
         console.error('[upload] TikTok publish failed:', data)
+        setPublishErrors(prev => ({ ...prev, tiktok: errMsg }))
         return false
       }
 
@@ -178,15 +195,21 @@ export default function UploadPage() {
         const sdata = await sres.json()
         if (sdata.completed) return true
         if (sdata.failed) {
-          toast(`TikTok falhou: ${sdata.fail_reason ?? 'motivo desconhecido'}`, 'error')
-          console.error('[upload] TikTok publish failed:', sdata.fail_reason)
+          const reason = sdata.fail_reason ?? 'motivo desconhecido'
+          toast(`TikTok falhou: ${reason}`, 'error')
+          console.error('[upload] TikTok publish failed:', reason)
+          setPublishErrors(prev => ({ ...prev, tiktok: reason }))
           return false
         }
       }
+      const timeoutMsg = 'Tempo de espera esgotado — verifique o TikTok Studio'
       console.warn('[upload] TikTok publish timed out — check TikTok Studio')
+      setPublishErrors(prev => ({ ...prev, tiktok: timeoutMsg }))
       return false
     } catch (e) {
+      const genericMsg = 'Erro inesperado ao publicar'
       console.error('[upload] TikTok publish error:', e)
+      setPublishErrors(prev => ({ ...prev, tiktok: genericMsg }))
       return false
     }
   }
@@ -229,30 +252,23 @@ export default function UploadPage() {
       }
     }
 
-    // Per-platform: TikTok publishes for real; Instagram/YouTube stay simulated
-    // until their integrations land.
     let anySucceeded = false
     for (const platform of selectedPlatforms) {
       if (platform !== 'tiktok') {
         setPublishResults(prev => ({ ...prev, [platform]: 'publishing' }))
       }
 
-      let ok = true
       if (platform === 'tiktok') {
-        ok = videoPublicUrl ? await publishTikTok(videoPublicUrl) : false
+        const ok = videoPublicUrl ? await publishTikTok(videoPublicUrl) : false
+        if (ok) anySucceeded = true
+        setPublishResults(prev => ({ ...prev, tiktok: ok ? 'published' : 'failed' }))
+        if (ok && profile?.id) {
+          await supabase.rpc('register_publication', { p_user_id: profile.id, p_platform: 'tiktok' })
+        }
       } else {
-        await new Promise(r => setTimeout(r, 1200 + Math.random() * 800))
-      }
-      if (ok) anySucceeded = true
-
-      setPublishResults(prev => ({ ...prev, [platform]: ok ? 'published' : 'failed' }))
-
-      // Count successful publications toward the activity heatmap + ranking.
-      if (ok && profile?.id) {
-        await supabase.rpc('register_publication', {
-          p_user_id: profile.id,
-          p_platform: platform,
-        })
+        // Instagram and YouTube publishing not yet integrated.
+        await new Promise(r => setTimeout(r, 600))
+        setPublishResults(prev => ({ ...prev, [platform]: 'unavailable' }))
       }
     }
 
@@ -284,6 +300,7 @@ export default function UploadPage() {
     setLocation('')
     setCollabTags([])
     setPublishResults({ tiktok: 'pending', instagram: 'pending', youtube: 'pending' })
+    setPublishErrors({})
   }
 
   return (
@@ -572,20 +589,31 @@ export default function UploadPage() {
                 <div className="space-y-3">
                   {selectedPlatforms.map(p => {
                     const result = publishResults[p]
+                    const errMsg = result === 'failed' ? publishErrors[p] : undefined
+                    const tip = result === 'failed' && p === 'tiktok' ? getTikTokTip(errMsg) : undefined
                     return (
-                      <div key={p} className="flex items-center gap-3 rounded-lg bg-[#0a0a0a] p-3">
-                        <PlatformIcon platform={p} size={28} withLink={false} />
-                        <div className="flex-1">
-                          <div className="text-[13px] font-medium text-white">{platformNames[p]}</div>
-                          <div className="text-[11px] text-[#444444]">
-                            {result === 'pending' ? t('result_pending') :
-                             result === 'publishing' ? t('result_publishing') :
-                             result === 'published' ? t('result_published') : t('result_failed')}
+                      <div key={p} className="rounded-lg bg-[#0a0a0a] p-3">
+                        <div className="flex items-center gap-3">
+                          <PlatformIcon platform={p} size={28} withLink={false} />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[13px] font-medium text-white">{platformNames[p]}</div>
+                            <div className={cn('text-[11px]', result === 'failed' ? 'text-[#ef4444]/80' : result === 'unavailable' ? 'text-[#555555]' : 'text-[#444444]')}>
+                              {result === 'pending' ? t('result_pending') :
+                               result === 'publishing' ? t('result_publishing') :
+                               result === 'published' ? t('result_published') :
+                               result === 'unavailable' ? 'Integração em desenvolvimento' :
+                               (errMsg ?? t('result_failed'))}
+                            </div>
+                          </div>
+                          <div className="grid h-6 w-6 place-items-center shrink-0">
+                            {statusIcons[result]}
                           </div>
                         </div>
-                        <div className="grid h-6 w-6 place-items-center">
-                          {statusIcons[result]}
-                        </div>
+                        {tip && (
+                          <div className="mt-2 ml-10 text-[11px] text-[#DEFF9A]/70 leading-relaxed">
+                            💡 {tip}
+                          </div>
+                        )}
                       </div>
                     )
                   })}
