@@ -143,15 +143,24 @@ export default function UploadPage() {
     )
   }
 
-  const getTikTokTip = (error: string | undefined): string => {
-    if (!error) return 'Tente novamente ou verifique sua conta no TikTok Studio.'
+  const getPublishTip = (platform: Platform, error: string | undefined): string => {
+    if (!error) return 'Tente novamente ou verifique sua conta.'
     const e = error.toLowerCase()
+    if (platform === 'instagram') {
+      if (e.includes('expirado') || e.includes('expired') || e.includes('token')) return 'Desconecte e reconecte sua conta Instagram na página de Canais.'
+      if (e.includes('não conectada') || e.includes('não conectado')) return 'Conecte sua conta Instagram na página de Canais.'
+      if (e.includes('tempo') || e.includes('timeout')) return 'O Instagram pode ter processado o Reel — verifique seu perfil.'
+      if (e.includes('permission') || e.includes('permissão')) return 'O app precisa da permissão instagram_business_content_publish. Reconecte a conta.'
+      return 'Tente novamente. Se persistir, reconecte sua conta Instagram em Canais.'
+    }
+    // TikTok
+    if (e.includes('unaudited') || e.includes('private_account')) return 'O app TikTok ainda não passou pela auditoria para posts públicos. Selecione "Somente eu" na privacidade ou complete a auditoria em developer.tiktok.com.'
     if (e.includes('spam')) return 'Aguarde 24h antes de publicar novamente.'
     if (e.includes('expirado') || e.includes('expired') || e.includes('token')) return 'Desconecte e reconecte sua conta TikTok na página de Canais.'
     if (e.includes('não conectada') || e.includes('não conectado')) return 'Conecte sua conta TikTok na página de Canais.'
     if (e.includes('64mb') || e.includes('tamanho')) return 'Reduza o vídeo para menos de 64MB antes de publicar.'
     if (e.includes('tempo') || e.includes('timeout')) return 'Verifique o TikTok Studio — a publicação pode ter sido concluída.'
-    if (e.includes('rejected') || e.includes('audit')) return 'Conteúdo rejeitado pelo TikTok — revise as diretrizes da comunidade.'
+    if (e.includes('rejected') || e.includes('audit_failed')) return 'Conteúdo rejeitado pelo TikTok — revise as diretrizes da comunidade.'
     if (e.includes('duration') || e.includes('duração')) return 'O vídeo deve ter entre 5 segundos e 10 minutos.'
     return 'Tente novamente ou verifique sua conta no TikTok Studio.'
   }
@@ -169,9 +178,7 @@ export default function UploadPage() {
           title,
           caption: tiktokCaption,
           hashtags,
-          // Sandbox apps can only post privately. Switch to tiktokOptions.privacyLevel
-          // once the app is approved for production.
-          privacy_level: 'SELF_ONLY',
+          privacy_level: tiktokOptions?.privacyLevel ?? 'PUBLIC_TO_EVERYONE',
           comment_disabled: tiktokOptions?.commentDisabled ?? false,
           duet_disabled: tiktokOptions?.duetDisabled ?? false,
           stitch_disabled: tiktokOptions?.stitchDisabled ?? false,
@@ -214,6 +221,52 @@ export default function UploadPage() {
     }
   }
 
+  // Instagram Reels: creates a container then polls until FINISHED and publishes.
+  const publishInstagram = async (videoPublicUrl: string): Promise<boolean> => {
+    const igCaption = typeof caption === 'string' ? caption : (caption.instagram ?? '')
+    try {
+      const res = await fetch('/api/publish/instagram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ video_url: videoPublicUrl, caption: igCaption, hashtags }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.success) {
+        const detail = data?.details?.message || data?.details?.code || ''
+        const errMsg = `${data?.error ?? 'falha ao publicar'}${detail ? ` — ${detail}` : ''}`
+        toast(`Instagram: ${errMsg}`, 'error')
+        console.error('[upload] Instagram publish failed:', data)
+        setPublishErrors(prev => ({ ...prev, instagram: errMsg }))
+        return false
+      }
+
+      const containerId = data.container_id as string
+      // Poll status every 5s for up to ~5 minutes (60 tries).
+      for (let i = 0; i < 60; i++) {
+        await new Promise(r => setTimeout(r, 5000))
+        const sres = await fetch(`/api/publish/instagram/status?container_id=${encodeURIComponent(containerId)}`)
+        const sdata = await sres.json()
+        if (sdata.completed) return true
+        if (sdata.failed) {
+          const reason = sdata.fail_reason ?? 'motivo desconhecido'
+          toast(`Instagram falhou: ${reason}`, 'error')
+          console.error('[upload] Instagram publish failed:', reason)
+          setPublishErrors(prev => ({ ...prev, instagram: reason }))
+          return false
+        }
+      }
+      const timeoutMsg = 'Tempo de espera esgotado — verifique seu perfil no Instagram'
+      console.warn('[upload] Instagram publish timed out')
+      setPublishErrors(prev => ({ ...prev, instagram: timeoutMsg }))
+      return false
+    } catch (e) {
+      const genericMsg = 'Erro inesperado ao publicar no Instagram'
+      console.error('[upload] Instagram publish error:', e)
+      setPublishErrors(prev => ({ ...prev, instagram: genericMsg }))
+      return false
+    }
+  }
+
   const handlePublish = async () => {
     if (!file || selectedPlatforms.length === 0) return
     if (!canPost) {
@@ -226,13 +279,12 @@ export default function UploadPage() {
 
     const supabase = createClient()
 
-    // TikTok needs a real fetchable file: upload the clip to Storage once.
-    // Show progress on the TikTok row and surface any failure to the user
-    // instead of leaving the step silently stuck.
+    // TikTok and Instagram both need the video at a public URL.
+    // Upload once to Supabase Storage and share the URL across platforms.
     let videoPublicUrl: string | null = null
-    const wantsTikTok = selectedPlatforms.includes('tiktok')
-    if (wantsTikTok) {
-      setPublishResults(prev => ({ ...prev, tiktok: 'publishing' }))
+    const needsStorage = selectedPlatforms.includes('tiktok') || selectedPlatforms.includes('instagram')
+    if (needsStorage) {
+      if (selectedPlatforms.includes('tiktok')) setPublishResults(prev => ({ ...prev, tiktok: 'publishing' }))
       if (!profile?.id) {
         toast('Perfil ainda carregando — tente novamente em instantes', 'error')
       } else {
@@ -265,8 +317,15 @@ export default function UploadPage() {
         if (ok && profile?.id) {
           await supabase.rpc('register_publication', { p_user_id: profile.id, p_platform: 'tiktok' })
         }
+      } else if (platform === 'instagram') {
+        const ok = videoPublicUrl ? await publishInstagram(videoPublicUrl) : false
+        if (ok) anySucceeded = true
+        setPublishResults(prev => ({ ...prev, instagram: ok ? 'published' : 'failed' }))
+        if (ok && profile?.id) {
+          await supabase.rpc('register_publication', { p_user_id: profile.id, p_platform: 'instagram' })
+        }
       } else {
-        // Instagram and YouTube publishing not yet integrated.
+        // YouTube not yet integrated.
         await new Promise(r => setTimeout(r, 600))
         setPublishResults(prev => ({ ...prev, [platform]: 'unavailable' }))
       }
@@ -590,7 +649,7 @@ export default function UploadPage() {
                   {selectedPlatforms.map(p => {
                     const result = publishResults[p]
                     const errMsg = result === 'failed' ? publishErrors[p] : undefined
-                    const tip = result === 'failed' && p === 'tiktok' ? getTikTokTip(errMsg) : undefined
+                    const tip = result === 'failed' ? getPublishTip(p, errMsg) : undefined
                     return (
                       <div key={p} className="rounded-lg bg-[#0a0a0a] p-3">
                         <div className="flex items-center gap-3">
