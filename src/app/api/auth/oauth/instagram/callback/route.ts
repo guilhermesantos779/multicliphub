@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { encrypt } from '@/lib/crypto'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.multicliphub.com.br'
@@ -93,8 +94,11 @@ export async function GET(request: NextRequest) {
       return redirect('error=instagram_no_account')
     }
 
-    // 4) Persist into `channels` with the token encrypted at rest. No unique
-    // (user_id, platform) constraint, so upsert manually by channel_id.
+    // 4) Persist into `channels` with the token encrypted at rest.
+    // Use the admin client (service_role) to bypass RLS — the user's identity
+    // has already been verified above via supabase.auth.getUser().
+    const admin = createAdminClient()
+
     const row = {
       user_id: user.id,
       platform: 'instagram' as const,
@@ -106,7 +110,7 @@ export async function GET(request: NextRequest) {
       is_active: true,
     }
 
-    const { data: existing } = await supabase
+    const { data: existing } = await admin
       .from('channels')
       .select('id')
       .eq('user_id', user.id)
@@ -114,9 +118,9 @@ export async function GET(request: NextRequest) {
       .eq('channel_id', igUserId)
       .maybeSingle()
 
-    const dbError = existing
-      ? (await supabase.from('channels').update(row).eq('id', existing.id)).error
-      : (await supabase.from('channels').insert(row)).error
+    const { error: dbError } = existing
+      ? await admin.from('channels').update(row).eq('id', existing.id)
+      : await admin.from('channels').insert(row)
 
     if (dbError) {
       console.error('[instagram-oauth] DB upsert failed:', dbError)

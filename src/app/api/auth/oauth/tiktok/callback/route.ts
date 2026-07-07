@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { encrypt } from '@/lib/crypto'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.multicliphub.com.br'
@@ -88,10 +89,10 @@ export async function GET(request: NextRequest) {
       console.warn('[tiktok-oauth] Profile fetch failed (non-critical):', e)
     }
 
-    // Persist into `channels` (the table the /canais page reads). Tokens are
-    // encrypted at rest with AES-256-GCM. There is no unique (user_id, platform)
-    // constraint — Pro plans allow several channels per platform — so we upsert
-    // manually keyed by (user_id, platform, channel_id=open_id).
+    // Persist into `channels`. Use the admin client (service_role) to bypass
+    // RLS — the user's identity has already been verified via getUser().
+    const admin = createAdminClient()
+
     const row = {
       user_id: user.id,
       platform: 'tiktok' as const,
@@ -103,7 +104,7 @@ export async function GET(request: NextRequest) {
       is_active: true,
     }
 
-    const { data: existing } = await supabase
+    const { data: existing } = await admin
       .from('channels')
       .select('id')
       .eq('user_id', user.id)
@@ -111,9 +112,9 @@ export async function GET(request: NextRequest) {
       .eq('channel_id', open_id)
       .maybeSingle()
 
-    const dbError = existing
-      ? (await supabase.from('channels').update(row).eq('id', existing.id)).error
-      : (await supabase.from('channels').insert(row)).error
+    const { error: dbError } = existing
+      ? await admin.from('channels').update(row).eq('id', existing.id)
+      : await admin.from('channels').insert(row)
 
     if (dbError) {
       console.error('[tiktok-oauth] DB upsert failed:', dbError)
