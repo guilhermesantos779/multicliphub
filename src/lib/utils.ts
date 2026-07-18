@@ -17,6 +17,10 @@ export function formatDate(date: string): string {
   }).format(new Date(date))
 }
 
+export function formatCurrencyBRL(cents: number): string {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100)
+}
+
 export function getPlanLimits(plan: string) {
   const limits = {
     clipper: { postsPerMonth: 200, channelsTotal: 3, channelsPerPlatform: 1 },
