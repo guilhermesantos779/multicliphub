@@ -1,0 +1,50 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#000000"/>
+      <stop offset="50%" stop-color="#080810"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </linearGradient>
+    <linearGradient id="centerGlow" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#9146FF" stop-opacity="0.2"/>
+      <stop offset="50%" stop-color="#00E5A0" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#9146FF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="300" fill="url(#bg4)"/>
+  <rect x="300" y="0" width="600" height="300" fill="url(#centerGlow)"/>
+  <rect x="0" y="0" width="4" height="300" fill="#9146FF" opacity="0.8"/>
+  <rect x="1196" y="0" width="4" height="300" fill="#00E5A0" opacity="0.8"/>
+  <line x1="0" y1="299" x2="1200" y2="299" stroke="#9146FF" stroke-width="1" opacity="0.3"/>
+  <circle cx="80" cy="80" r="50" fill="none" stroke="#9146FF" stroke-width="0.5" opacity="0.25"/>
+  <circle cx="1120" cy="220" r="60" fill="none" stroke="#00E5A0" stroke-width="0.5" opacity="0.2"/>
+  <!-- Left icons -->
+  <rect x="60" y="100" width="55" height="55" fill="#9146FF" opacity="0.08" rx="6"/>
+  <text x="87" y="135" text-anchor="middle" font-size="28">🎬</text>
+  <rect x="60" y="175" width="55" height="55" fill="#00E5A0" opacity="0.06" rx="6"/>
+  <text x="87" y="210" text-anchor="middle" font-size="28">✂️</text>
+  <rect x="135" y="115" width="50" height="50" fill="#9146FF" opacity="0.07" rx="6"/>
+  <text x="160" y="148" text-anchor="middle" font-size="26">📊</text>
+  <!-- Right icons -->
+  <rect x="1085" y="100" width="55" height="55" fill="#00E5A0" opacity="0.08" rx="6"/>
+  <text x="1112" y="135" text-anchor="middle" font-size="28">🏆</text>
+  <rect x="1085" y="175" width="55" height="55" fill="#9146FF" opacity="0.07" rx="6"/>
+  <text x="1112" y="210" text-anchor="middle" font-size="28">🎮</text>
+  <rect x="1015" y="115" width="50" height="50" fill="#00E5A0" opacity="0.06" rx="6"/>
+  <text x="1040" y="148" text-anchor="middle" font-size="26">📱</text>
+  <!-- Center text -->
+  <text x="600" y="85" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="48" font-weight="900" fill="white" letter-spacing="2">COMUNIDADE</text>
+  <rect x="430" y="100" width="340" height="2" fill="#9146FF" opacity="0.5"/>
+  <text x="600" y="140" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="22" font-weight="900" fill="#9146FF" letter-spacing="4">MULTICLIPHUB</text>
+  <text x="600" y="178" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="white" opacity="0.55">O espaço dos clipadores profissionais</text>
+  <rect x="430" y="192" width="340" height="1" fill="#9146FF" opacity="0.2"/>
+  <!-- Feature pills -->
+  <g transform="translate(385, 208)">
+    <rect x="0" y="0" width="52" height="36" fill="#9146FF" opacity="0.1" rx="4"/><text x="26" y="14" text-anchor="middle" font-size="16">🎬</text><text x="26" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white" opacity="0.5">Clipes</text>
+    <rect x="68" y="0" width="52" height="36" fill="#00E5A0" opacity="0.08" rx="4"/><text x="94" y="14" text-anchor="middle" font-size="16">📊</text><text x="94" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white" opacity="0.5">Analytics</text>
+    <rect x="136" y="0" width="52" height="36" fill="#FFD700" opacity="0.08" rx="4"/><text x="162" y="14" text-anchor="middle" font-size="16">🏆</text><text x="162" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white" opacity="0.5">Ranking</text>
+    <rect x="204" y="0" width="52" height="36" fill="#9146FF" opacity="0.1" rx="4"/><text x="230" y="14" text-anchor="middle" font-size="16">🏅</text><text x="230" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white" opacity="0.5">Conquistas</text>
+    <rect x="272" y="0" width="52" height="36" fill="#00E5A0" opacity="0.08" rx="4"/><text x="298" y="14" text-anchor="middle" font-size="16">💬</text><text x="298" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white" opacity="0.5">Conversa</text>
+  </g>
+  <text x="600" y="272" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#00E5A0" opacity="0.5" letter-spacing="2">DISTRIBUIR · MULTIPLICAR · ESCALAR</text>
+</svg>

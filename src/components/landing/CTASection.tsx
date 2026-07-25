@@ -1,53 +1,70 @@
+'use client'
+
 import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
+import { AmbientGlow } from './raycast/AmbientGlow'
 import { FadeIn } from '@/components/shared/FadeIn'
 
 export function CTASection() {
+  const t = useTranslations('cta')
+  const trust = [t('trust1'), t('trust2'), t('trust3')]
   return (
-    <section className="relative overflow-hidden bg-black py-32">
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="h-[500px] w-[500px] rounded-full bg-[rgba(0,229,160,0.05)] blur-[120px]" />
-      </div>
+    <section id="cta" className="relative py-32 overflow-hidden">
+      {/* Shader is the bg here — only a subtle mint accent remains; removed xl purple (competed with shader) */}
+      <AmbientGlow color="mint" size="lg" position={{ bottom: '-20%', left: '50%' }} opacity={0.08} />
 
-      <div className="relative z-10 mx-auto max-w-3xl px-4 text-center sm:px-6">
+      <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
         <FadeIn>
-          <div className="rounded-3xl border border-white/[0.06] bg-[#0a0a0a] p-12 sm:p-16">
-            <div className="mb-2 text-4xl">🚀</div>
+          {/* Pre-title */}
+          <p className="mb-6 text-[14px] text-white/40">{t('pretitle')}</p>
 
-            <h2 className="mb-4 text-[40px] font-bold leading-[1.05] tracking-[-0.04em] text-[#FAFAFA] sm:text-[52px]">
-              Pronto para dominar
-              <br />
-              o algoritmo?
-            </h2>
+          {/* Massive headline */}
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
+            className="font-display font-bold leading-[0.95] tracking-[-0.045em] mb-8"
+            style={{ fontSize: 'clamp(3rem, 8vw, 6rem)' }}
+          >
+            <span className="text-white">{t('title_main')}</span>
+            <span style={{ color: '#9146FF' }}>{t('title_accent')}</span>
+            <span className="text-white">.</span>
+          </motion.h2>
 
-            <p className="mb-10 text-[16px] leading-[1.7] text-[#888888]">
-              Mais de 2.300 clipadores já crescem mais rápido.
-              <br />
-              Agora é a sua vez.
-            </p>
+          {/* Subtitle */}
+          <p
+            className="text-white/50 leading-relaxed mb-10 mx-auto"
+            style={{ fontSize: 16, maxWidth: 420 }}
+          >
+            {t('subtitle')}
+          </p>
 
-            <div className="mb-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-2 rounded-full bg-[#00E5A0] px-8 py-3.5 text-[15px] font-semibold text-[#0B0F19] transition-colors hover:bg-[#00B584]"
-              >
-                Criar minha conta grátis →
-              </Link>
-              <Link
-                href="#"
-                className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] px-8 py-3.5 text-[15px] text-[#888888] transition-colors hover:border-white/[0.16] hover:text-white"
-              >
-                Falar com a equipe
-              </Link>
-            </div>
+          {/* CTAs */}
+          <div className="flex items-center justify-center gap-3 flex-wrap mb-12">
+            <Link
+              href="/register"
+              className="rounded-full bg-[#9146FF] px-8 py-3.5 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[#7c3aed]"
+            >
+              {t('cta_primary')}
+            </Link>
+            <Link
+              href="mailto:multicliphubempresa@multicliphub.com.br"
+              className="rounded-full border border-white/[0.12] px-8 py-3.5 text-[14px] text-white/70 transition-all duration-200 hover:border-white/[0.25] hover:text-white"
+            >
+              {t('cta_secondary')}
+            </Link>
+          </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-6">
-              {['7 dias grátis', 'Sem cartão de crédito', 'Cancele quando quiser'].map((t) => (
-                <span key={t} className="flex items-center gap-1.5 text-[13px] text-[#444444]">
-                  <span className="text-[#00E5A0]">✓</span>
-                  {t}
-                </span>
-              ))}
-            </div>
+          {/* Trust row */}
+          <div className="flex items-center justify-center gap-6 flex-wrap">
+            {trust.map((item) => (
+              <span key={item} className="flex items-center gap-1.5 text-[12px] text-white/35">
+                <span style={{ color: '#00E5A0' }}>✓</span>
+                {item}
+              </span>
+            ))}
           </div>
         </FadeIn>
       </div>

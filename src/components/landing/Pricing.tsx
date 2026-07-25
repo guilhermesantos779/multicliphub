@@ -1,194 +1,179 @@
 'use client'
+
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
+import { Check } from 'lucide-react'
+import { AmbientGlow } from './raycast/AmbientGlow'
 import { FadeIn } from '@/components/shared/FadeIn'
+import { AnimatedBorderButton } from '@/components/ui/animated-border-button'
+import { PLAN_PRICES, formatPriceBRL, type PlanId } from '@/config/plans'
 
+// Presentation only — prices come from PLAN_PRICES; feature/CTA text from i18n.
 const PLANS = [
-  {
-    id: 'clipper',
-    icon: '⚡',
-    name: 'Clipper',
-    tagline: 'Para quem está começando',
-    monthly: 27,
-    annual: 19,
-    featured: false,
-    cta: 'Assinar Clipper',
-    features: [
-      'Até 200 posts por mês',
-      '3 canais conectados',
-      'Analytics básico',
-      'Histórico de 30 dias',
-      'Participação no ranking',
-      'Relatório semanal por e-mail',
-      'Suporte por e-mail',
-    ],
-  },
-  {
-    id: 'pro',
-    icon: '🏆',
-    name: 'Pro',
-    tagline: 'Para clipadores sérios',
-    monthly: 57,
-    annual: 40,
-    featured: true,
-    cta: 'Assinar Pro',
-    features: [
-      'Posts ilimitados',
-      'Até 3 contas por plataforma (9 canais)',
-      'Analytics completo com gráficos',
-      'Legendas inteligentes por IA',
-      'Agendamento de posts',
-      'Thumbnail automática',
-      'Histórico ilimitado',
-      'Badge Pro no ranking',
-      'Suporte prioritário',
-    ],
-  },
-  {
-    id: 'king',
-    icon: '👑',
-    name: 'King',
-    tagline: 'Para agências e managers',
-    monthly: 97,
-    annual: 68,
-    featured: false,
-    cta: 'Assinar King',
-    features: [
-      'Tudo do Pro',
-      'Canais ilimitados',
-      'Até 5 membros na equipe',
-      'Relatórios exportáveis PDF/CSV',
-      'API de integração',
-      'Onboarding dedicado',
-      'Badge King + cargo no Discord',
-      'Suporte VIP',
-    ],
-  },
-]
+  { id: 'clipper' as PlanId, corner: 'none' as const, featured: false, ctaStyle: 'outline' as const },
+  { id: 'pro' as PlanId, corner: 'purple' as const, featured: true, ctaStyle: 'filled' as const },
+  { id: 'king' as PlanId, corner: 'mint' as const, featured: false, ctaStyle: 'outline' as const },
+].map((p) => ({ ...p, ...PLAN_PRICES[p.id] }))
 
 export function Pricing() {
+  const t = useTranslations('pricing')
   const [annual, setAnnual] = useState(false)
 
   return (
-    <section id="precos" className="bg-black py-32">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <FadeIn className="mb-14 text-center">
-          <span className="mb-3 inline-block text-[11px] font-semibold uppercase tracking-[0.12em] text-[#00E5A0]">
-            Preços
-          </span>
-          <h2 className="mb-8 text-[40px] font-bold leading-[1.1] tracking-[-0.03em] text-[#FAFAFA] sm:text-[52px]">
-            Comece a dominar.
-            <br />
-            <span className="text-[#888888]">Escale quando quiser.</span>
-          </h2>
+    <section id="precos" className="relative py-24 overflow-hidden">
+      <AmbientGlow
+        color="purple"
+        size="lg"
+        position={{ top: '-5%', left: '50%' }}
+        opacity={0.07}
+      />
 
-          {/* Toggle mensal / anual */}
-          <div className="inline-flex items-center gap-3">
-            <span className={cn('text-[13px]', !annual ? 'text-[#FAFAFA]' : 'text-[#888888]')}>
-              Mensal
-            </span>
+      <div className="relative z-10 mx-auto max-w-6xl px-6">
+        {/* Header */}
+        <FadeIn className="mb-14 text-center">
+          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.16em] text-white/40">
+            {t('eyebrow')}
+          </p>
+          <h2
+            className="font-display font-semibold leading-[1.05] tracking-[-0.04em] text-white"
+            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+          >
+            {t('title')}
+          </h2>
+          <p className="mt-3 mb-8 text-white/50 text-[15px]">
+            {t('subtitle')}
+          </p>
+
+          {/* Toggle */}
+          <div className="inline-flex items-center gap-1 rounded-full border border-white/[0.08] bg-white/[0.03] p-1">
             <button
-              role="switch"
-              aria-checked={annual}
-              onClick={() => setAnnual((v) => !v)}
-              className={cn(
-                'relative h-5 w-9 rounded-full transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#00E5A0]',
-                annual ? 'bg-[#00E5A0]' : 'bg-[#222222]',
-              )}
+              onClick={() => setAnnual(false)}
+              className={[
+                'rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200',
+                !annual
+                  ? 'bg-white/10 text-white'
+                  : 'text-white/50 hover:text-white/70',
+              ].join(' ')}
             >
-              <span
-                className={cn(
-                  'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-300',
-                  annual ? 'translate-x-4' : 'translate-x-0.5',
-                )}
-              />
+              {t('monthly')}
             </button>
-            <span className={cn('text-[13px]', annual ? 'text-[#FAFAFA]' : 'text-[#888888]')}>
-              Anual
-              <span className="ml-2 rounded-full bg-[#DEFF9A]/10 px-2 py-0.5 text-[10px] font-semibold text-[#DEFF9A]">
-                −30%
-              </span>
-            </span>
+            <button
+              onClick={() => setAnnual(true)}
+              className={[
+                'flex items-center gap-2 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200',
+                annual
+                  ? 'bg-white/10 text-white'
+                  : 'text-white/50 hover:text-white/70',
+              ].join(' ')}
+            >
+              {t('annual')}
+              {annual && (
+                <span className="rounded-full bg-[#00E5A0]/10 px-2 py-0.5 text-[10px] font-semibold text-[#00E5A0]">
+                  {t('save')}
+                </span>
+              )}
+            </button>
           </div>
         </FadeIn>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        {/* Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {PLANS.map((plan, i) => (
-            <FadeIn key={plan.id} delay={i * 0.1}>
+            <FadeIn key={plan.id} delay={i * 0.08}>
               <motion.div
-                className={cn(
-                  'relative flex h-full flex-col rounded-2xl border bg-[#0a0a0a] p-6',
+                whileHover={{ y: -4, transition: { duration: 0.2, ease: 'easeOut' } }}
+                className={[
+                  'relative flex h-full flex-col rounded-2xl border p-6',
+                  'bg-white/[0.02] backdrop-blur-md',
+                  'transition-colors duration-300',
                   plan.featured
-                    ? 'border-[#00E5A0]/50'
-                    : 'border-white/[0.06]',
-                )}
-                whileHover={
-                  plan.featured
-                    ? { y: -4, boxShadow: '0 0 40px rgba(0,229,160,0.15)', borderColor: 'rgba(0,229,160,0.8)', transition: { duration: 0.2 } }
-                    : { y: -4, borderColor: 'rgba(255,255,255,0.12)', transition: { duration: 0.2 } }
-                }
+                    ? 'border-[#9146FF]/30 hover:border-[#9146FF]/50'
+                    : 'border-white/[0.06] hover:border-white/[0.15]',
+                ].join(' ')}
               >
+                {/* Corner glow */}
+                {plan.corner !== 'none' && (
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute top-0 right-0 h-[200%] w-[160%] overflow-hidden rounded-2xl"
+                    style={{
+                      background: `radial-gradient(circle at top right, ${
+                        plan.corner === 'purple'
+                          ? 'rgba(145,70,255,0.08)'
+                          : 'rgba(0,229,160,0.06)'
+                      } 0%, transparent 50%)`,
+                      filter: 'blur(30px)',
+                    }}
+                  />
+                )}
+
                 {plan.featured && (
                   <div className="absolute -top-px left-1/2 -translate-x-1/2">
-                    <div className="rounded-b-full bg-[#00E5A0] px-4 py-1">
-                      <span className="text-[10px] font-semibold text-[#0B0F19]">Mais popular</span>
+                    <div className="rounded-b-full bg-[#9146FF] px-4 py-1">
+                      <span className="text-[10px] font-semibold text-white">
+                        {t('most_popular')}
+                      </span>
                     </div>
                   </div>
                 )}
 
-                <div className="mb-6">
-                  <div className="mb-3 text-2xl">{plan.icon}</div>
-                  <h3 className="mb-0.5 text-[20px] font-bold text-[#FAFAFA]">{plan.name}</h3>
-                  <p className="mb-5 text-[13px] text-[#888888]">{plan.tagline}</p>
+                <div className="relative z-10 flex flex-col flex-1">
+                  <p className="font-display font-semibold text-[20px] text-white mb-1 tracking-[-0.02em]">
+                    {plan.name}
+                  </p>
 
-                  <div className="flex items-end gap-1">
-                    <span className="text-[14px] text-[#888888]">R$</span>
-                    <span className="text-[48px] font-bold leading-none tracking-[-0.03em] text-[#FAFAFA]">
-                      {annual ? plan.annual : plan.monthly}
+                  <div className="flex items-end gap-1 mb-1">
+                    <span className="text-[13px] text-white/40">R$</span>
+                    <span className="font-display font-semibold text-[48px] leading-none tracking-[-0.04em] text-white">
+                      {formatPriceBRL(annual ? plan.annualMonthlyPrice : plan.monthlyPrice)}
                     </span>
-                    <span className="mb-1 text-[13px] text-[#888888]">/mês</span>
+                    <span className="mb-1 text-[13px] text-white/40">{t('per_month')}</span>
                   </div>
-                  {annual && (
-                    <p className="mt-1 text-[11px] text-[#444444]">
-                      Cobrado R$ {plan.annual * 12}/ano
-                    </p>
+                  <p className="mb-6 text-[11px] text-white/35 h-4">
+                    {annual ? t('annual_billed', { total: formatPriceBRL(plan.annualTotal) }) : ' '}
+                  </p>
+
+                  <hr className="border-white/[0.06] mb-5" />
+
+                  <ul className="flex flex-col gap-3 flex-1 mb-6">
+                    {(t.raw(`plans.${plan.id}.features`) as string[]).map((f) => (
+                      <li key={f} className="flex items-start gap-2.5">
+                        <Check size={14} className="mt-0.5 shrink-0 text-white/60" strokeWidth={2} />
+                        <span className="text-[13px] text-white/60">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {plan.featured ? (
+                    /* Pro: borda animada purple→mint (único botão com AnimatedBorderButton) */
+                    <AnimatedBorderButton href="/register" className="w-full justify-center py-2.5">
+                      {plan.id === 'king' ? t('cta_king') : t('cta_start')}
+                    </AnimatedBorderButton>
+                  ) : (
+                    <Link
+                      href="/register"
+                      className={[
+                        'block rounded-full py-2.5 text-center text-[13px] font-medium transition-colors duration-200',
+                        plan.ctaStyle === 'filled'
+                          ? 'bg-[#9146FF] text-white hover:bg-[#7c3aed]'
+                          : 'border border-white/[0.08] text-white/60 hover:border-white/[0.20] hover:text-white',
+                      ].join(' ')}
+                    >
+                      {plan.id === 'king' ? t('cta_king') : t('cta_start')}
+                    </Link>
                   )}
                 </div>
-
-                <hr className="mb-6 border-white/[0.06]" />
-
-                <ul className="mb-8 flex flex-1 flex-col gap-2.5">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <span className="mt-px text-[12px] text-[#00E5A0]">✓</span>
-                      <span className="text-[13px] text-[#888888]">{f}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href="/register"
-                  className={cn(
-                    'block rounded-full py-2.5 text-center text-[14px] font-semibold transition-colors',
-                    plan.featured
-                      ? 'bg-[#00E5A0] text-[#0B0F19] hover:bg-[#00B584]'
-                      : 'border border-white/[0.08] text-[#888888] hover:border-white/[0.16] hover:text-white',
-                  )}
-                >
-                  {plan.cta}
-                </Link>
               </motion.div>
             </FadeIn>
           ))}
         </div>
 
-        <FadeIn delay={0.3} className="mt-8 text-center">
-          <p className="text-[13px] text-[#444444]">
-            7 dias grátis para testar · Cancele quando quiser · Sem taxa de setup
-          </p>
-        </FadeIn>
+        {/* Fine print */}
+        <p className="mt-8 text-center text-[12px] text-white/40">
+          {t('fine_print')}
+        </p>
       </div>
     </section>
   )

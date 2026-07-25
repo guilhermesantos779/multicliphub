@@ -58,11 +58,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-[#111111] px-4 py-3 shadow-xl"
-              style={{ borderLeftColor: colors[t.type], borderLeftWidth: 3 }}
+              className="relative flex items-center gap-3 overflow-hidden rounded-[14px] border border-white/[0.1] bg-obsidiana/90 px-4 py-3 backdrop-blur-xl shadow-[0_16px_48px_rgba(0,0,0,0.6)]"
+              style={{
+                borderLeftColor: colors[t.type],
+                borderLeftWidth: 3,
+                boxShadow: `0 16px 48px rgba(0,0,0,0.6), 0 0 24px ${colors[t.type]}1f`,
+              }}
             >
+              {/* Top-edge shine */}
+              <span className="pointer-events-none absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               <span>{icons[t.type]}</span>
-              <span className="text-[13px] text-white">{t.message}</span>
+              <span className="text-[13px] font-medium text-white/90">{t.message}</span>
             </motion.div>
           ))}
         </AnimatePresence>

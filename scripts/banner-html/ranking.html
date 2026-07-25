@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1200px; height:300px; overflow:hidden; font-family:'Inter',Arial,sans-serif; }
+  .banner {
+    position:relative; width:1200px; height:300px; overflow:hidden;
+    background:
+      radial-gradient(ellipse 80% 120% at 50% 0%, rgba(145,70,255,0.35), transparent 60%),
+      radial-gradient(ellipse 60% 100% at 75% 100%, rgba(0,229,160,0.18), transparent 55%),
+      linear-gradient(135deg, #0a0612 0%, #050507 50%, #08060f 100%);
+  }
+  .banner::before {
+    content:''; position:absolute; inset:-50%;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(145,70,255,0.25), transparent 25%),
+      radial-gradient(circle at 70% 60%, rgba(0,229,160,0.15), transparent 25%);
+    animation: drift 4s ease-in-out infinite alternate;
+  }
+  @keyframes drift { 0%{transform:translate(0,0);} 100%{transform:translate(50px,25px);} }
+  .banner::after {
+    content:''; position:absolute; top:0; left:-30%; width:30%; height:100%;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+    animation: scan 4s linear infinite;
+  }
+  @keyframes scan { 0%{left:-30%;} 100%{left:130%;} }
+  .bar-left,.bar-right { position:absolute; top:0; width:4px; height:100%; animation:barpulse 2s ease-in-out infinite; }
+  .bar-left { left:0; background:linear-gradient(180deg,#9146FF,#6a2fd0); box-shadow:0 0 20px #9146FF; }
+  .bar-right { right:0; background:linear-gradient(180deg,#00E5A0,#00b584); box-shadow:0 0 20px #00E5A0; animation-delay:1s; }
+  @keyframes barpulse { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+  .particle { position:absolute; border-radius:50%; pointer-events:none; animation:float linear infinite; }
+  @keyframes float { 0%{transform:translateY(310px) scale(0);opacity:0;} 10%{opacity:1;transform:scale(1);} 90%{opacity:1;} 100%{transform:translateY(-20px) scale(0.5);opacity:0;} }
+  .content { position:absolute; inset:0; display:grid; grid-template-columns:360px 1fr 280px; align-items:center; z-index:5; }
+  .podium { display:flex; align-items:flex-end; justify-content:center; gap:14px; height:100%; padding-bottom:50px; }
+  .pod { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .pod-av { width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; background:#15131f; position:relative; }
+  .pod-bar { width:70px; border-radius:6px 6px 0 0; display:flex; flex-direction:column; align-items:center; padding-top:10px; font-weight:900; color:#fff; font-size:24px; position:relative; overflow:hidden; }
+  .pod-bar span { font-size:9px; opacity:0.8; margin-top:2px; letter-spacing:1px; }
+  .gold { background:linear-gradient(180deg,#FFD700,#B8860B); height:130px; }
+  .gold .pod-av { border:2px solid #FFD700; animation:glowGold 2s ease-in-out infinite; }
+  @keyframes glowGold { 0%,100%{box-shadow:0 0 20px rgba(255,215,0,0.5);} 50%{box-shadow:0 0 35px rgba(255,215,0,0.9);} }
+  .silver { background:linear-gradient(180deg,#E8E8E8,#A0A0A0); height:100px; }
+  .silver .pod-av { border:2px solid #C0C0C0; box-shadow:0 0 15px rgba(192,192,192,0.4); }
+  .bronze { background:linear-gradient(180deg,#CD7F32,#8B4513); height:78px; }
+  .bronze .pod-av { border:2px solid #CD7F32; box-shadow:0 0 15px rgba(205,127,50,0.4); }
+  .crown { position:absolute; top:-22px; left:50%; transform:translateX(-50%); font-size:20px; animation:bob 2s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-5px);} }
+  .center { text-align:center; padding:0 10px; }
+  .eyebrow { font-size:13px; letter-spacing:5px; color:#9146FF; font-weight:700; margin-bottom:6px; text-shadow:0 0 15px rgba(145,70,255,0.7); }
+  .title { font-size:56px; font-weight:900; line-height:0.95; background:linear-gradient(180deg,#fff 40%,#FFD700); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .divider { width:240px; height:2px; margin:12px auto; background:linear-gradient(90deg,transparent,#9146FF,#00E5A0,transparent); animation:dividerGlow 2s ease-in-out infinite; }
+  @keyframes dividerGlow { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+  .subtitle { font-size:14px; color:rgba(255,255,255,0.6); }
+  .tagline { font-size:11px; letter-spacing:3px; color:#00E5A0; opacity:0.7; margin-top:10px; }
+  .right { text-align:center; padding:0 20px; }
+  .right-box { border:1px dashed rgba(145,70,255,0.4); border-radius:12px; padding:18px 14px; background:rgba(145,70,255,0.05); }
+  .right-label { font-size:11px; color:rgba(255,255,255,0.5); letter-spacing:2px; }
+  .right-pos { font-size:44px; font-weight:900; color:#9146FF; animation:posGlow 2s ease-in-out infinite; }
+  @keyframes posGlow { 0%,100%{text-shadow:0 0 20px rgba(145,70,255,0.5);} 50%{text-shadow:0 0 35px rgba(145,70,255,1);} }
+  .right-cmd { display:inline-block; margin-top:8px; font-size:11px; color:#9146FF; background:rgba(145,70,255,0.15); padding:4px 12px; border-radius:6px; font-family:monospace; }
+</style></head><body>
+  <div class="banner" id="banner">
+    <div class="bar-left"></div><div class="bar-right"></div>
+    <div class="content">
+      <div class="podium">
+        <div class="pod"><div class="pod-av">🥈</div><div class="pod-bar silver">2<span>SILVER</span></div></div>
+        <div class="pod"><div class="pod-av">👑<div class="crown">✨</div></div><div class="pod-bar gold">1<span>KING</span></div></div>
+        <div class="pod"><div class="pod-av">🥉</div><div class="pod-bar bronze">3<span>BRONZE</span></div></div>
+      </div>
+      <div class="center">
+        <div class="eyebrow">MULTICLIPHUB</div>
+        <div class="title">RANKING<br>MENSAL</div>
+        <div class="divider"></div>
+        <div class="subtitle">👑 Kings of Reach · 🔫 Machine Gun</div>
+        <div class="tagline">DISTRIBUIR · MULTIPLICAR · ESCALAR</div>
+      </div>
+      <div class="right"><div class="right-box">
+        <div class="right-label">POSIÇÃO ATUAL</div>
+        <div class="right-pos">#?</div>
+        <div class="right-cmd">/ranking</div>
+      </div></div>
+    </div>
+  </div>
+  <script>
+    const banner=document.getElementById('banner');
+    const colors=['#9146FF','#00E5A0','#FFD700'];
+    function sp(){const p=document.createElement('div');p.className='particle';const s=Math.random()*4+2;p.style.width=s+'px';p.style.height=s+'px';const c=colors[Math.floor(Math.random()*colors.length)];p.style.background=c;p.style.boxShadow='0 0 8px '+c;p.style.left=Math.random()*100+'%';p.style.animationDuration=(Math.random()*2+2)+'s';banner.appendChild(p);setTimeout(()=>p.remove(),4000);}
+    setInterval(sp,300);for(let i=0;i<10;i++)setTimeout(sp,i*150);
+  </script>
+</body></html>

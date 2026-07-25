@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1200px; height:300px; overflow:hidden; font-family:'Inter',Arial,sans-serif; }
+  .banner {
+    position:relative; width:1200px; height:300px; overflow:hidden;
+    background:
+      linear-gradient(90deg, rgba(145,70,255,0.30), transparent 40%),
+      linear-gradient(270deg, rgba(0,229,160,0.22), transparent 40%),
+      linear-gradient(135deg, #0a0610 0%, #050507 50%, #07060c 100%);
+  }
+  .banner::before {
+    content:''; position:absolute; inset:-50%;
+    background:radial-gradient(circle at 12% 50%, rgba(145,70,255,0.20), transparent 22%);
+    animation: drift 4s ease-in-out infinite alternate;
+  }
+  @keyframes drift { 0%{transform:translate(0,0);} 100%{transform:translate(30px,-20px);} }
+  .banner::after {
+    content:''; position:absolute; top:0; left:-30%; width:30%; height:100%;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+    animation: scan 4s linear infinite;
+  }
+  @keyframes scan { 0%{left:-30%;} 100%{left:130%;} }
+  .bar-left,.bar-right { position:absolute; top:0; width:4px; height:100%; animation:barpulse 2s ease-in-out infinite; }
+  .bar-left { left:0; background:linear-gradient(180deg,#9146FF,#6a2fd0); box-shadow:0 0 20px #9146FF; }
+  .bar-right { right:0; background:linear-gradient(180deg,#00E5A0,#00b584); box-shadow:0 0 20px #00E5A0; animation-delay:1s; }
+  @keyframes barpulse { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+  .content { position:absolute; inset:0; display:grid; grid-template-columns:300px 1fr 240px; align-items:center; z-index:5; }
+  .mega { position:relative; height:100%; }
+  .ring { position:absolute; top:50%; left:140px; transform:translate(-50%,-50%); border-radius:50%; border:2px solid rgba(145,70,255,0.5); animation:pulse 2s ease-out infinite; }
+  .ring.r1{ width:90px; height:90px; } .ring.r2{ width:90px; height:90px; animation-delay:.66s; } .ring.r3{ width:90px; height:90px; animation-delay:1.33s; }
+  @keyframes pulse { 0%{width:90px;height:90px;opacity:0.8;} 100%{width:230px;height:230px;opacity:0;} }
+  .mega-ic { position:absolute; top:50%; left:140px; transform:translate(-50%,-50%); width:84px; height:84px; border-radius:50%;
+    background:rgba(145,70,255,0.14); display:flex; align-items:center; justify-content:center; font-size:48px; animation:shake 2s ease-in-out infinite; }
+  @keyframes shake { 0%,100%{transform:translate(-50%,-50%) rotate(-6deg);} 50%{transform:translate(-50%,-50%) rotate(6deg);} }
+  .pills { position:absolute; left:236px; top:0; height:100%; display:flex; flex-direction:column; justify-content:center; gap:12px; }
+  .apill { font-size:12px; padding:6px 12px; border-radius:5px; opacity:0; animation:slideIn 4s ease-in-out infinite; white-space:nowrap; }
+  .apill.a1{ color:#fff; background:rgba(145,70,255,0.16); animation-delay:0s; }
+  .apill.a2{ color:rgba(255,255,255,0.85); background:rgba(145,70,255,0.12); animation-delay:1.33s; }
+  .apill.a3{ color:#00E5A0; background:rgba(0,229,160,0.12); animation-delay:2.66s; }
+  @keyframes slideIn { 0%{opacity:0;transform:translateX(-14px);} 12%{opacity:1;transform:translateX(0);} 80%{opacity:1;} 100%{opacity:0.35;} }
+  .center { text-align:center; padding:0 10px; }
+  .title { font-size:58px; font-weight:900; color:#fff; letter-spacing:2px; text-shadow:0 0 24px rgba(145,70,255,0.5); }
+  .divider { width:280px; height:1px; margin:10px auto; background:linear-gradient(90deg,transparent,#9146FF,transparent); animation:dividerGlow 2s ease-in-out infinite; }
+  @keyframes dividerGlow { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+  .eyebrow { font-size:16px; letter-spacing:4px; color:#9146FF; font-weight:700; text-shadow:0 0 14px rgba(145,70,255,0.7); }
+  .desc { font-size:13.5px; color:rgba(255,255,255,0.55); margin-top:10px; }
+  .note { font-size:12px; color:rgba(255,255,255,0.4); margin-top:4px; }
+  .tagline { font-size:11px; letter-spacing:3px; color:#00E5A0; opacity:0.6; margin-top:10px; }
+  .mch { position:absolute; top:50%; right:90px; transform:translate(50%,-50%); width:96px; height:96px; border-radius:50%;
+    background:rgba(0,229,160,0.08); border:1px solid rgba(0,229,160,0.25); display:flex; align-items:center; justify-content:center;
+    font-size:26px; font-weight:900; color:#00E5A0; animation:glowMint 2s ease-in-out infinite; }
+  @keyframes glowMint { 0%,100%{box-shadow:0 0 18px rgba(0,229,160,0.3);} 50%{box-shadow:0 0 32px rgba(0,229,160,0.6);} }
+</style></head><body>
+  <div class="banner" id="banner">
+    <div class="bar-left"></div><div class="bar-right"></div>
+    <div class="content">
+      <div class="mega">
+        <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+        <div class="mega-ic">📣</div>
+        <div class="pills">
+          <div class="apill a1">🚀 Nova funcionalidade</div>
+          <div class="apill a2">🏆 Resultado do ranking</div>
+          <div class="apill a3">⚡ Atualização do sistema</div>
+        </div>
+      </div>
+      <div class="center">
+        <div class="title">ANÚNCIOS</div>
+        <div class="divider"></div>
+        <div class="eyebrow">MULTICLIPHUB</div>
+        <div class="desc">Novidades, atualizações e eventos oficiais</div>
+        <div class="note">🔔 Ative as notificações para não perder nada</div>
+        <div class="tagline">DISTRIBUIR · MULTIPLICAR · ESCALAR</div>
+      </div>
+      <div class="mchwrap"><div class="mch">MCH</div></div>
+    </div>
+  </div>
+</body></html>

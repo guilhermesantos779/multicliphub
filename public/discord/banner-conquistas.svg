@@ -1,0 +1,52 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#000000"/>
+      <stop offset="50%" stop-color="#0a0d14"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </linearGradient>
+    <linearGradient id="mintTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00E5A0" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#00E5A0" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="purpleBottom" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#9146FF" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#9146FF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="300" fill="url(#bg2)"/>
+  <rect x="0" y="0" width="500" height="300" fill="url(#mintTop)" opacity="0.6"/>
+  <rect x="700" y="0" width="500" height="300" fill="url(#purpleBottom)" opacity="0.6"/>
+  <rect x="0" y="0" width="4" height="300" fill="#00E5A0" opacity="0.8"/>
+  <rect x="1196" y="0" width="4" height="300" fill="#9146FF" opacity="0.8"/>
+  <line x1="0" y1="299" x2="1200" y2="299" stroke="#00E5A0" stroke-width="1" opacity="0.3"/>
+  <!-- Hex badges left side -->
+  <g transform="translate(55, 55)"><polygon points="35,0 70,20 70,60 35,80 0,60 0,20" fill="none" stroke="#CD7F32" stroke-width="2"/><polygon points="35,8 62,23 62,57 35,72 8,57 8,23" fill="#1a0a00" opacity="0.8"/><text x="35" y="47" text-anchor="middle" font-size="22">🥉</text></g>
+  <g transform="translate(55, 165)"><polygon points="35,0 70,20 70,60 35,80 0,60 0,20" fill="none" stroke="#C0C0C0" stroke-width="2"/><polygon points="35,8 62,23 62,57 35,72 8,57 8,23" fill="#111" opacity="0.8"/><text x="35" y="47" text-anchor="middle" font-size="22">🥈</text></g>
+  <g transform="translate(150, 30)"><polygon points="40,0 80,23 80,69 40,92 0,69 0,23" fill="none" stroke="#FFD700" stroke-width="2.5"/><polygon points="40,9 71,28 71,64 40,83 9,64 9,28" fill="#1a1200" opacity="0.9"/><text x="40" y="57" text-anchor="middle" font-size="28">👑</text></g>
+  <g transform="translate(155, 155)"><polygon points="35,0 70,20 70,60 35,80 0,60 0,20" fill="none" stroke="#00E5FF" stroke-width="2"/><polygon points="35,8 62,23 62,57 35,72 8,57 8,23" fill="#001a1a" opacity="0.8"/><text x="35" y="47" text-anchor="middle" font-size="22">💎</text></g>
+  <g transform="translate(245, 70)"><polygon points="32,0 64,18 64,55 32,73 0,55 0,18" fill="none" stroke="#00E5A0" stroke-width="2"/><polygon points="32,7 57,22 57,51 32,66 7,51 7,22" fill="#001a0d" opacity="0.8"/><text x="32" y="43" text-anchor="middle" font-size="20">⚡</text></g>
+  <g transform="translate(250, 175)"><polygon points="30,0 60,17 60,52 30,69 0,52 0,17" fill="none" stroke="#9146FF" stroke-width="2"/><polygon points="30,7 53,21 53,48 30,62 7,48 7,21" fill="#0d0020" opacity="0.8"/><text x="30" y="40" text-anchor="middle" font-size="18">🚀</text></g>
+  <!-- Center text -->
+  <text x="620" y="88" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="50" font-weight="900" fill="white" letter-spacing="2">CONQUISTAS</text>
+  <text x="620" y="125" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="26" font-weight="900" fill="#00E5A0" letter-spacing="4">DA COMUNIDADE</text>
+  <rect x="480" y="138" width="280" height="1" fill="#00E5A0" opacity="0.3"/>
+  <text x="620" y="165" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="white" opacity="0.55">Desbloqueie badges. Suba no ranking. Seja reconhecido.</text>
+  <rect x="480" y="178" width="280" height="1" fill="#9146FF" opacity="0.2"/>
+  <!-- Tier badges -->
+  <g transform="translate(470, 195)">
+    <rect x="0" y="0" width="60" height="22" fill="#CD7F32" opacity="0.2" rx="3"/><text x="30" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#CD7F32">BRONZE</text>
+    <rect x="70" y="0" width="55" height="22" fill="#C0C0C0" opacity="0.2" rx="3"/><text x="97" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#C0C0C0">SILVER</text>
+    <rect x="135" y="0" width="45" height="22" fill="#FFD700" opacity="0.2" rx="3"/><text x="157" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#FFD700">GOLD</text>
+    <rect x="190" y="0" width="65" height="22" fill="#00E5FF" opacity="0.2" rx="3"/><text x="222" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#00E5FF">DIAMOND</text>
+    <rect x="265" y="0" width="60" height="22" fill="#9146FF" opacity="0.2" rx="3"/><text x="295" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#9146FF">SPECIAL</text>
+  </g>
+  <text x="620" y="268" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#00E5A0" opacity="0.6" letter-spacing="2">DISTRIBUIR · MULTIPLICAR · ESCALAR</text>
+  <!-- Right badges -->
+  <g transform="translate(880, 50)"><polygon points="35,0 70,20 70,60 35,80 0,60 0,20" fill="none" stroke="#9146FF" stroke-width="2" opacity="0.6"/><text x="35" y="47" text-anchor="middle" font-size="22" opacity="0.7">🔥</text></g>
+  <g transform="translate(980, 80)"><polygon points="30,0 60,17 60,52 30,69 0,52 0,17" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.6"/><text x="30" y="41" text-anchor="middle" font-size="18" opacity="0.7">🏆</text></g>
+  <g transform="translate(1060, 45)"><polygon points="32,0 64,18 64,55 32,73 0,55 0,18" fill="none" stroke="#00E5A0" stroke-width="2" opacity="0.6"/><text x="32" y="43" text-anchor="middle" font-size="20" opacity="0.7">⭐</text></g>
+  <g transform="translate(900, 170)"><polygon points="35,0 70,20 70,60 35,80 0,60 0,20" fill="none" stroke="#C0C0C0" stroke-width="1.5" opacity="0.4"/><text x="35" y="47" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="white" opacity="0.3">?</text></g>
+  <g transform="translate(1000, 165)"><polygon points="30,0 60,17 60,52 30,69 0,52 0,17" fill="none" stroke="#9146FF" stroke-width="1.5" opacity="0.4"/><text x="30" y="39" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="white" opacity="0.3">?</text></g>
+  <g transform="translate(1085, 175)"><polygon points="28,0 56,16 56,48 28,64 0,48 0,16" fill="none" stroke="#00E5A0" stroke-width="1.5" opacity="0.4"/><text x="28" y="37" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="white" opacity="0.3">?</text></g>
+</svg>

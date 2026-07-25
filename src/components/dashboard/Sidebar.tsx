@@ -1,106 +1,61 @@
 'use client'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/hooks/useUser'
 import { useMyCampaigns } from '@/hooks/useMyCampaigns'
+import { useMobileNav } from '@/components/dashboard/MobileNav'
 import { LogoSidebar } from '@/components/shared/Logo'
+import { SystemIcon, type SystemIconName } from '@/components/icons/SystemIcon'
+import { UserMenu } from '@/components/app/UserMenu'
 
+const navIcon = (name: SystemIconName) => (active: boolean) =>
+  <SystemIcon name={name} active={active} size={18} />
 
-const NAV_ITEMS = [
-  {
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Upload',
-    href: '/upload',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Canais',
-    href: '/canais',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Campanhas',
-    href: '/campanhas',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <path d="M3 11l18-5v12L3 14v-3z" /><path d="M11.6 16.8L6 22" /><path d="M3 11v3a2 2 0 002 2h1" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Analytics',
-    href: '/analytics',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Ranking',
-    href: '/ranking',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <path d="M6 9H4.5a2.5 2.5 0 010-5H6" /><path d="M18 9h1.5a2.5 2.5 0 000-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0012 0V2z" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Histórico',
-    href: '/historico',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-      </svg>
-    ),
-  },
+// `key` and `badge` map to the `menu` i18n namespace; labels are translated at render time.
+type NavEntry = {
+  key: string
+  href: string
+  icon: ReturnType<typeof navIcon>
+  badge?: string
+}
+
+const NAV_ITEMS: NavEntry[] = [
+  { key: 'dashboard', href: '/dashboard',  icon: navIcon('dashboard') },
+  { key: 'upload',    href: '/upload',     icon: navIcon('upload')    },
+  { key: 'canais',    href: '/canais',     icon: navIcon('canais')    },
+  { key: 'analytics', href: '/analytics',  icon: navIcon('analytics') },
+  { key: 'ranking',   href: '/ranking',    icon: navIcon('ranking')   },
+  { key: 'campanhas', href: '/campanhas',  icon: navIcon('campanhas') },
+  { key: 'historico', href: '/historico',  icon: navIcon('historico') },
 ]
 
-const BOTTOM_ITEMS = [
-  {
-    label: 'Perfil',
-    href: '/perfil',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Configurações',
-    href: '/configuracoes',
-    icon: (active: boolean) => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
-        <circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-      </svg>
-    ),
-  },
+// 'Perfil' moved into the user-card dropdown ("Ver perfil") to avoid duplication
+const BOTTOM_ITEMS: NavEntry[] = [
+  { key: 'suporte',       href: '/suporte',       icon: navIcon('suporte') },
+  { key: 'configuracoes', href: '/configuracoes', icon: navIcon('config') },
 ]
 
-function NavItem({ item, active }: { item: typeof NAV_ITEMS[0]; active: boolean }) {
+// Maps a nav href to a tour anchor so ProductTour can spotlight it.
+const TOUR_ANCHOR: Record<string, string> = {
+  '/upload': 'upload',
+  '/analytics': 'analytics',
+  '/ranking': 'ranking',
+  '/suporte': 'suporte',
+}
+
+function NavItem({ item, active, onNavigate }: { item: NavEntry; active: boolean; onNavigate?: () => void }) {
+  const t = useTranslations('menu')
   return (
     <Link
       href={item.href}
+      onClick={onNavigate}
+      data-tour={TOUR_ANCHOR[item.href]}
       className={cn(
-        'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors duration-200',
+        'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200 hover:translate-x-0.5',
         active ? 'text-white' : 'text-[#555555] hover:text-[#888888]'
       )}
     >
@@ -112,7 +67,12 @@ function NavItem({ item, active }: { item: typeof NAV_ITEMS[0]; active: boolean 
         />
       )}
       <span className="relative">{item.icon(active)}</span>
-      <span className="relative">{item.label}</span>
+      <span className="relative">{t(item.key)}</span>
+      {item.badge && (
+        <span className="relative ml-auto rounded-full border border-[#00E5A0]/20 bg-[#00E5A0]/10 px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-wide text-[#00E5A0]">
+          {t(item.badge)}
+        </span>
+      )}
       {active && (
         <motion.div
           layoutId="sidebar-pill"
@@ -125,67 +85,85 @@ function NavItem({ item, active }: { item: typeof NAV_ITEMS[0]; active: boolean 
 }
 
 export function Sidebar() {
+  const t = useTranslations('menu')
   const pathname = usePathname()
   const { profile, isAdmin } = useUser()
-  const planColors: Record<string, string> = {
-    clipper: '#888888',
-    pro: '#00E5A0',
-    king: '#DEFF9A',
-    trial: '#f59e0b',
-  }
-  const planColor = planColors[profile?.plan || 'trial'] || '#888888'
-
+  const { open, setOpen } = useMobileNav()
   const postsLimit = profile?.plan === 'clipper' ? 200 : profile?.plan === 'trial' ? 10 : null
   const postsUsed = profile?.posts_this_month || 0
   const postsPct = postsLimit ? Math.min((postsUsed / postsLimit) * 100, 100) : 0
 
+  // Close the mobile drawer whenever the route changes (covers swipe-nav and
+  // links that point at the current section).
+  useEffect(() => { setOpen(false) }, [pathname, setOpen])
+
+  const closeOnMobile = () => setOpen(false)
+
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-56 flex-col border-r border-white/[0.06] bg-[#0a0a0a]">
-      {/* Logo */}
-      <div className="flex h-14 items-center border-b border-white/[0.06] px-4">
+    <>
+      {/* Backdrop — mobile only, behind the drawer */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeOnMobile}
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+            aria-hidden
+          />
+        )}
+      </AnimatePresence>
+
+      <aside
+        className={cn(
+          'fixed left-0 top-0 z-50 flex h-screen w-56 flex-col border-r border-white/[0.06] bg-obsidiana/80 backdrop-blur-xl',
+          'transition-transform duration-300 ease-out md:z-40 md:translate-x-0',
+          open ? 'translate-x-0' : '-translate-x-full',
+        )}
+      >
+      {/* Top shine line */}
+      <div className="pointer-events-none absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      {/* Ambient glow — top, purple */}
+      <div className="pointer-events-none absolute left-0 right-0 top-0 h-40 bg-gradient-to-b from-purple/[0.06] to-transparent" />
+
+      {/* Logo + mobile close */}
+      <div className="flex h-14 items-center justify-between border-b border-white/[0.06] px-4">
         <LogoSidebar />
+        <button
+          onClick={closeOnMobile}
+          aria-label="fechar menu"
+          className="grid h-8 w-8 place-items-center rounded-lg text-[#666666] transition-colors hover:text-white md:hidden"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
       </div>
 
-      {/* User badge */}
-      {profile && (
-        <div className="border-b border-white/[0.06] p-3">
-          <div className="flex items-center gap-2.5">
-            <div
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold text-white"
-              style={{ background: `linear-gradient(135deg, ${planColor}44, ${planColor}22)`, border: `1px solid ${planColor}44` }}
-            >
-              {(profile.full_name || profile.email || 'U').charAt(0).toUpperCase()}
+      {/* User card — real avatar + compact plan frame + dropdown */}
+      <div data-tour="profile" className="border-b border-white/[0.06] p-3">
+        <UserMenu profile={profile} layout="sidebar" avatarSize={40} />
+
+        {profile && postsLimit && (
+          <div className="mt-2.5 space-y-1">
+            <div className="flex justify-between text-[10px] text-[#444444]">
+              <span>{t('posts_this_month')}</span>
+              <span>{postsUsed}/{postsLimit}</span>
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[12px] font-medium text-white">
-                {profile.full_name || 'Usuário'}
-              </div>
-              <div className="text-[10px] font-medium" style={{ color: planColor }}>
-                Plano {profile.plan?.charAt(0).toUpperCase() + (profile.plan?.slice(1) || '')}
-              </div>
+            <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${postsPct}%`,
+                  backgroundColor:
+                    postsPct > 90 ? '#ef4444' : postsPct > 75 ? '#f59e0b' : '#00E5A0',
+                }}
+              />
             </div>
           </div>
-
-          {postsLimit && (
-            <div className="mt-2.5 space-y-1">
-              <div className="flex justify-between text-[10px] text-[#444444]">
-                <span>Posts este mês</span>
-                <span>{postsUsed}/{postsLimit}</span>
-              </div>
-              <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${postsPct}%`,
-                    backgroundColor:
-                      postsPct > 90 ? '#ef4444' : postsPct > 75 ? '#f59e0b' : '#00E5A0',
-                  }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Nav principal */}
       <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
@@ -193,6 +171,7 @@ export function Sidebar() {
           <div key={item.href}>
             <NavItem
               item={item}
+              onNavigate={closeOnMobile}
               active={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
             />
             {item.href === '/campanhas' && <MyCampaignsSublist pathname={pathname} />}
@@ -206,6 +185,7 @@ export function Sidebar() {
           <NavItem
             key={item.href}
             item={item}
+            onNavigate={closeOnMobile}
             active={pathname.startsWith(item.href)}
           />
         ))}
@@ -213,21 +193,19 @@ export function Sidebar() {
         {isAdmin && (
           <NavItem
             item={{
-              label: 'Admin',
+              key: 'admin',
               href: '/admin',
-              icon: (active: boolean) => (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-[#DEFF9A]' : 'text-[#555555]'}>
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-              ),
+              icon: navIcon('admin'),
             }}
+            onNavigate={closeOnMobile}
             active={pathname.startsWith('/admin')}
           />
         )}
 
         <LogoutButton />
       </div>
-    </aside>
+      </aside>
+    </>
   )
 }
 
@@ -262,6 +240,7 @@ function MyCampaignsSublist({ pathname }: { pathname: string }) {
 }
 
 function LogoutButton() {
+  const t = useTranslations('menu')
   const handleLogout = async () => {
     const { createClient } = await import('@/lib/supabase/client')
     const supabase = createClient()
@@ -277,7 +256,7 @@ function LogoutButton() {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
       </svg>
-      Sair
+      {t('logout')}
     </button>
   )
 }

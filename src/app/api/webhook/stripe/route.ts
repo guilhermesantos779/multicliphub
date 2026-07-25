@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import { createClient } from '@supabase/supabase-js'
+import { notifyDiscord } from '@/lib/discord/notify'
 import type Stripe from 'stripe'
 
 function getSupabaseAdmin() {
@@ -28,7 +29,8 @@ function getPlanFromPrice(): Record<string, string> {
 }
 
 async function updateUserPlan(userId: string, plan: string, subId: string) {
-  await getSupabaseAdmin()
+  const admin = getSupabaseAdmin()
+  await admin
     .from('profiles')
     .update({
       plan,
@@ -37,6 +39,21 @@ async function updateUserPlan(userId: string, plan: string, subId: string) {
       plan_expires_at: null,
     })
     .eq('id', userId)
+
+  // Notify the Discord bot so it can announce the upgrade and sync the role.
+  // No-op until BOT_WEBHOOK_URL / BOT_WEBHOOK_SECRET are configured.
+  const { data: profile } = await admin
+    .from('profiles')
+    .select('username, discord_id')
+    .eq('id', userId)
+    .single()
+  if (profile) {
+    await notifyDiscord('plan.upgraded', {
+      username: profile.username,
+      plan,
+      discord_id: profile.discord_id ?? undefined,
+    })
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -73,7 +90,7 @@ export async function POST(req: NextRequest) {
         const sub     = event.data.object as Stripe.Subscription
         const userId  = sub.metadata?.supabase_user_id
         const priceId = sub.items.data[0]?.price.id
-        const plan    = PLAN_FROM_PRICE[priceId]
+        const plan    = priceId ? PLAN_FROM_PRICE[priceId] : undefined
         if (userId && plan) {
           await updateUserPlan(userId, plan, sub.id)
         }
@@ -121,7 +138,10 @@ export async function POST(req: NextRequest) {
       }
     }
   } catch (err) {
-    console.error('Webhook handler error:', err)
+    // Return 500 so Stripe retries — a swallowed DB failure here would mean the
+    // user paid but never got their plan, with no redelivery.
+    console.error(`Webhook handler error for ${event.type}:`, err)
+    return NextResponse.json({ error: 'Handler failed, will retry' }, { status: 500 })
   }
 
   return NextResponse.json({ received: true })

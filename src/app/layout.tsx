@@ -1,42 +1,62 @@
 import type { Metadata } from 'next'
-import { Manrope } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
+import { Inter, Manrope } from 'next/font/google'
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale, getTranslations } from 'next-intl/server'
 import './globals.css'
+import { IconDefs } from '@/components/icons/IconDefs'
 
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+// Manrope is the primary brand typeface (display + body) — see design-tokens.ts.
 const manrope = Manrope({
   subsets: ['latin'],
   variable: '--font-manrope',
   display: 'swap',
-  weight: ['200', '300', '400', '500', '600', '700', '800'],
 })
 
-export const metadata: Metadata = {
-  title: 'MultiClip Hub — O escritório digital do clipador profissional',
-  description: 'Distribua seus clipes para TikTok, Reels e Shorts com um único upload.',
-  icons: {
-    icon: '/favicon-32.png',
-    apple: '/logo-icon.png',
-  },
-  openGraph: {
-    title: 'MultiClip Hub — O escritório digital do clipador profissional',
-    description: 'Distribua seus clipes para TikTok, Reels e Shorts com um único upload.',
-    siteName: 'MultiClip Hub',
-    locale: 'pt_BR',
-    type: 'website',
-    images: [{ url: '/brand/logo-dark.png', width: 1200, height: 630, alt: 'MultiClip Hub' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'MultiClip Hub — O escritório digital do clipador profissional',
-    description: 'Distribua seus clipes para TikTok, Reels e Shorts com um único upload.',
-    images: ['/brand/logo-dark.png'],
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale()
+  const t = await getTranslations('meta')
+  const title = t('title')
+  const description = t('description')
+  return {
+    title,
+    description,
+    icons: {
+      icon: '/favicon-32.png',
+      apple: '/logo-icon.png',
+    },
+    openGraph: {
+      title,
+      description,
+      siteName: 'MultiClip Hub',
+      locale: locale === 'en' ? 'en_US' : 'pt_BR',
+      type: 'website',
+      images: [{ url: '/brand/logo-dark.png', width: 1200, height: 630, alt: 'MultiClip Hub' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/brand/logo-dark.png'],
+    },
+  }
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale()
   return (
-    <html lang="pt-BR" className={`${manrope.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-black text-white antialiased">
-        {children}
+    <html lang={locale} className={`${GeistSans.variable} ${inter.variable} ${manrope.variable} h-full`}>
+      <body className="min-h-full flex flex-col bg-obsidiana text-white antialiased">
+        <NextIntlClientProvider>
+          <IconDefs />
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   )

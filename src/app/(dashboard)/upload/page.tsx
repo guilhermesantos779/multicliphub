@@ -1,19 +1,31 @@
 'use client'
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { PlatformIcon } from '@/components/shared/PlatformIcon'
 import { useUser } from '@/hooks/useUser'
+import { useOnboarding } from '@/hooks/useOnboarding'
 import { useToast } from '@/components/shared/Toast'
+import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
+import { TikTokOptions, type TikTokPostOptions } from '@/components/upload/TikTokOptions'
+import { VideoPreview } from '@/components/upload/VideoPreview'
+import { ThumbnailSelector, type ThumbnailSource } from '@/components/upload/ThumbnailSelector'
+import { HashtagsInput } from '@/components/upload/HashtagsInput'
+import { CaptionField, type CaptionValue } from '@/components/upload/CaptionField'
+import { YouTubeOptions, type YouTubeOptionsData } from '@/components/upload/YouTubeOptions'
+import { LocationField } from '@/components/upload/LocationField'
+import { CollabTags } from '@/components/upload/CollabTags'
+import { PlatformPreview } from '@/components/upload/PlatformPreview'
 import type { Platform } from '@/types/api.types'
 
 type Step = 1 | 2 | 3
 
 const STEPS = [
-  { id: 1 as const, label: 'Vídeo' },
-  { id: 2 as const, label: 'Configurar' },
-  { id: 3 as const, label: 'Publicar' },
+  { id: 1 as const, key: 'step_video' },
+  { id: 2 as const, key: 'step_configure' },
+  { id: 3 as const, key: 'step_publish' },
 ]
 
 const PLATFORMS: Platform[] = ['tiktok', 'instagram', 'youtube']
@@ -24,45 +36,99 @@ const platformNames: Record<Platform, string> = {
   youtube: 'Shorts',
 }
 
-type PublishStatus = 'pending' | 'publishing' | 'published' | 'failed'
+type PublishStatus = 'pending' | 'publishing' | 'published' | 'failed' | 'unavailable'
 
 const statusIcons: Record<PublishStatus, React.ReactNode> = {
   pending: <div className="h-4 w-4 rounded-full border border-white/[0.2]" />,
   publishing: <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#00E5A0] border-t-transparent" />,
   published: <span className="text-[#DEFF9A] font-bold text-sm">✓</span>,
   failed: <span className="text-[#ef4444] font-bold text-sm">✗</span>,
+  unavailable: <span className="text-[#555555] text-sm font-bold">–</span>,
 }
 
 export default function UploadPage() {
-  const { canPost } = useUser()
+  const t = useTranslations('upload')
+  const { canPost, profile } = useUser()
+  const { markItem } = useOnboarding()
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [step, setStep] = useState<Step>(1)
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
-  const [caption, setCaption] = useState('')
+  const [caption, setCaption] = useState<CaptionValue>('')
+  const [thumbnail, setThumbnail] = useState<ThumbnailSource>(null)
+  const [capturedFrames, setCapturedFrames] = useState<Array<{ dataUrl: string; time: number }>>([])
+  const [hashtags, setHashtags] = useState<string[]>([])
+  const [location, setLocation] = useState('')
+  const [collabTags, setCollabTags] = useState<string[]>([])
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(['tiktok', 'instagram', 'youtube'])
+  const [tiktokOptions, setTiktokOptions] = useState<TikTokPostOptions | null>(null)
+  const [youtubeOptions, setYoutubeOptions] = useState<YouTubeOptionsData>({
+    categoryId: '20',          // Gaming as default
+    madeForKids: false,
+    selfDeclaredMadeForKids: false,
+  })
   const [useAI, setUseAI] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [publishResults, setPublishResults] = useState<Record<Platform, PublishStatus>>({
     tiktok: 'pending', instagram: 'pending', youtube: 'pending',
   })
+  const [publishErrors, setPublishErrors] = useState<Partial<Record<Platform, string>>>({})
+
+  // Single object URL for the uploaded video, shared by the inline player and
+  // the platform preview mockup. Owned here so both consume the same blob URL.
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  useEffect(() => {
+    if (!file) { setVideoUrl(null); return }
+    const u = URL.createObjectURL(file)
+    setVideoUrl(u)
+    return () => URL.revokeObjectURL(u)
+  }, [file])
+
+  // Name of the connected TikTok account, shown as "Publicando como @...".
+  // The OAuth callback already stores the TikTok display_name in channels.channel_name.
+  const [tiktokAccount, setTiktokAccount] = useState<string | null>(null)
+  useEffect(() => {
+    if (!profile?.id) return
+    const supabase = createClient()
+    supabase
+      .from('channels')
+      .select('channel_name')
+      .eq('user_id', profile.id)
+      .eq('platform', 'tiktok')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => { if (data?.channel_name) setTiktokAccount(data.channel_name) })
+  }, [profile?.id])
+
+  // Caption shown in the preview: unified string or the first platform's text.
+  const firstPlatform = selectedPlatforms[0]
+  const previewCaption = typeof caption === 'string'
+    ? caption
+    : (firstPlatform ? caption[firstPlatform] ?? '' : '')
+  const previewThumbnail = thumbnail?.type === 'frame'
+    ? thumbnail.dataUrl
+    : thumbnail?.type === 'upload'
+    ? thumbnail.previewUrl
+    : null
 
   const handleFile = useCallback((f: File) => {
     if (!f.type.startsWith('video/')) {
-      toast('Arquivo inválido. Envie um arquivo de vídeo (MP4, MOV, WebM)', 'error')
+      toast(t('err_invalid_file'), 'error')
       return
     }
     if (f.size > 500 * 1024 * 1024) {
-      toast('Arquivo muito grande. Máximo 500MB', 'error')
+      toast(t('err_too_large'), 'error')
       return
     }
     setFile(f)
     setTitle(f.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '))
     setStep(2)
-  }, [toast])
+  }, [toast, t])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -77,24 +143,209 @@ export default function UploadPage() {
     )
   }
 
+  const getPublishTip = (platform: Platform, error: string | undefined): string => {
+    if (!error) return 'Tente novamente ou verifique sua conta.'
+    const e = error.toLowerCase()
+    if (platform === 'instagram') {
+      if (e.includes('expirado') || e.includes('expired') || e.includes('token')) return 'Desconecte e reconecte sua conta Instagram na página de Canais.'
+      if (e.includes('não conectada') || e.includes('não conectado')) return 'Conecte sua conta Instagram na página de Canais.'
+      if (e.includes('tempo') || e.includes('timeout')) return 'O Instagram pode ter processado o Reel — verifique seu perfil.'
+      if (e.includes('permission') || e.includes('permissão')) return 'O app precisa da permissão instagram_business_content_publish. Reconecte a conta.'
+      return 'Tente novamente. Se persistir, reconecte sua conta Instagram em Canais.'
+    }
+    // TikTok
+    if (e.includes('unaudited') || e.includes('private_account')) return 'O app TikTok ainda não passou pela auditoria para posts públicos. Selecione "Somente eu" na privacidade ou complete a auditoria em developer.tiktok.com.'
+    if (e.includes('spam')) return 'Aguarde 24h antes de publicar novamente.'
+    if (e.includes('expirado') || e.includes('expired') || e.includes('token')) return 'Desconecte e reconecte sua conta TikTok na página de Canais.'
+    if (e.includes('não conectada') || e.includes('não conectado')) return 'Conecte sua conta TikTok na página de Canais.'
+    if (e.includes('64mb') || e.includes('tamanho')) return 'Reduza o vídeo para menos de 64MB antes de publicar.'
+    if (e.includes('tempo') || e.includes('timeout')) return 'Verifique o TikTok Studio — a publicação pode ter sido concluída.'
+    if (e.includes('rejected') || e.includes('audit_failed')) return 'Conteúdo rejeitado pelo TikTok — revise as diretrizes da comunidade.'
+    if (e.includes('duration') || e.includes('duração')) return 'O vídeo deve ter entre 5 segundos e 10 minutos.'
+    return 'Tente novamente ou verifique sua conta no TikTok Studio.'
+  }
+
+  // Real TikTok publish: starts the post and polls until it completes or fails.
+  // Returns true only on PUBLISH_COMPLETE.
+  const publishTikTok = async (videoPublicUrl: string): Promise<boolean> => {
+    const tiktokCaption = typeof caption === 'string' ? caption : (caption.tiktok ?? '')
+    try {
+      const res = await fetch('/api/publish/tiktok', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          video_url: videoPublicUrl,
+          title,
+          caption: tiktokCaption,
+          hashtags,
+          privacy_level: tiktokOptions?.privacyLevel ?? 'PUBLIC_TO_EVERYONE',
+          comment_disabled: tiktokOptions?.commentDisabled ?? false,
+          duet_disabled: tiktokOptions?.duetDisabled ?? false,
+          stitch_disabled: tiktokOptions?.stitchDisabled ?? false,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.success) {
+        const detail = data?.details?.code || data?.details?.message || ''
+        const errMsg = `${data?.error ?? 'falha ao publicar'}${detail ? ` (${detail})` : ''}`
+        toast(`TikTok: ${errMsg}`, 'error')
+        console.error('[upload] TikTok publish failed:', data)
+        setPublishErrors(prev => ({ ...prev, tiktok: errMsg }))
+        return false
+      }
+
+      // Poll status every 3s for up to ~3 minutes.
+      const publishId = data.publish_id as string
+      for (let i = 0; i < 60; i++) {
+        await new Promise(r => setTimeout(r, 3000))
+        const sres = await fetch(`/api/publish/tiktok/status?publish_id=${encodeURIComponent(publishId)}`)
+        const sdata = await sres.json()
+        if (sdata.completed) return true
+        if (sdata.failed) {
+          const reason = sdata.fail_reason ?? 'motivo desconhecido'
+          toast(`TikTok falhou: ${reason}`, 'error')
+          console.error('[upload] TikTok publish failed:', reason)
+          setPublishErrors(prev => ({ ...prev, tiktok: reason }))
+          return false
+        }
+      }
+      const timeoutMsg = 'Tempo de espera esgotado — verifique o TikTok Studio'
+      console.warn('[upload] TikTok publish timed out — check TikTok Studio')
+      setPublishErrors(prev => ({ ...prev, tiktok: timeoutMsg }))
+      return false
+    } catch (e) {
+      const genericMsg = 'Erro inesperado ao publicar'
+      console.error('[upload] TikTok publish error:', e)
+      setPublishErrors(prev => ({ ...prev, tiktok: genericMsg }))
+      return false
+    }
+  }
+
+  // Instagram Reels: creates a container then polls until FINISHED and publishes.
+  const publishInstagram = async (videoPublicUrl: string): Promise<boolean> => {
+    const igCaption = typeof caption === 'string' ? caption : (caption.instagram ?? '')
+    try {
+      const res = await fetch('/api/publish/instagram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ video_url: videoPublicUrl, caption: igCaption, hashtags }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.success) {
+        const detail = data?.details?.message || data?.details?.code || ''
+        const errMsg = `${data?.error ?? 'falha ao publicar'}${detail ? ` — ${detail}` : ''}`
+        toast(`Instagram: ${errMsg}`, 'error')
+        console.error('[upload] Instagram publish failed:', data)
+        setPublishErrors(prev => ({ ...prev, instagram: errMsg }))
+        return false
+      }
+
+      const containerId = data.container_id as string
+      // Poll status every 5s for up to ~5 minutes (60 tries).
+      for (let i = 0; i < 60; i++) {
+        await new Promise(r => setTimeout(r, 5000))
+        const sres = await fetch(`/api/publish/instagram/status?container_id=${encodeURIComponent(containerId)}`)
+        const sdata = await sres.json()
+        if (sdata.completed) return true
+        if (sdata.failed) {
+          const reason = sdata.fail_reason ?? 'motivo desconhecido'
+          toast(`Instagram falhou: ${reason}`, 'error')
+          console.error('[upload] Instagram publish failed:', reason)
+          setPublishErrors(prev => ({ ...prev, instagram: reason }))
+          return false
+        }
+      }
+      const timeoutMsg = 'Tempo de espera esgotado — verifique seu perfil no Instagram'
+      console.warn('[upload] Instagram publish timed out')
+      setPublishErrors(prev => ({ ...prev, instagram: timeoutMsg }))
+      return false
+    } catch (e) {
+      const genericMsg = 'Erro inesperado ao publicar no Instagram'
+      console.error('[upload] Instagram publish error:', e)
+      setPublishErrors(prev => ({ ...prev, instagram: genericMsg }))
+      return false
+    }
+  }
+
   const handlePublish = async () => {
     if (!file || selectedPlatforms.length === 0) return
     if (!canPost) {
-      toast('Limite de posts atingido. Faça upgrade para continuar', 'error')
+      toast(t('err_limit'), 'error')
       return
     }
 
     setStep(3)
     setPublishing(true)
 
+    const supabase = createClient()
+
+    // TikTok and Instagram both need the video at a public URL.
+    // Upload once to Supabase Storage and share the URL across platforms.
+    let videoPublicUrl: string | null = null
+    const needsStorage = selectedPlatforms.includes('tiktok') || selectedPlatforms.includes('instagram')
+    if (needsStorage) {
+      if (selectedPlatforms.includes('tiktok')) setPublishResults(prev => ({ ...prev, tiktok: 'publishing' }))
+      if (!profile?.id) {
+        toast('Perfil ainda carregando — tente novamente em instantes', 'error')
+      } else {
+        try {
+          const ext = file.name.split('.').pop() || 'mp4'
+          const path = `${profile.id}/${Date.now()}.${ext}`
+          const { error: upErr } = await supabase.storage
+            .from('videos')
+            .upload(path, file, { contentType: file.type, upsert: false })
+          if (upErr) throw upErr
+          videoPublicUrl = supabase.storage.from('videos').getPublicUrl(path).data.publicUrl
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : 'erro desconhecido'
+          console.error('[upload] Storage upload failed:', e)
+          toast(`Falha ao enviar o vídeo: ${msg}`, 'error')
+        }
+      }
+    }
+
+    let anySucceeded = false
     for (const platform of selectedPlatforms) {
-      setPublishResults(prev => ({ ...prev, [platform]: 'publishing' }))
-      await new Promise(r => setTimeout(r, 1200 + Math.random() * 800))
-      setPublishResults(prev => ({ ...prev, [platform]: 'published' }))
+      if (platform !== 'tiktok') {
+        setPublishResults(prev => ({ ...prev, [platform]: 'publishing' }))
+      }
+
+      if (platform === 'tiktok') {
+        const ok = videoPublicUrl ? await publishTikTok(videoPublicUrl) : false
+        if (ok) anySucceeded = true
+        setPublishResults(prev => ({ ...prev, tiktok: ok ? 'published' : 'failed' }))
+        if (ok && profile?.id) {
+          await supabase.rpc('register_publication', { p_user_id: profile.id, p_platform: 'tiktok' })
+        }
+      } else if (platform === 'instagram') {
+        const ok = videoPublicUrl ? await publishInstagram(videoPublicUrl) : false
+        if (ok) anySucceeded = true
+        setPublishResults(prev => ({ ...prev, instagram: ok ? 'published' : 'failed' }))
+        if (ok && profile?.id) {
+          await supabase.rpc('register_publication', { p_user_id: profile.id, p_platform: 'instagram' })
+        }
+      } else {
+        // YouTube not yet integrated.
+        await new Promise(r => setTimeout(r, 600))
+        setPublishResults(prev => ({ ...prev, [platform]: 'unavailable' }))
+      }
+    }
+
+    // Record one entry in the upload history (the Histórico page reads `posts`).
+    if (profile?.id) {
+      await supabase.from('posts').insert({
+        user_id: profile.id,
+        title: title || 'Clipe',
+        caption: typeof caption === 'string' ? caption : (caption.tiktok ?? ''),
+        status: anySucceeded ? 'published' : 'failed',
+        platforms: selectedPlatforms,
+      })
     }
 
     setPublishing(false)
-    toast(`Clipe publicado com sucesso em ${selectedPlatforms.length} plataforma${selectedPlatforms.length !== 1 ? 's' : ''}!`, 'success')
+    toast(t('success_published', { count: selectedPlatforms.length }), 'success')
+    // Onboarding: first successful publish completes this step.
+    markItem('first_upload')
   }
 
   const resetForm = () => {
@@ -102,12 +353,18 @@ export default function UploadPage() {
     setFile(null)
     setTitle('')
     setCaption('')
+    setThumbnail(null)
+    setCapturedFrames([])
+    setHashtags([])
+    setLocation('')
+    setCollabTags([])
     setPublishResults({ tiktok: 'pending', instagram: 'pending', youtube: 'pending' })
+    setPublishErrors({})
   }
 
   return (
     <div>
-      <Topbar title="Upload de Vídeo" />
+      <Topbar title={t('title')} />
 
       <div className="mx-auto max-w-lg p-6 space-y-6">
         {/* Stepper */}
@@ -126,7 +383,7 @@ export default function UploadPage() {
                   {step > s.id ? '✓' : s.id}
                 </div>
                 <span className={cn('text-[11px]', step >= s.id ? 'text-white' : 'text-[#444444]')}>
-                  {s.label}
+                  {t(s.key)}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
@@ -171,9 +428,9 @@ export default function UploadPage() {
                   </svg>
                 </div>
                 <div className="mb-1 text-[14px] font-medium text-white">
-                  {isDragging ? 'Solte o arquivo aqui' : 'Toque para selecionar o vídeo'}
+                  {isDragging ? t('drop_here') : t('tap_select')}
                 </div>
-                <div className="text-[12px] text-[#444444]">MP4, MOV, WebM · Máximo 500MB</div>
+                <div className="text-[12px] text-[#444444]">{t('file_hint')}</div>
               </div>
             </motion.div>
           )}
@@ -188,50 +445,87 @@ export default function UploadPage() {
               transition={{ duration: 0.2 }}
               className="space-y-4"
             >
-              {/* Preview do arquivo */}
-              <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-[#111111] p-3">
-                <div className="grid h-10 w-10 place-items-center rounded-lg bg-[#1a1a1a]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00E5A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="truncate text-[13px] font-medium text-white">{file.name}</div>
-                  <div className="text-[11px] text-[#444444]">{(file.size / (1024 * 1024)).toFixed(1)} MB</div>
-                </div>
-                <button onClick={() => { setFile(null); setStep(1) }} className="text-[#444444] hover:text-white transition-colors">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
+              {/* Video preview com player inline */}
+              <VideoPreview
+                file={file}
+                objectUrl={videoUrl}
+                onFrameCapture={(dataUrl, time) => {
+                  // Keep the last 5 captured frames for the thumbnail strip.
+                  setCapturedFrames(prev => [{ dataUrl, time }, ...prev].slice(0, 5))
+                  setThumbnail({ type: 'frame', dataUrl, time })
+                }}
+              />
+
+              {/* Trocar vídeo */}
+              <button
+                type="button"
+                onClick={() => { setFile(null); setStep(1) }}
+                className="-mt-2 inline-flex items-center gap-1.5 text-[12px] font-medium text-[#666666] transition-colors hover:text-white"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                </svg>
+                Trocar vídeo
+              </button>
+
+              {/* Seletor de capa */}
+              <ThumbnailSelector
+                value={thumbnail}
+                onChange={setThumbnail}
+                capturedFrames={capturedFrames}
+              />
+
+              {/* Pré-visualização por plataforma (recolhida por padrão) */}
+              <PlatformPreview
+                videoUrl={videoUrl}
+                thumbnailUrl={previewThumbnail}
+                title={title}
+                caption={previewCaption}
+                hashtags={hashtags}
+                username={profile?.username ?? 'usuario'}
+                platforms={selectedPlatforms}
+              />
+
+              {/* Título */}
+              <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+                <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('label_title')}</label>
+                <input
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  placeholder={t('placeholder_title')}
+                  className="w-full rounded-lg border border-white/[0.08] bg-[#0a0a0a] px-3 py-2.5 text-[13px] text-white placeholder-[#333333] outline-none transition-colors focus:border-[#00E5A0]/50"
+                />
               </div>
 
-              {/* Título e Caption */}
-              <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4 space-y-3">
-                <div>
-                  <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">Título</label>
-                  <input
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                    placeholder="Ex: Neymar faz o gol mais insano da temporada 🔥"
-                    className="w-full rounded-lg border border-white/[0.08] bg-[#0a0a0a] px-3 py-2.5 text-[13px] text-white placeholder-[#333333] outline-none transition-colors focus:border-[#00E5A0]/50"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">Legenda / Caption</label>
-                  <textarea
-                    value={caption}
-                    onChange={e => setCaption(e.target.value)}
-                    placeholder="Escreva a legenda que será usada em todas as plataformas..."
-                    rows={3}
-                    className="w-full resize-none rounded-lg border border-white/[0.08] bg-[#0a0a0a] px-3 py-2.5 text-[13px] text-white placeholder-[#333333] outline-none transition-colors focus:border-[#00E5A0]/50"
-                  />
-                </div>
+              {/* Legenda (única ou por plataforma) + Hashtags */}
+              <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+                <CaptionField
+                  platforms={selectedPlatforms}
+                  value={caption}
+                  onChange={setCaption}
+                />
+                <HashtagsInput
+                  value={hashtags}
+                  onChange={setHashtags}
+                  platforms={selectedPlatforms}
+                />
               </div>
+
+              {/* Localização (Instagram + YouTube) e colaboradores (Instagram) */}
+              <LocationField
+                value={location}
+                onChange={setLocation}
+                platforms={selectedPlatforms}
+              />
+              <CollabTags
+                value={collabTags}
+                onChange={setCollabTags}
+                platforms={selectedPlatforms}
+              />
 
               {/* Plataformas */}
               <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
-                <label className="mb-3 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">Distribuir em</label>
+                <label className="mb-3 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('label_distribute')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {PLATFORMS.map(p => {
                     const selected = selectedPlatforms.includes(p)
@@ -265,6 +559,22 @@ export default function UploadPage() {
                 </div>
               </div>
 
+              {/* TikTok compliance options — shown only when TikTok is a destination */}
+              {selectedPlatforms.includes('tiktok') && (
+                <TikTokOptions
+                  creatorUsername={tiktokAccount ?? profile?.username ?? 'sua conta'}
+                  onChange={setTiktokOptions}
+                />
+              )}
+
+              {/* YouTube options — shown only when YouTube is a destination */}
+              {selectedPlatforms.includes('youtube') && (
+                <YouTubeOptions
+                  value={youtubeOptions}
+                  onChange={setYoutubeOptions}
+                />
+              )}
+
               {/* Toggle IA */}
               <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-[#111111] px-4 py-3">
                 <div className="flex items-center gap-3">
@@ -274,8 +584,8 @@ export default function UploadPage() {
                     </svg>
                   </div>
                   <div>
-                    <div className="text-[13px] font-medium text-white">Otimização por IA</div>
-                    <div className="text-[11px] text-[#444444]">Adapta legenda e hashtags para cada algoritmo</div>
+                    <div className="text-[13px] font-medium text-white">{t('ai_title')}</div>
+                    <div className="text-[11px] text-[#444444]">{t('ai_desc')}</div>
                   </div>
                 </div>
                 <button
@@ -305,11 +615,11 @@ export default function UploadPage() {
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
                 </svg>
-                Publicar Agora em {selectedPlatforms.length} plataforma{selectedPlatforms.length !== 1 ? 's' : ''}
+                {t('publish_now', { count: selectedPlatforms.length })}
               </motion.button>
 
               <button type="button" className="w-full text-center text-[12px] text-[#444444] hover:text-[#00E5A0] transition-colors">
-                ou Agendar publicação para outro horário
+                {t('schedule')}
               </button>
             </motion.div>
           )}
@@ -326,32 +636,43 @@ export default function UploadPage() {
               <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
                 <div className="mb-4 text-center">
                   <div className="text-[15px] font-medium text-white mb-1">
-                    {publishing ? 'Publicando seu clipe...' : 'Publicado com sucesso! 🎉'}
+                    {publishing ? t('publishing_title') : t('published_title')}
                   </div>
                   <div className="text-[12px] text-[#444444]">
                     {publishing
-                      ? 'Aguarde enquanto distribuímos para as plataformas'
-                      : `Distribuído para ${selectedPlatforms.length} plataforma${selectedPlatforms.length !== 1 ? 's' : ''}`}
+                      ? t('publishing_desc')
+                      : t('published_desc', { count: selectedPlatforms.length })}
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   {selectedPlatforms.map(p => {
                     const result = publishResults[p]
+                    const errMsg = result === 'failed' ? publishErrors[p] : undefined
+                    const tip = result === 'failed' ? getPublishTip(p, errMsg) : undefined
                     return (
-                      <div key={p} className="flex items-center gap-3 rounded-lg bg-[#0a0a0a] p-3">
-                        <PlatformIcon platform={p} size={28} withLink={false} />
-                        <div className="flex-1">
-                          <div className="text-[13px] font-medium text-white">{platformNames[p]}</div>
-                          <div className="text-[11px] text-[#444444]">
-                            {result === 'pending' ? 'Aguardando...' :
-                             result === 'publishing' ? 'Enviando...' :
-                             result === 'published' ? 'Publicado ✓' : 'Falhou'}
+                      <div key={p} className="rounded-lg bg-[#0a0a0a] p-3">
+                        <div className="flex items-center gap-3">
+                          <PlatformIcon platform={p} size={28} withLink={false} />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[13px] font-medium text-white">{platformNames[p]}</div>
+                            <div className={cn('text-[11px]', result === 'failed' ? 'text-[#ef4444]/80' : result === 'unavailable' ? 'text-[#555555]' : 'text-[#444444]')}>
+                              {result === 'pending' ? t('result_pending') :
+                               result === 'publishing' ? t('result_publishing') :
+                               result === 'published' ? t('result_published') :
+                               result === 'unavailable' ? 'Integração em desenvolvimento' :
+                               (errMsg ?? t('result_failed'))}
+                            </div>
+                          </div>
+                          <div className="grid h-6 w-6 place-items-center shrink-0">
+                            {statusIcons[result]}
                           </div>
                         </div>
-                        <div className="grid h-6 w-6 place-items-center">
-                          {statusIcons[result]}
-                        </div>
+                        {tip && (
+                          <div className="mt-2 ml-10 text-[11px] text-[#DEFF9A]/70 leading-relaxed">
+                            💡 {tip}
+                          </div>
+                        )}
                       </div>
                     )
                   })}
@@ -364,13 +685,13 @@ export default function UploadPage() {
                     onClick={resetForm}
                     className="flex-1 rounded-xl border border-white/[0.1] py-3 text-[13px] font-medium text-white transition-colors hover:border-white/[0.2]"
                   >
-                    Publicar novo clipe
+                    {t('publish_new')}
                   </button>
                   <a
                     href="/historico"
                     className="flex-1 rounded-xl bg-[#00E5A0] py-3 text-center text-[13px] font-semibold text-[#0B0F19] transition-colors hover:bg-[#00B584]"
                   >
-                    Ver no Histórico
+                    {t('see_history')}
                   </a>
                 </div>
               )}

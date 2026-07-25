@@ -44,19 +44,29 @@ export function useNotifications(userId: string | undefined): UseNotificationsRe
 
     fetchNotifications()
 
-    const channel = supabase
-      .channel(`notifications:${userId}`)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'notifications',
-        filter: `user_id=eq.${userId}`,
-      }, payload => {
-        setNotifications(prev => [payload.new as Notification, ...prev])
-      })
-      .subscribe()
+    // Live updates are best-effort. Opening the realtime WebSocket can THROW
+    // synchronously on WebKit/Safari when wss:// is blocked (CSP, firewall,
+    // private mode) — and an unhandled throw here would crash the whole
+    // dashboard ("this page couldn't load"). Notifications still load via the
+    // fetch above; degrade gracefully to no live updates instead of crashing.
+    let channel: ReturnType<typeof supabase.channel> | null = null
+    try {
+      channel = supabase
+        .channel(`notifications:${userId}`)
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`,
+        }, payload => {
+          setNotifications(prev => [payload.new as Notification, ...prev])
+        })
+        .subscribe()
+    } catch (err) {
+      console.warn('[notifications] realtime unavailable; live updates disabled:', err)
+    }
 
-    return () => { supabase.removeChannel(channel) }
+    return () => { if (channel) supabase.removeChannel(channel) }
   }, [userId])
 
   const unreadCount = notifications.filter(n => !n.read).length

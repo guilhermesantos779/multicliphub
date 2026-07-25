@@ -1,9 +1,11 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { isWeakPassword } from '@/lib/auth/weakPasswords'
 import { Logo } from '@/components/shared/Logo'
+import { UsernameInput } from '@/components/ui/UsernameInput'
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24">
@@ -15,51 +17,76 @@ const GoogleIcon = () => (
 )
 
 export default function RegisterPage() {
-  const router = useRouter()
+  const t = useTranslations('auth')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
+  const [usernameChecking, setUsernameChecking] = useState(false)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+
+  // Block submission until the nickname is confirmed available.
+  const canSubmit =
+    !loading && usernameAvailable === true && !usernameChecking
 
   const handleRegister = async (e: React.SyntheticEvent) => {
     e.preventDefault()
-    if (password !== confirm) { setError('As senhas não coincidem'); return }
-    if (password.length < 8) { setError('Senha deve ter mínimo 8 caracteres'); return }
-    if (!agreed) { setError('Aceite os termos para continuar'); return }
+    if (usernameChecking) { setError(t('err_wait_nickname')); return }
+    if (usernameAvailable !== true) { setError(t('err_choose_nickname')); return }
+    if (password !== confirm) { setError(t('err_password_mismatch')); return }
+    if (password.length < 8) { setError(t('err_password_short')); return }
+    // Offline weak-password guard (HIBP is a Supabase Pro feature, not available here).
+    if (isWeakPassword(password, { email, username })) { setError(t('err_password_weak')); return }
+    if (!agreed) { setError(t('err_accept_terms')); return }
 
     setLoading(true)
     setError('')
-    const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: name } },
-    })
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        // username is consumed by the handle_new_user() trigger, which
+        // re-validates it and falls back to a generated one if taken.
+        options: { data: { full_name: name, username } },
+      })
 
-    if (error) {
-      setError(error.message)
+      if (error) {
+        setError(error.message)
+      } else {
+        setSuccess(true)
+      }
+    } catch (err) {
+      setError(t('err_connection') + (err instanceof Error ? err.message : String(err)))
+    } finally {
       setLoading(false)
-    } else {
-      router.push('/dashboard')
     }
   }
 
   const handleGoogle = async () => {
-    const supabase = createClient()
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    })
+    try {
+      setError('')
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      })
+      if (error) setError(t('google_error') + error.message)
+    } catch (err) {
+      setError(t('connect_error') + (err instanceof Error ? err.message : String(err)))
+    }
   }
 
   const fields = [
-    { label: 'Nome completo', value: name, set: setName, type: 'text', placeholder: 'Seu nome' },
-    { label: 'E-mail', value: email, set: setEmail, type: 'email', placeholder: 'seu@email.com' },
-    { label: 'Senha', value: password, set: setPassword, type: 'password', placeholder: 'Mínimo 8 caracteres' },
-    { label: 'Confirmar senha', value: confirm, set: setConfirm, type: 'password', placeholder: 'Repita a senha' },
+    { label: t('full_name'), value: name, set: setName, type: 'text', placeholder: t('name_placeholder') },
+    { label: t('email'), value: email, set: setEmail, type: 'email', placeholder: t('email_placeholder') },
+    { label: t('password'), value: password, set: setPassword, type: 'password', placeholder: t('password_placeholder') },
+    { label: t('confirm_password'), value: confirm, set: setConfirm, type: 'password', placeholder: t('confirm_placeholder') },
   ]
 
   return (
@@ -70,9 +97,23 @@ export default function RegisterPage() {
         </div>
 
         <div className="rounded-2xl border border-white/[0.08] bg-[#0a0a0a] p-7">
+          {success ? (
+            <div className="text-center py-4">
+              <div className="mb-3 text-4xl">📧</div>
+              <h2 className="text-[18px] font-semibold text-white mb-2">{t('check_email_title')}</h2>
+              <p className="text-[13px] text-[#888888]">
+                {t('check_email_sent_to')}<span className="text-white">{email}</span>.<br />
+                {t('check_email_activate')}
+              </p>
+              <Link href="/login" className="mt-5 inline-block text-[13px] text-[#00E5A0] hover:underline">
+                {t('already_confirmed')}
+              </Link>
+            </div>
+          ) : (
+          <>
           <div className="mb-6 text-center">
-            <h1 className="text-[20px] font-semibold text-white">Crie sua conta</h1>
-            <p className="mt-1 text-[13px] text-[#555555]">7 dias grátis · Sem cartão de crédito</p>
+            <h1 className="text-[20px] font-semibold text-white">{t('create_account_title')}</h1>
+            <p className="mt-1 text-[13px] text-[#555555]">{t('register_subtitle')}</p>
           </div>
 
           <button
@@ -80,12 +121,12 @@ export default function RegisterPage() {
             className="mb-4 flex w-full items-center justify-center gap-2.5 rounded-xl border border-white/[0.1] bg-white py-2.5 text-[13px] font-medium text-black transition-all hover:bg-white/90"
           >
             <GoogleIcon />
-            Continuar com Google
+            {t('continue_google')}
           </button>
 
           <div className="mb-4 flex items-center gap-3">
             <div className="h-px flex-1 bg-white/[0.06]" />
-            <span className="text-[11px] text-[#333333]">ou</span>
+            <span className="text-[11px] text-[#333333]">{t('or')}</span>
             <div className="h-px flex-1 bg-white/[0.06]" />
           </div>
 
@@ -104,6 +145,21 @@ export default function RegisterPage() {
               </div>
             ))}
 
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('nickname')}</label>
+              <UsernameInput
+                value={username}
+                onChange={setUsername}
+                onAvailabilityChange={(available, isChecking) => {
+                  setUsernameAvailable(available)
+                  setUsernameChecking(isChecking)
+                }}
+              />
+              <p className="mt-1 text-[11px] text-[#444444]">
+                {t('nickname_hint')}
+              </p>
+            </div>
+
             <label className="flex cursor-pointer items-start gap-2.5">
               <input
                 type="checkbox"
@@ -112,10 +168,10 @@ export default function RegisterPage() {
                 className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#9146FF]"
               />
               <span className="text-[11px] leading-relaxed text-[#444444]">
-                Concordo com os{' '}
-                <Link href="/terms" target="_blank" className="text-[#00E5A0] hover:underline">Termos de Uso</Link>
-                {' '}e{' '}
-                <Link href="/privacy" target="_blank" className="text-[#00E5A0] hover:underline">Política de Privacidade</Link>
+                {t('agree_prefix')}
+                <Link href="/termos" target="_blank" className="text-[#00E5A0] hover:underline">{t('terms')}</Link>
+                {t('and')}
+                <Link href="/privacidade" target="_blank" className="text-[#00E5A0] hover:underline">{t('privacy')}</Link>
               </span>
             </label>
 
@@ -127,17 +183,19 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={!canSubmit}
               className="w-full rounded-xl bg-[#00E5A0] py-3 text-[13px] font-medium text-[#0B0F19] font-semibold transition-colors hover:bg-[#00B584] disabled:opacity-50"
             >
-              {loading ? 'Criando conta...' : 'Criar minha conta'}
+              {loading ? t('creating') : t('create_my_account')}
             </button>
           </form>
 
           <p className="mt-4 text-center text-[12px] text-[#444444]">
-            Já tem uma conta?{' '}
-            <Link href="/login" className="text-[#00E5A0] hover:underline">Entrar</Link>
+            {t('have_account')}{' '}
+            <Link href="/login" className="text-[#00E5A0] hover:underline">{t('sign_in')}</Link>
           </p>
+          </>
+          )}
         </div>
       </div>
     </div>

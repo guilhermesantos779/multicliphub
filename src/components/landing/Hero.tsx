@@ -1,157 +1,214 @@
 'use client'
+
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { FadeIn } from '@/components/shared/FadeIn'
-import { PlatformIcon } from '@/components/shared/PlatformIcon'
+import { useTranslations } from 'next-intl'
+import { BrowserFrame } from './BrowserFrame'
+import type { ScreenId } from './AppDashboard'
 
-const AVATARS = ['FB', 'LC', 'AP', 'KR', 'MG']
+const SCREEN_ORDER: ScreenId[] = ['dashboard', 'upload', 'analytics', 'ranking']
+
+const AVATAR_COLORS    = ['#9146FF', '#00E5A0', '#f59e0b', '#ef4444', '#3b82f6']
+const AVATAR_INITIALS  = ['FB', 'LC', 'AP', 'KR', 'MG']
+
+const EASE = [0.25, 0.4, 0.25, 1] as const
 
 export function Hero() {
-  return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black pt-16">
-      {/* Fundo: glow + grid de pontos */}
-      <div className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute inset-0 opacity-[0.12]"
-          style={{
-            backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
-            backgroundSize: '32px 32px',
-          }}
-        />
-        <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(0,229,160,0.05)] blur-[120px]" />
-      </div>
+  const t = useTranslations('hero')
+  const sectionRef = useRef<HTMLElement>(null)
+  const [activeScreen, setActiveScreen] = useState<ScreenId>('dashboard')
 
-      <div className="relative z-10 mx-auto max-w-5xl px-4 py-24 text-center sm:px-6">
-        {/* Badge */}
-        <FadeIn delay={0} className="mb-8 flex justify-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-1.5">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#DEFF9A]" />
-            <span className="text-[12px] text-[#888888]">
-              Ranking Global lançado – top 3 ganha 3 meses grátis
+  const handleScreenChange = useCallback((screen: ScreenId) => {
+    setActiveScreen(screen)
+  }, [])
+
+  // Scroll-driven screen switching without GSAP pin
+  useEffect(() => {
+    const onScroll = () => {
+      const el = sectionRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      const sectionHeight = el.offsetHeight
+      const scrolledPast = Math.max(0, -rect.top)
+      const progress = Math.min(scrolledPast / sectionHeight, 1)
+      const index = Math.min(
+        Math.floor(progress * SCREEN_ORDER.length),
+        SCREEN_ORDER.length - 1,
+      )
+      const target = SCREEN_ORDER[index]! // index is clamped to a valid position
+      setActiveScreen((prev) => (prev !== target ? target : prev))
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  return (
+    <section
+      ref={sectionRef}
+      style={{ position: 'relative', overflow: 'hidden' }}
+      className="pt-36 pb-24"
+    >
+      {/* Purple glow — top center */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2"
+        style={{
+          width: 1200,
+          height: 700,
+          background: 'radial-gradient(ellipse, rgba(145,70,255,0.12) 0%, transparent 60%)',
+          filter: 'blur(80px)',
+        }}
+      />
+
+      {/* Mint glow — bottom right */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute"
+        style={{
+          right: '-10%',
+          top: '30%',
+          width: 800,
+          height: 800,
+          background: 'radial-gradient(circle, rgba(0,229,160,0.06) 0%, transparent 60%)',
+          filter: 'blur(80px)',
+        }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-6xl px-6">
+        {/* ── HEADLINE BLOCK ─────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="flex flex-col items-center text-center gap-6"
+        >
+          {/* Pill badge */}
+          <div
+            className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5"
+          >
+            <span
+              className="h-1.5 w-1.5 rounded-full bg-[#00E5A0]"
+              style={{ boxShadow: '0 0 6px rgba(0,229,160,0.8)' }}
+            />
+            <span className="text-[12px] text-white/70">
+              {t('badge')}
             </span>
           </div>
-        </FadeIn>
 
-        {/* Título */}
-        <FadeIn delay={0.1} className="mb-6">
-          <h1 className="text-[52px] font-bold leading-[1.05] tracking-[-0.04em] sm:text-[64px] md:text-[80px]">
-            <span className="text-[#FAFAFA]">Domine o algoritmo.</span>
-            <br />
-            <span className="text-[#00E5A0]">Poste uma vez.</span>
-            <br />
-            <span className="bg-gradient-to-r from-white to-[#DEFF9A] bg-clip-text text-transparent">
-              Conquiste tudo.
+          {/* Main heading */}
+          <h1
+            className="font-display font-semibold leading-[1.05] tracking-[-0.045em]"
+            style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', maxWidth: 840 }}
+          >
+            <span className="block text-white">{t('title_line1')}</span>
+            <span className="block text-white/40">
+              {t('title_line2')}
             </span>
           </h1>
-        </FadeIn>
 
-        {/* Subtítulo */}
-        <FadeIn delay={0.2} className="mb-10">
-          <p className="mx-auto max-w-2xl text-[17px] leading-[1.7] text-[#888888] sm:text-[19px]">
-            O MultiClip Hub distribui seus clipes simultaneamente para TikTok, Reels e Shorts.{' '}
-            <span className="text-[#FAFAFA]">Um upload. Três plataformas. Zero tempo perdido.</span>
+          {/* Subtitle */}
+          <p
+            className="text-white/50 leading-relaxed"
+            style={{ fontSize: 16, maxWidth: 480 }}
+          >
+            {t('subtitle')}
           </p>
-        </FadeIn>
 
-        {/* CTAs */}
-        <FadeIn delay={0.3} className="mb-12">
-          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+          {/* CTAs */}
+          <div className="flex items-center gap-3 flex-wrap justify-center">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 rounded-full bg-[#00E5A0] px-6 py-3 text-[14px] font-semibold text-[#0B0F19] transition-all hover:bg-[#00B584] hover:shadow-[0_0_24px_rgba(0,229,160,0.3)]"
+              className="rounded-full bg-[#9146FF] px-6 py-3 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[#7c3aed]"
             >
-              Começar grátis agora
-              <span>→</span>
+              {t('cta_primary')}
             </Link>
-            <button className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-6 py-3 text-[14px] text-[#888888] transition-colors hover:bg-white/[0.08] hover:text-white">
-              <span className="text-xs">▶</span>
-              Ver demonstração
-            </button>
+            <Link
+              href="#como-funciona"
+              className="rounded-full border border-white/[0.12] px-6 py-3 text-[14px] text-white/70 transition-all duration-200 hover:border-white/[0.25] hover:text-white"
+            >
+              {t('cta_secondary')}
+            </Link>
           </div>
-        </FadeIn>
 
-        {/* Prova social */}
-        <FadeIn delay={0.4} className="mb-16 flex justify-center">
-          <div className="flex items-center gap-4">
+          {/* Social proof */}
+          <div className="flex items-center gap-3">
             <div className="flex">
-              {AVATARS.map((initials, i) => (
+              {AVATAR_COLORS.map((c, i) => (
                 <div
-                  key={initials}
-                  className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-black bg-[#1a1a1a] text-[9px] font-bold text-[#888888]"
-                  style={{ marginLeft: i > 0 ? '-8px' : '0' }}
+                  key={i}
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: '50%',
+                    background: c,
+                    border: '2px solid #000',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 8,
+                    fontWeight: 700,
+                    color: '#fff',
+                    marginLeft: i > 0 ? -8 : 0,
+                    position: 'relative',
+                    zIndex: 5 - i,
+                  }}
                 >
-                  {initials}
+                  {AVATAR_INITIALS[i]}
                 </div>
               ))}
             </div>
-            <div className="text-left">
-              <div className="text-[11px] text-[#DEFF9A]">★★★★★ 4.9/5</div>
-              <div className="text-[11px] text-[#888888]">+2.300 clipadores já usam</div>
+            <div>
+              <div style={{ fontSize: 11, color: '#00E5A0', fontWeight: 600 }}>
+                ★★★★★ 4.9/5
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>
+                {t('social_proof')}
+              </div>
             </div>
           </div>
-        </FadeIn>
+        </motion.div>
 
-        {/* Mockup do produto */}
-        <FadeIn delay={0.5} className="flex justify-center">
-          <div className="w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0a0a0a] p-5 text-left shadow-2xl">
-            {/* Arquivo */}
-            <div className="mb-4 flex items-center gap-3 rounded-xl border border-white/[0.06] bg-[#111111] p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#00E5A0]/10 text-lg">
-                🎬
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-medium text-[#FAFAFA]">
-                  clip_golação_final.mp4
-                </p>
-                <p className="text-[11px] text-[#444444]">147 MB · 00:58 · 1080×1920</p>
-              </div>
-              <span className="rounded-full bg-[#DEFF9A]/10 px-2 py-0.5 text-[10px] font-medium text-[#DEFF9A]">
-                Pronto
-              </span>
-            </div>
+        {/* ── DASHBOARD MOCKUP ───────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.25, ease: EASE }}
+          className="mt-16 relative flex justify-center"
+        >
+          {/* Glow below the frame */}
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              bottom: -60,
+              left: '10%',
+              right: '10%',
+              height: 150,
+              background:
+                'radial-gradient(ellipse, rgba(145,70,255,0.35) 0%, rgba(0,229,160,0.12) 45%, transparent 80%)',
+              filter: 'blur(40px)',
+              opacity: 0.35,
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
 
-            {/* Barra de progresso animada em loop */}
-            <div className="mb-4">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-[12px] text-[#888888]">Publicando em 3 plataformas...</span>
-                <span className="text-[12px] font-medium text-[#DEFF9A]">100%</span>
-              </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#1a1a1a]">
-                <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-[#00E5A0] to-[#DEFF9A]"
-                  initial={{ width: '0%' }}
-                  animate={{ width: '100%' }}
-                  transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity, repeatDelay: 1 }}
-                />
-              </div>
-            </div>
-
-            {/* Status das plataformas */}
-            <div className="flex flex-col gap-2">
-              {(['tiktok', 'instagram', 'youtube'] as const).map((platform, i) => (
-                <motion.div
-                  key={platform}
-                  initial={{ opacity: 0.3 }}
-                  animate={{ opacity: 1 }}
-                  transition={{
-                    delay: i * 0.6 + 0.5,
-                    duration: 0.4,
-                    repeat: Infinity,
-                    repeatDelay: 2.4,
-                  }}
-                  className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-[#111111] px-3 py-2"
-                >
-                  <PlatformIcon platform={platform} size={22} showLabel />
-                  <div className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#DEFF9A]" />
-                    <span className="text-[11px] text-[#DEFF9A]">Publicado</span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+          <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 900 }}>
+            <BrowserFrame
+              activeScreen={activeScreen}
+              onScreenChange={handleScreenChange}
+            />
           </div>
-        </FadeIn>
+        </motion.div>
       </div>
+
+      {/* Bottom gradient fade into next section */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute bottom-0 inset-x-0 h-24"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }}
+      />
     </section>
   )
 }

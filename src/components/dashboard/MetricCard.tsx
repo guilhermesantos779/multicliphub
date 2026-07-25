@@ -5,7 +5,7 @@ import { type ReactNode } from 'react'
 
 interface MetricCardProps {
   label: string
-  value: string | number
+  value: ReactNode
   subLabel?: string
   icon: ReactNode
   iconBg?: string
@@ -48,7 +48,7 @@ export function MetricCard({
 
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-[22px] font-bold leading-none text-white">
+          <div className="text-[22px] font-bold leading-none text-white tabular-nums">
             {value}
           </div>
           {subLabel && (

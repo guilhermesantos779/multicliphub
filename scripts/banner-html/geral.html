@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1200px; height:300px; overflow:hidden; font-family:'Inter',Arial,sans-serif; }
+  .banner {
+    position:relative; width:1200px; height:300px; overflow:hidden;
+    background:
+      radial-gradient(ellipse 60% 130% at 50% 50%, rgba(145,70,255,0.18), transparent 60%),
+      radial-gradient(ellipse 50% 100% at 50% 100%, rgba(0,229,160,0.12), transparent 55%),
+      linear-gradient(135deg, #080610 0%, #050507 50%, #07060c 100%);
+  }
+  .banner::before {
+    content:''; position:absolute; inset:-50%;
+    background:
+      radial-gradient(circle at 35% 45%, rgba(145,70,255,0.18), transparent 22%),
+      radial-gradient(circle at 65% 55%, rgba(0,229,160,0.12), transparent 22%);
+    animation: drift 4s ease-in-out infinite alternate;
+  }
+  @keyframes drift { 0%{transform:translate(0,0);} 100%{transform:translate(40px,20px);} }
+  .banner::after {
+    content:''; position:absolute; top:0; left:-30%; width:30%; height:100%;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+    animation: scan 4s linear infinite;
+  }
+  @keyframes scan { 0%{left:-30%;} 100%{left:130%;} }
+  .bar-left,.bar-right { position:absolute; top:0; width:4px; height:100%; animation:barpulse 2s ease-in-out infinite; }
+  .bar-left { left:0; background:linear-gradient(180deg,#9146FF,#6a2fd0); box-shadow:0 0 20px #9146FF; }
+  .bar-right { right:0; background:linear-gradient(180deg,#00E5A0,#00b584); box-shadow:0 0 20px #00E5A0; animation-delay:1s; }
+  @keyframes barpulse { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+  .particle { position:absolute; border-radius:50%; pointer-events:none; animation:float linear infinite; }
+  @keyframes float { 0%{transform:translateY(310px) scale(0);opacity:0;} 10%{opacity:1;transform:scale(1);} 90%{opacity:1;} 100%{transform:translateY(-20px) scale(0.5);opacity:0;} }
+  .content { position:absolute; inset:0; display:grid; grid-template-columns:260px 1fr 260px; align-items:center; z-index:5; }
+  .tiles { position:relative; height:100%; }
+  .tile { position:absolute; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:26px; animation:tfloat 2s ease-in-out infinite; }
+  .tiles.left .t1{ left:60px; top:96px; width:55px; height:55px; background:rgba(145,70,255,0.10); }
+  .tiles.left .t2{ left:60px; top:165px; width:55px; height:55px; background:rgba(0,229,160,0.08); animation-delay:.5s; }
+  .tiles.left .t3{ left:135px; top:118px; width:50px; height:50px; background:rgba(145,70,255,0.10); font-size:23px; animation-delay:1s; }
+  .tiles.right .t1{ right:60px; top:96px; width:55px; height:55px; background:rgba(0,229,160,0.10); }
+  .tiles.right .t2{ right:60px; top:165px; width:55px; height:55px; background:rgba(145,70,255,0.08); animation-delay:.5s; }
+  .tiles.right .t3{ right:135px; top:118px; width:50px; height:50px; background:rgba(0,229,160,0.08); font-size:23px; animation-delay:1s; }
+  @keyframes tfloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+  .center { text-align:center; padding:0 10px; }
+  .title { font-size:48px; font-weight:900; color:#fff; letter-spacing:2px; text-shadow:0 0 22px rgba(145,70,255,0.45); }
+  .brand { font-size:22px; font-weight:900; letter-spacing:4px; color:#9146FF; margin-top:6px; text-shadow:0 0 14px rgba(145,70,255,0.6); }
+  .divider { width:340px; height:2px; margin:10px auto; background:linear-gradient(90deg,transparent,#9146FF,transparent); animation:dividerGlow 2s ease-in-out infinite; }
+  @keyframes dividerGlow { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+  .desc { font-size:14px; color:rgba(255,255,255,0.55); }
+  .pills { display:flex; gap:10px; justify-content:center; margin-top:14px; }
+  .fp { width:56px; height:40px; border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
+  .fp .ic{ font-size:16px; } .fp .lb{ font-size:9px; color:rgba(255,255,255,0.5); }
+  .fp.c1{ background:rgba(145,70,255,0.10);} .fp.c2{ background:rgba(0,229,160,0.08);} .fp.c3{ background:rgba(255,215,0,0.08);}
+  .fp.c4{ background:rgba(145,70,255,0.10);} .fp.c5{ background:rgba(0,229,160,0.08);}
+  .tagline { font-size:11px; letter-spacing:3px; color:#00E5A0; opacity:0.55; margin-top:14px; }
+</style></head><body>
+  <div class="banner" id="banner">
+    <div class="bar-left"></div><div class="bar-right"></div>
+    <div class="content">
+      <div class="tiles left">
+        <div class="tile t1">🎬</div><div class="tile t2">✂️</div><div class="tile t3">📊</div>
+      </div>
+      <div class="center">
+        <div class="title">COMUNIDADE</div>
+        <div class="brand">MULTICLIPHUB</div>
+        <div class="divider"></div>
+        <div class="desc">O espaço dos clipadores profissionais</div>
+        <div class="pills">
+          <div class="fp c1"><div class="ic">🎬</div><div class="lb">Clipes</div></div>
+          <div class="fp c2"><div class="ic">📊</div><div class="lb">Analytics</div></div>
+          <div class="fp c3"><div class="ic">🏆</div><div class="lb">Ranking</div></div>
+          <div class="fp c4"><div class="ic">🏅</div><div class="lb">Conquistas</div></div>
+          <div class="fp c5"><div class="ic">💬</div><div class="lb">Conversa</div></div>
+        </div>
+        <div class="tagline">DISTRIBUIR · MULTIPLICAR · ESCALAR</div>
+      </div>
+      <div class="tiles right">
+        <div class="tile t1">🏆</div><div class="tile t2">🎮</div><div class="tile t3">📱</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const banner=document.getElementById('banner');
+    const colors=['#9146FF','#00E5A0'];
+    function sp(){const p=document.createElement('div');p.className='particle';const s=Math.random()*3+2;p.style.width=s+'px';p.style.height=s+'px';const c=colors[Math.floor(Math.random()*colors.length)];p.style.background=c;p.style.boxShadow='0 0 8px '+c;p.style.left=Math.random()*100+'%';p.style.animationDuration=(Math.random()*2+2)+'s';banner.appendChild(p);setTimeout(()=>p.remove(),4000);}
+    setInterval(sp,360);for(let i=0;i<8;i++)setTimeout(sp,i*180);
+  </script>
+</body></html>

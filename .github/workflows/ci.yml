@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Uses `npm install` (not `npm ci`) because the repo currently has a
+      # second package-lock.json in a parent folder that desyncs the committed
+      # lock. Switch back to `npm ci` once that stray lockfile is removed.
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      # Non-blocking for now: the codebase has pre-existing lint debt. Flip to
+      # blocking (remove continue-on-error) once `npm run lint` is clean.
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Run tests
+        run: npm run test:run

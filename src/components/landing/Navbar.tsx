@@ -1,17 +1,20 @@
 'use client'
+
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
 import { Logo } from '@/components/shared/Logo'
+import { LanguageSelector } from '@/components/shared/LanguageSelector'
 
 const NAV_LINKS = [
-  { label: 'Funcionalidades', href: '#funcionalidades' },
-  { label: 'Ranking',         href: '#ranking'         },
-  { label: 'Como Funciona',   href: '#como-funciona'   },
-  { label: 'Preços',          href: '#precos'          },
-]
+  { key: 'features',    href: '#funcionalidades' },
+  { key: 'howItWorks',  href: '#como-funciona'   },
+  { key: 'ranking',     href: '#ranking'         },
+  { key: 'pricing',     href: '#precos'          },
+] as const
 
 export function Navbar() {
+  const t = useTranslations('nav')
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -22,105 +25,126 @@ export function Navbar() {
   }, [])
 
   return (
-    <header
-      className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-all duration-300',
-        scrolled
-          ? 'border-b border-white/[0.06] bg-black/80 backdrop-blur-md'
-          : 'bg-transparent',
-      )}
-    >
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+    <div className="fixed inset-x-4 top-4 z-50 flex justify-center">
+      {/* Ambient glow bleeding behind navbar. overflow-hidden so the oversized
+          radial glow can't push past the viewport and create a horizontal
+          scrollbar on phones (the navbar is position:fixed, so body's
+          overflow-x:clip doesn't contain it). */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 -top-4 h-40 overflow-hidden"
+      >
+        <div
+          className="absolute left-1/2 top-0 -translate-x-1/2"
+          style={{
+            width: 900,
+            height: 220,
+            background:
+              'radial-gradient(ellipse, rgba(145,70,255,0.18) 0%, rgba(0,229,160,0.06) 40%, transparent 70%)',
+            filter: 'blur(40px)',
+          }}
+        />
+      </div>
+
+      <nav
+        className={[
+          'w-full max-w-6xl',
+          'flex items-center justify-between',
+          'rounded-2xl border border-white/[0.08]',
+          'px-5 py-3',
+          'transition-all duration-300',
+          scrolled
+            ? 'bg-black/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
+            : 'bg-black/40 backdrop-blur-lg',
+        ].join(' ')}
+      >
         {/* Logo */}
-        <Link href="/">
-          <Logo height={32} variant="mint" />
+        <Link href="/landing" className="flex items-center gap-2 shrink-0">
+          <Logo height={28} variant="mint" />
         </Link>
 
-        {/* Desktop nav */}
-        <ul className="hidden items-center gap-6 md:flex">
-          {NAV_LINKS.map(({ label, href }) => (
+        {/* Center nav — desktop */}
+        <ul className="hidden md:flex items-center gap-7">
+          {NAV_LINKS.map(({ key, href }) => (
             <li key={href}>
               <Link
                 href={href}
-                className="group relative py-1 text-[13px] text-[#888888] transition-colors duration-200 hover:text-[#FAFAFA]"
+                className="text-[13px] text-white/60 hover:text-white transition-colors duration-200"
               >
-                {label}
-                <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#00E5A0] transition-all duration-300 group-hover:w-full" />
+                {t(key)}
               </Link>
             </li>
           ))}
         </ul>
 
-        {/* Desktop CTAs */}
-        <div className="hidden items-center gap-3 md:flex">
+        {/* Right CTAs */}
+        <div className="flex items-center gap-2">
+          <LanguageSelector />
           <Link
             href="/login"
-            className="px-3 py-1.5 text-[13px] text-[#888888] transition-colors hover:text-[#FAFAFA]"
+            className="hidden md:inline text-[13px] text-white/60 hover:text-white transition-colors px-3 py-2"
           >
-            Entrar
+            {t('login')}
           </Link>
           <Link
             href="/register"
-            className="rounded-full bg-[#00E5A0] px-4 py-1.5 text-[13px] font-medium text-[#0B0F19] transition-all hover:bg-[#00B584] hover:shadow-[0_0_20px_rgba(0,229,160,0.3)]"
+            className="rounded-full bg-[#9146FF] px-4 py-2 text-[13px] font-medium text-white transition-colors duration-200 hover:bg-[#7c3aed]"
           >
-            Começar grátis
+            {t('signup')}
           </Link>
-        </div>
 
-        {/* Mobile hamburger */}
-        <button
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
-          aria-expanded={menuOpen}
-          className="flex h-8 w-8 flex-col items-center justify-center gap-1.5 md:hidden"
-        >
-          <span
-            className={cn(
-              'block h-px w-5 bg-[#888888] transition-transform duration-200',
-              menuOpen && 'translate-y-[5px] rotate-45',
-            )}
-          />
-          <span
-            className={cn(
-              'block h-px w-5 bg-[#888888] transition-opacity duration-200',
-              menuOpen && 'opacity-0',
-            )}
-          />
-          <span
-            className={cn(
-              'block h-px w-5 bg-[#888888] transition-transform duration-200',
-              menuOpen && '-translate-y-[5px] -rotate-45',
-            )}
-          />
-        </button>
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={menuOpen ? 'fechar menu' : 'abrir menu'}
+            aria-expanded={menuOpen}
+            className="flex md:hidden h-8 w-8 flex-col items-center justify-center gap-1.5 ml-1"
+          >
+            <span
+              className="block h-px w-5 bg-white/60 transition-transform duration-200"
+              style={{ transform: menuOpen ? 'translateY(5px) rotate(45deg)' : 'none' }}
+            />
+            <span
+              className="block h-px w-5 bg-white/60 transition-opacity duration-200"
+              style={{ opacity: menuOpen ? 0 : 1 }}
+            />
+            <span
+              className="block h-px w-5 bg-white/60 transition-transform duration-200"
+              style={{ transform: menuOpen ? 'translateY(-5px) rotate(-45deg)' : 'none' }}
+            />
+          </button>
+        </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile dropdown */}
       {menuOpen && (
-        <div className="border-t border-white/[0.06] bg-black/95 px-4 pb-4 pt-2 backdrop-blur-md md:hidden">
-          {NAV_LINKS.map(({ label, href }) => (
+        <div className="absolute inset-x-0 top-full mt-2 rounded-2xl border border-white/[0.08] bg-black/90 px-5 py-4 backdrop-blur-xl md:hidden">
+          {NAV_LINKS.map(({ key, href }) => (
             <Link
               key={href}
               href={href}
               onClick={() => setMenuOpen(false)}
-              className="block py-2.5 text-[14px] text-[#888888] transition-colors hover:text-white"
+              className="block py-2.5 text-[14px] text-white/60 transition-colors hover:text-white"
             >
-              {label}
+              {t(key)}
             </Link>
           ))}
-          <div className="mt-4 flex flex-col gap-2">
-            <Link href="/login" className="py-2 text-center text-[14px] text-[#888888]">
-              Entrar
+          <div className="mt-4 flex flex-col gap-2 border-t border-white/[0.06] pt-4">
+            <Link
+              href="/login"
+              className="py-2 text-center text-[14px] text-white/60 hover:text-white"
+            >
+              {t('login')}
             </Link>
             <Link
               href="/register"
-              className="rounded-full bg-[#00E5A0] py-2 text-center text-[14px] font-medium text-[#0B0F19] transition-all hover:bg-[#00B584]"
+              className="rounded-full bg-[#9146FF] py-2.5 text-center text-[14px] font-medium text-white hover:bg-[#7c3aed]"
             >
-              Começar grátis
+              {t('signup')}
             </Link>
           </div>
         </div>
       )}
-    </header>
+    </div>
   )
 }

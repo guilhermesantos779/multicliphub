@@ -1,3 +1,4 @@
+
 'use client'
 import { type ReactNode } from 'react'
 import { motion } from 'framer-motion'
@@ -15,7 +16,7 @@ interface Feature {
 
 function IconWrap({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#00E5A0]/30 bg-[#00E5A0]/10 transition-all duration-200 group-hover:scale-110 group-hover:bg-[#00E5A0]/20">
+    <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-mint/30 bg-mint/10 transition-all duration-200 group-hover:scale-110 group-hover:bg-mint/20">
       {children}
     </div>
   )
@@ -45,7 +46,7 @@ const FEATURES: Feature[] = [
             key={i}
             className={
               s === '→'
-                ? 'text-[#00E5A0]'
+                ? 'text-mint'
                 : 'rounded-md border border-white/[0.06] bg-[#1a1a1a] px-2 py-1 text-[#888888]'
             }
           >
@@ -83,7 +84,7 @@ const FEATURES: Feature[] = [
         {[25, 40, 30, 55, 45, 70, 85].map((h, i) => (
           <div
             key={i}
-            className="flex-1 rounded-sm bg-[#00E5A0]/40 transition-colors hover:bg-[#00E5A0]/70"
+            className="flex-1 rounded-sm bg-mint/40 transition-colors hover:bg-mint/70"
             style={{ height: `${h}%` }}
           />
         ))}
@@ -127,14 +128,14 @@ const FEATURES: Feature[] = [
             key={r.name}
             className={`flex items-center gap-3 rounded-lg px-3 py-2 ${
               r.you
-                ? 'border border-[#00E5A0]/30 bg-[#00E5A0]/10'
+                ? 'border border-mint/30 bg-mint/10'
                 : 'border border-white/[0.04] bg-[#111111]'
             }`}
           >
             <span className="w-3 text-[11px] font-bold text-[#444444]">{r.pos}</span>
             <div
               className={`flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold ${
-                r.you ? 'bg-[#00E5A0] text-[#0B0F19]' : 'bg-[#1a1a1a] text-[#888888]'
+                r.you ? 'bg-mint text-[#0B0F19]' : 'bg-[#1a1a1a] text-[#888888]'
               }`}
             >
               {r.av}
@@ -159,7 +160,7 @@ export function BentoGrid() {
     <section id="funcionalidades" className="bg-black py-32">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <FadeIn className="mb-16 text-center">
-          <span className="mb-3 inline-block text-[11px] font-semibold uppercase tracking-[0.12em] text-[#00E5A0]">
+          <span className="mb-3 inline-block text-[11px] font-semibold uppercase tracking-[0.12em] text-mint">
             Funcionalidades
           </span>
           <h2 className="text-[40px] font-bold leading-[1.1] tracking-[-0.03em] text-[#FAFAFA] sm:text-[52px]">
