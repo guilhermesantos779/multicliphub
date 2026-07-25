@@ -226,7 +226,7 @@ function buildLeaderboard(campaignId: string): LeaderboardEntry[] {
       avatarUrl: null,
       totalViews,
       postsCount: Math.max(1, 12 - i),
-      earnings: modality === 'leaderboard' && i < 3 ? [3000, 1500, 800][i] : null,
+      earnings: modality === 'leaderboard' && i < 3 ? ([3000, 1500, 800][i] ?? null) : null,
     }
   })
 
@@ -312,7 +312,7 @@ export async function fetchParticipantProfile(
   const avgViews = Math.round(entry.totalViews / entry.postsCount)
   const posts: PublicPost[] = Array.from({ length: entry.postsCount }).map((_, i) => ({
     id: `${userId}-post-${i + 1}`,
-    platform: platforms[i % platforms.length],
+    platform: platforms[i % platforms.length]!,
     url: `https://example.com/posts/${userId}-${i + 1}`,
     views: Math.round(avgViews * (1 + (i % 3) * 0.08)),
     postedAt: new Date(Date.now() - i * 86_400_000).toISOString(),

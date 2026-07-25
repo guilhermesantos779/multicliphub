@@ -5,10 +5,10 @@ import { createClient } from '@/lib/supabase/client'
 interface SystemLog {
   id: string
   level: 'info' | 'warn' | 'error'
-  action: string
+  category: string
   message: string
   user_id: string | null
-  metadata: Record<string, unknown> | null
+  data: Record<string, unknown> | null
   created_at: string
 }
 
@@ -115,11 +115,11 @@ export default function AdminLogsPage() {
                     >
                       {log.level}
                     </span>
-                    <span className="text-[11px] text-[#9146FF] shrink-0 w-32 truncate">{log.action}</span>
+                    <span className="text-[11px] text-[#9146FF] shrink-0 w-32 truncate">{log.category}</span>
                     <span className="flex-1 text-[11px] text-[#cccccc] break-all">{log.message}</span>
-                    {log.metadata && (
+                    {log.data && (
                       <span className="text-[9px] text-[#444444] shrink-0 max-w-[120px] truncate">
-                        {JSON.stringify(log.metadata)}
+                        {JSON.stringify(log.data)}
                       </span>
                     )}
                   </div>

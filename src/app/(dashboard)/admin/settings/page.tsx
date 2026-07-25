@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/shared/Toast'
 
 interface AppSetting {
-  id: string
   key: string
   value: string
   description: string | null
@@ -76,7 +75,7 @@ export default function AdminSettingsPage() {
                 const val = currentValue(s)
                 const isDirty = edited[s.key] !== undefined
                 return (
-                  <div key={s.id} className="grid grid-cols-[200px_1fr_160px_80px] items-center gap-4 px-4 py-3">
+                  <div key={s.key} className="grid grid-cols-[200px_1fr_160px_80px] items-center gap-4 px-4 py-3">
                     <span className="font-mono text-[11px] text-[#9146FF]">{s.key}</span>
 
                     <div>

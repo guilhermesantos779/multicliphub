@@ -148,7 +148,7 @@ export default function NewCampaignPage() {
         <div>
           <div className="mb-2 flex items-center justify-between text-[12px] text-[#666666]">
             <span>
-              Passo {step} de {STEPS.length}: {STEPS[step - 1].label}
+              Passo {step} de {STEPS.length}: {STEPS[step - 1]?.label}
             </span>
           </div>
           <Progress value={(step / STEPS.length) * 100} />

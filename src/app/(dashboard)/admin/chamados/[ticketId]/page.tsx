@@ -4,6 +4,7 @@ import { use, useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import type { TablesUpdate } from '@/types/database.types'
 import { useUser } from '@/hooks/useUser'
 import { useToast } from '@/components/shared/Toast'
 import { formatDate } from '@/lib/utils'
@@ -49,7 +50,7 @@ export default function AdminTicketDetail({ params }: { params: Promise<{ ticket
 
   const updateStatus = async (status: string) => {
     const supabase = createClient()
-    const patch: Record<string, unknown> = { status }
+    const patch: TablesUpdate<'tickets'> = { status }
     if (status === 'resolvido') patch.resolved_at = new Date().toISOString()
     const { error } = await supabase.from('tickets').update(patch).eq('id', ticketId)
     if (error) toast('Erro ao mudar status', 'error')

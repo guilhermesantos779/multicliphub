@@ -7,21 +7,19 @@ import { formatDate } from '@/lib/utils'
 interface Coupon {
   id: string
   code: string
-  discount_type: 'percent' | 'fixed'
-  discount_value: number
+  discount_percent: number
   max_uses: number | null
   used_count: number
-  expires_at: string | null
+  valid_until: string | null
   is_active: boolean
   created_at: string
 }
 
 const EMPTY: Omit<Coupon, 'id' | 'used_count' | 'created_at'> = {
   code: '',
-  discount_type: 'percent',
-  discount_value: 10,
+  discount_percent: 10,
   max_uses: null,
-  expires_at: null,
+  valid_until: null,
   is_active: true,
 }
 
@@ -39,7 +37,7 @@ export default function AdminCouponsPage() {
       .from('coupons')
       .select('*')
       .order('created_at', { ascending: false })
-    setCoupons((data as Coupon[]) || [])
+    setCoupons(data ?? [])
     setLoading(false)
   }, [])
 
@@ -50,12 +48,11 @@ export default function AdminCouponsPage() {
     setSaving(true)
     const supabase = createClient()
     const { error } = await supabase.from('coupons').insert({
-      code:           form.code.toUpperCase().trim(),
-      discount_type:  form.discount_type,
-      discount_value: form.discount_value,
-      max_uses:       form.max_uses,
-      expires_at:     form.expires_at || null,
-      is_active:      form.is_active,
+      code:             form.code.toUpperCase().trim(),
+      discount_percent: form.discount_percent,
+      max_uses:         form.max_uses,
+      valid_until:      form.valid_until || null,
+      is_active:        form.is_active,
     })
     if (error) {
       toast(error.code === '23505' ? 'Código já existe' : 'Erro ao criar cupom', 'error')
@@ -115,25 +112,13 @@ export default function AdminCouponsPage() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] text-[#555555]">Tipo</label>
-              <select
-                value={form.discount_type}
-                onChange={e => setForm(f => ({ ...f, discount_type: e.target.value as 'percent' | 'fixed' }))}
-                className="w-full rounded-lg border border-white/[0.08] bg-[#0a0a0a] px-3 py-2 text-[12px] text-white outline-none"
-              >
-                <option value="percent">Porcentagem (%)</option>
-                <option value="fixed">Valor fixo (R$)</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] text-[#555555]">
-                Valor {form.discount_type === 'percent' ? '(%)' : '(centavos)'}
-              </label>
+              <label className="text-[10px] text-[#555555]">Desconto (%)</label>
               <input
                 type="number"
-                value={form.discount_value}
-                onChange={e => setForm(f => ({ ...f, discount_value: Number(e.target.value) }))}
+                value={form.discount_percent}
+                onChange={e => setForm(f => ({ ...f, discount_percent: Number(e.target.value) }))}
                 min={1}
+                max={100}
                 className="w-full rounded-lg border border-white/[0.08] bg-[#0a0a0a] px-3 py-2 text-[12px] text-white outline-none focus:border-[#9146FF]/50"
               />
             </div>
@@ -151,8 +136,8 @@ export default function AdminCouponsPage() {
               <label className="text-[10px] text-[#555555]">Expira em</label>
               <input
                 type="date"
-                value={form.expires_at ?? ''}
-                onChange={e => setForm(f => ({ ...f, expires_at: e.target.value || null }))}
+                value={form.valid_until ?? ''}
+                onChange={e => setForm(f => ({ ...f, valid_until: e.target.value || null }))}
                 className="w-full rounded-lg border border-white/[0.08] bg-[#0a0a0a] px-3 py-2 text-[12px] text-white outline-none focus:border-[#9146FF]/50"
               />
             </div>
@@ -199,13 +184,13 @@ export default function AdminCouponsPage() {
                 <div key={c.id} className="grid grid-cols-[1fr_90px_80px_80px_70px_60px] items-center gap-3 px-4 py-3">
                   <span className="font-mono text-[12px] font-semibold text-white">{c.code}</span>
                   <span className="text-[12px] text-[#888888]">
-                    {c.discount_type === 'percent' ? `${c.discount_value}%` : `R$${(c.discount_value / 100).toFixed(2)}`}
+                    {c.discount_percent}%
                   </span>
                   <span className="text-[12px] text-[#888888]">
                     {c.used_count}{c.max_uses ? `/${c.max_uses}` : ''}
                   </span>
                   <span className="text-[11px] text-[#888888]">
-                    {c.expires_at ? formatDate(c.expires_at) : '—'}
+                    {c.valid_until ? formatDate(c.valid_until) : '—'}
                   </span>
                   <button
                     onClick={() => toggleActive(c.id, c.is_active)}

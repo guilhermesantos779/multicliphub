@@ -31,7 +31,7 @@ export default function AgencyOnboardingPage() {
   }
 
   const addSocialLink = () => {
-    setSocialLinks(prev => [...prev, { id: crypto.randomUUID(), platform: SOCIAL_PLATFORMS[0], url: '' }])
+    setSocialLinks(prev => [...prev, { id: crypto.randomUUID(), platform: SOCIAL_PLATFORMS[0] ?? 'Instagram', url: '' }])
   }
 
   const updateSocialLink = (id: string, patch: Partial<AgencySocialLink>) => {

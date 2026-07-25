@@ -158,7 +158,7 @@ function generatePosts(campaignId: string, userId: string): CampaignPost[] {
     id: `post-${campaignId}-${userId}-${i + 1}`,
     campaignId,
     userId,
-    platform: platforms[i % platforms.length],
+    platform: platforms[i % platforms.length]!,
     url: 'https://tiktok.com/@clipper/video/1234567890',
     thumbnailUrl: null,
     views: Math.max(500, 42000 - i * 9500),
