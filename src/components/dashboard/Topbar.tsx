@@ -1,9 +1,37 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useUser } from '@/hooks/useUser'
 import { useNotifications } from '@/hooks/useNotifications'
+import { useWalletBalance } from '@/hooks/useWalletBalance'
 import { formatDate } from '@/lib/utils'
+
+function WalletPill() {
+  const { balance, loading } = useWalletBalance()
+
+  if (loading || !balance) return null
+
+  const formatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+    balance.available
+  )
+
+  return (
+    <Link
+      href="/perfil/pagamentos"
+      className="flex h-9 items-center gap-2 rounded-lg border border-white/[0.06] bg-[#111111] px-3 text-[12px] font-medium text-[#888888] transition-colors hover:border-white/[0.12] hover:text-white"
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /><path d="M17 15h.01" />
+      </svg>
+      <span>Disponível</span>
+      <span className="font-semibold text-[#00E5A0]">{formatted}</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
+    </Link>
+  )
+}
 
 const notifIcons: Record<string, string> = {
   published: '✅',
@@ -29,6 +57,8 @@ export function Topbar({ title }: { title: string }) {
       <h1 className="text-[15px] font-semibold text-white">{title}</h1>
 
       <div className="flex items-center gap-3">
+        <WalletPill />
+
         {/* Notification bell */}
         <div className="relative">
           <button

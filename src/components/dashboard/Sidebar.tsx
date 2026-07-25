@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/hooks/useUser'
+import { useMyCampaigns } from '@/hooks/useMyCampaigns'
 import { LogoSidebar } from '@/components/shared/Logo'
 
 
@@ -32,6 +33,15 @@ const NAV_ITEMS = [
     icon: (active: boolean) => (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
         <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Campanhas',
+    href: '/campanhas',
+    icon: (active: boolean) => (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
+        <path d="M3 11l18-5v12L3 14v-3z" /><path d="M11.6 16.8L6 22" /><path d="M3 11v3a2 2 0 002 2h1" />
       </svg>
     ),
   },
@@ -180,11 +190,13 @@ export function Sidebar() {
       {/* Nav principal */}
       <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
         {NAV_ITEMS.map(item => (
-          <NavItem
-            key={item.href}
-            item={item}
-            active={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
-          />
+          <div key={item.href}>
+            <NavItem
+              item={item}
+              active={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
+            />
+            {item.href === '/campanhas' && <MyCampaignsSublist pathname={pathname} />}
+          </div>
         ))}
       </nav>
 
@@ -216,6 +228,36 @@ export function Sidebar() {
         <LogoutButton />
       </div>
     </aside>
+  )
+}
+
+function MyCampaignsSublist({ pathname }: { pathname: string }) {
+  const { campaigns, loading } = useMyCampaigns()
+
+  if (loading || campaigns.length === 0) return null
+
+  return (
+    <div className="ml-4 mt-0.5 space-y-0.5 border-l border-white/[0.06] pl-3">
+      <div className="px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-[#444444]">
+        Minhas campanhas
+      </div>
+      {campaigns.map(campaign => {
+        const href = `/campanhas/${campaign.id}`
+        const active = pathname.startsWith(href)
+        return (
+          <Link
+            key={campaign.id}
+            href={href}
+            className={cn(
+              'block truncate rounded-lg px-2 py-1.5 text-[12px] font-medium transition-colors',
+              active ? 'text-[#00E5A0]' : 'text-[#555555] hover:text-[#888888]'
+            )}
+          >
+            {campaign.title}
+          </Link>
+        )
+      })}
+    </div>
   )
 }
 
