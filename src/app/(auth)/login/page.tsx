@@ -27,9 +27,9 @@ export default function LoginPage() {
   // Read ?redirect= directly from the URL (avoids useSearchParams Suspense
   // requirement on a statically-rendered page). Only allow same-site paths.
   const safeRedirect = () => {
-    if (typeof window === 'undefined') return '/dashboard'
+    if (typeof window === 'undefined') return '/inicio'
     const r = new URLSearchParams(window.location.search).get('redirect')
-    return r && r.startsWith('/') && !r.startsWith('//') ? r : '/dashboard'
+    return r && r.startsWith('/') && !r.startsWith('//') ? r : '/inicio'
   }
 
   const handleLogin = async (e: React.SyntheticEvent) => {

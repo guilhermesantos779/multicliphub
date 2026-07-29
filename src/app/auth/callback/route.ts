@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const next =
     nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
       ? nextParam
-      : '/dashboard'
+      : '/inicio'
 
   if (code) {
     const cookieStore = await cookies()

@@ -1188,6 +1188,36 @@ export type Database = {
         }
         Relationships: []
       }
+      site_news: {
+        Row: {
+          id: string
+          titulo: string
+          descricao: string
+          tipo: string | null
+          publicado_em: string
+          criado_por: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          titulo: string
+          descricao: string
+          tipo?: string | null
+          publicado_em?: string
+          criado_por: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          titulo?: string
+          descricao?: string
+          tipo?: string | null
+          publicado_em?: string
+          criado_por?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       system_logs: {
         Row: {
           category: string

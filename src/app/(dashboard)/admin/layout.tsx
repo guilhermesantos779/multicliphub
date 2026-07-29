@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 
 const ADMIN_NAV = [
   { label: 'Visão Geral',   href: '/admin',           icon: '📊' },
+  { label: 'Novidades',     href: '/admin/novidades', icon: '📰' },
   { label: 'Usuários',      href: '/admin/users',     icon: '👥' },
   { label: 'Chamados',      href: '/admin/chamados',  icon: '🎫' },
   { label: 'Planos',        href: '/admin/plans',     icon: '💳' },

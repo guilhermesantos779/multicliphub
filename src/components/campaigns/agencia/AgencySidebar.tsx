@@ -7,6 +7,15 @@ import { useAgencyProfile } from '@/hooks/useAgencyProfile'
 
 const NAV_ITEMS = [
   {
+    label: 'Início',
+    href: '/inicio',
+    icon: (active: boolean) => (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
+        <path d="M3 10.5 12 3l9 7.5" /><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1V9.5" />
+      </svg>
+    ),
+  },
+  {
     label: 'Minhas Campanhas',
     href: '/agencia/dashboard/campanhas',
     icon: (active: boolean) => (

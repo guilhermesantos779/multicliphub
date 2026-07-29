@@ -59,6 +59,7 @@
     "already_confirmed": "Already confirmed → Sign in"
   },
   "menu": {
+    "inicio": "Home",
     "dashboard": "Dashboard",
     "upload": "Upload",
     "canais": "Channels",

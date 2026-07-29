@@ -24,6 +24,7 @@ type NavEntry = {
 }
 
 const NAV_ITEMS: NavEntry[] = [
+  { key: 'inicio',    href: '/inicio',     icon: navIcon('inicio')    },
   { key: 'dashboard', href: '/dashboard',  icon: navIcon('dashboard') },
   { key: 'upload',    href: '/upload',     icon: navIcon('upload')    },
   { key: 'canais',    href: '/canais',     icon: navIcon('canais')    },
