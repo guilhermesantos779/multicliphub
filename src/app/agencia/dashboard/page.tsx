@@ -7,6 +7,7 @@ import { CampaignCard, type CampaignCardData } from '@/components/campaigns/Camp
 import { useAgencyProfile } from '@/hooks/useAgencyProfile'
 import { MOCK_CAMPAIGNS } from '@/lib/mocks/campaigns.mock'
 import type { Campaign } from '@/types/campaigns.types'
+import { formatCurrencyBRL, formatViews } from '@/lib/utils'
 
 function toCardData(campaign: Campaign): CampaignCardData {
   const totalPrizes = campaign.leaderboardPrizes.reduce((sum, p) => sum + p.amountCents, 0)
@@ -29,6 +30,65 @@ function toCardData(campaign: Campaign): CampaignCardData {
 
 function CampaignCardSkeleton() {
   return <div className="h-[300px] animate-pulse rounded-xl border border-white/[0.06] bg-[#111111]" />
+}
+
+interface RosterSummaryData {
+  activeCount: number
+  pendingCount: number
+  totalViews: number
+  totalEarnings: number
+}
+
+function RosterSummaryCard() {
+  const [summary, setSummary] = useState<RosterSummaryData | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    async function run() {
+      const [rosterRes, metricsRes] = await Promise.all([
+        fetch('/api/agencia/roster'),
+        fetch('/api/agencia/roster/metrics'),
+      ])
+      const [rosterJson, metricsJson] = await Promise.all([rosterRes.json(), metricsRes.json()])
+      if (cancelled) return
+      const roster = rosterJson.roster ?? []
+      setSummary({
+        activeCount: roster.filter((m: { status: string }) => m.status === 'ativo').length,
+        pendingCount: roster.filter((m: { status: string }) => m.status === 'pendente').length,
+        totalViews: metricsJson.totals?.totalViews ?? 0,
+        totalEarnings: metricsJson.totals?.totalEarnings ?? 0,
+      })
+    }
+    run()
+    return () => { cancelled = true }
+  }, [])
+
+  return (
+    <Link
+      href="/agencia/dashboard/equipe"
+      className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/[0.06] bg-[#111111] p-5 transition-colors hover:border-[#00E5A0]/30"
+    >
+      <div>
+        <h2 className="text-[14px] font-semibold text-white">Seu time</h2>
+        <p className="mt-0.5 text-[12px] text-[#666666]">
+          {summary ? `${summary.activeCount} ${summary.activeCount === 1 ? 'membro ativo' : 'membros ativos'}` : 'Carregando...'}
+          {summary && summary.pendingCount > 0 && ` · ${summary.pendingCount} pendente${summary.pendingCount === 1 ? '' : 's'}`}
+        </p>
+      </div>
+      {summary && (
+        <div className="flex gap-6 text-right">
+          <div>
+            <div className="text-[10px] uppercase tracking-wide text-[#444444]">Views</div>
+            <div className="text-[15px] font-semibold text-white">{formatViews(summary.totalViews)}</div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-wide text-[#444444]">Ganhos</div>
+            <div className="text-[15px] font-semibold text-[#00E5A0]">{formatCurrencyBRL(summary.totalEarnings * 100)}</div>
+          </div>
+        </div>
+      )}
+    </Link>
+  )
 }
 
 export default function AgencyDashboardPage() {
@@ -75,6 +135,8 @@ export default function AgencyDashboardPage() {
             Nova campanha
           </Link>
         </div>
+
+        {agencyProfile?.kind === 'clipadores' && <RosterSummaryCard />}
 
         {profileLoading || campaignsLoading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -1,18 +1,40 @@
+'use client'
 import Link from 'next/link'
 import { Pencil, Eye, Trophy, Film } from 'lucide-react'
 import { ProfileFrame } from './ProfileFrame'
 import { PLAN_META, normalizePlan } from '@/lib/profile'
 import { formatViews } from '@/lib/utils'
+import { useToast } from '@/components/shared/Toast'
 import type { Database } from '@/types/database.types'
 
 type PublicProfile = Database['public']['Views']['public_profiles']['Row']
 
+export interface AgencyMembershipBadge {
+  agencyName: string
+  agencyVerified: boolean
+}
+
 interface ProfileHeaderProps {
   profile: PublicProfile
   isOwnProfile: boolean
+  agencyMembership?: AgencyMembershipBadge | null
 }
 
-export function ProfileHeader({ profile, isOwnProfile }: ProfileHeaderProps) {
+export function ProfileHeader({ profile, isOwnProfile, agencyMembership }: ProfileHeaderProps) {
+  const { toast } = useToast()
+
+  const handleLeaveAgency = async () => {
+    if (!confirm(`Sair da agência ${agencyMembership?.agencyName}?`)) return
+    const res = await fetch('/api/agencia/roster/leave', { method: 'POST' })
+    if (res.ok) {
+      toast('Você saiu da agência', 'success')
+      window.location.reload()
+    } else {
+      const json = await res.json().catch(() => ({}))
+      toast(json.error ?? 'Erro ao sair da agência', 'error')
+    }
+  }
+
   const plan = normalizePlan(profile.plan)
   const planMeta = PLAN_META[plan]
   const displayName = profile.full_name || 'Sem nome'
@@ -94,6 +116,22 @@ export function ProfileHeader({ profile, isOwnProfile }: ProfileHeaderProps) {
             </span>
           </div>
           <p className="mt-0.5 text-[14px] text-white/50">@{profile.username}</p>
+          {agencyMembership && (
+            <div className="mt-1.5 flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#00E5A0]/20 bg-[#00E5A0]/[0.08] px-2.5 py-0.5 text-[11px] font-medium text-[#00E5A0]">
+                Membro de {agencyMembership.agencyName}
+                {agencyMembership.agencyVerified && ' ✓'}
+              </span>
+              {isOwnProfile && (
+                <button
+                  onClick={handleLeaveAgency}
+                  className="text-[11px] text-white/40 hover:text-[#ef4444] hover:underline"
+                >
+                  Sair da agência
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Bio */}

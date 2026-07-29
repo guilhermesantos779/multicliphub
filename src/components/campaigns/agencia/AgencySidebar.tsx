@@ -69,7 +69,7 @@ export function AgencySidebar() {
             <div className="min-w-0 flex-1">
               <div className="truncate text-[12px] font-medium text-white">{agencyProfile.name}</div>
               <div className="text-[10px] font-medium text-[#00E5A0]">
-                {agencyProfile.type === 'agency' ? 'Agência' : 'Influenciador'}
+                {agencyProfile.type === 'agencia' ? 'Agência' : 'Influenciador'}
               </div>
             </div>
           </div>

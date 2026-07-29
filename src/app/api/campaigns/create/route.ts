@@ -31,6 +31,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Você não tem permissão para criar campanhas nesta agência' }, { status: 403 })
   }
 
+  if (input.visibility === 'fechada_agencia') {
+    const { data: agencyProfile } = await supabase
+      .from('agency_profiles')
+      .select('kind')
+      .eq('id', input.agency_profile_id)
+      .single()
+
+    if (agencyProfile?.kind !== 'clipadores') {
+      return NextResponse.json(
+        { error: 'Campanhas fechadas só existem para agências de clipadores' },
+        { status: 400 }
+      )
+    }
+  }
+
   const valor = input.modality === 'cpm'
     ? input.budget_total
     : input.prize_structure.reduce((sum, prize) => sum + prize.amount, 0)
@@ -55,6 +70,7 @@ export async function POST(req: NextRequest) {
       cover_image_url: input.cover_image_url ?? null,
       badge_label: input.badge_label,
       duration_days: input.duration_days,
+      visibility: input.visibility,
       platform_fee_percentage: PLATFORM_FEE_PERCENTAGE,
       total_charged: totalCharged,
       payment_status: 'pending',

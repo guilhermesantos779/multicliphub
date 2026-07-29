@@ -103,12 +103,89 @@ export type Database = {
           },
         ]
       }
+      agency_clipper_members: {
+        Row: {
+          agency_profile_id: string
+          id: string
+          invited_at: string
+          joined_at: string | null
+          removed_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          agency_profile_id: string
+          id?: string
+          invited_at?: string
+          joined_at?: string | null
+          removed_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          agency_profile_id?: string
+          id?: string
+          invited_at?: string
+          joined_at?: string | null
+          removed_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_clipper_members_agency_profile_id_fkey"
+            columns: ["agency_profile_id"]
+            isOneToOne: false
+            referencedRelation: "agency_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agency_invite_links: {
+        Row: {
+          agency_profile_id: string
+          code: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+        }
+        Insert: {
+          agency_profile_id: string
+          code: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+        }
+        Update: {
+          agency_profile_id?: string
+          code?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_invite_links_agency_profile_id_fkey"
+            columns: ["agency_profile_id"]
+            isOneToOne: false
+            referencedRelation: "agency_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agency_profiles: {
         Row: {
           bio: string | null
           created_at: string
           display_name: string
           id: string
+          kind: string
           logo_url: string | null
           social_links: Json
           type: string
@@ -121,6 +198,7 @@ export type Database = {
           created_at?: string
           display_name: string
           id?: string
+          kind?: string
           logo_url?: string | null
           social_links?: Json
           type: string
@@ -133,6 +211,7 @@ export type Database = {
           created_at?: string
           display_name?: string
           id?: string
+          kind?: string
           logo_url?: string | null
           social_links?: Json
           type?: string
@@ -421,6 +500,7 @@ export type Database = {
           status: string
           title: string
           total_charged: number | null
+          visibility: string
         }
         Insert: {
           agency_profile_id: string
@@ -452,6 +532,7 @@ export type Database = {
           status?: string
           title: string
           total_charged?: number | null
+          visibility?: string
         }
         Update: {
           agency_profile_id?: string
@@ -483,6 +564,7 @@ export type Database = {
           status?: string
           title?: string
           total_charged?: number | null
+          visibility?: string
         }
         Relationships: [
           {
@@ -1316,6 +1398,40 @@ export type Database = {
       }
     }
     Views: {
+      agency_clipper_metrics: {
+        Row: {
+          agency_profile_id: string | null
+          user_id: string | null
+          total_views: number | null
+          total_earnings: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_clipper_members_agency_profile_id_fkey"
+            columns: ["agency_profile_id"]
+            isOneToOne: false
+            referencedRelation: "agency_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agency_membership_public: {
+        Row: {
+          user_id: string | null
+          agency_profile_id: string | null
+          agency_name: string | null
+          agency_verified: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_clipper_members_agency_profile_id_fkey"
+            columns: ["agency_profile_id"]
+            isOneToOne: false
+            referencedRelation: "agency_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_leaderboard: {
         Row: {
           campaign_id: string | null
@@ -1399,6 +1515,10 @@ export type Database = {
       get_platform_stats: { Args: never; Returns: Json }
       get_total_platform_views: { Args: never; Returns: number }
       is_admin: { Args: { uid: string }; Returns: boolean }
+      is_agency_clipper_member: {
+        Args: { target_agency_id: string; uid: string }
+        Returns: boolean
+      }
       is_agency_staff: {
         Args: { target_agency_id: string; uid: string }
         Returns: boolean
@@ -1419,9 +1539,25 @@ export type Database = {
         Args: { p_month: string; p_platform: string }
         Returns: undefined
       }
+      redeem_agency_invite: {
+        Args: { p_code: string; p_auto_approve?: boolean }
+        Returns: {
+          id: string
+          agency_profile_id: string
+          user_id: string
+          status: string
+          invited_at: string
+          joined_at: string | null
+          removed_at: string | null
+        }
+      }
       register_publication: {
         Args: { p_platform: string; p_user_id: string }
         Returns: undefined
+      }
+      resolve_agency_invite_code: {
+        Args: { p_code: string }
+        Returns: string
       }
       sync_my_achievements: { Args: never; Returns: undefined }
     }

@@ -15,6 +15,12 @@ export const campaignContentTypeSchema = z.enum(['clipping', 'ugc'])
 
 export const campaignDurationDaysSchema = z.union([z.literal(7), z.literal(20), z.literal(30)])
 
+// 'fechada_agencia' only makes sense for agências of kind 'clipadores' (only
+// members of that agency's roster can join) — validated in the create route
+// against the agency's real `kind`, since a zod default alone can't express
+// "conditional on another row".
+export const campaignVisibilitySchema = z.enum(['aberta', 'fechada_agencia'])
+
 const baseCampaignFields = {
   agency_profile_id: z.string().uuid(),
   title: z.string().min(1).max(200),
@@ -26,6 +32,7 @@ const baseCampaignFields = {
   cover_image_url: z.string().url().optional(),
   badge_label: z.string().min(1).max(50).default('Campanha'),
   duration_days: campaignDurationDaysSchema,
+  visibility: campaignVisibilitySchema.default('aberta'),
 }
 
 export const createCampaignSchema = z.discriminatedUnion('modality', [

@@ -15,7 +15,7 @@ export async function POST(
 
   const { data: campaign, error: campaignError } = await supabase
     .from('campaigns')
-    .select('id, status')
+    .select('id, status, visibility, agency_profile_id')
     .eq('id', id)
     .maybeSingle()
 
@@ -24,12 +24,34 @@ export async function POST(
     return NextResponse.json({ error: 'Erro ao buscar campanha' }, { status: 500 })
   }
 
+  // A 'fechada_agencia' campaign is invisible to non-members at the RLS
+  // level (see campaigns_select_active_or_staff), so an outsider gets a 404
+  // here already — this route never confirms whether a closed campaign
+  // exists to someone who can't join it, "nem via URL direta da API".
   if (!campaign) {
     return NextResponse.json({ error: 'Campanha não encontrada' }, { status: 404 })
   }
 
   if (campaign.status !== 'active') {
     return NextResponse.json({ error: 'Campanha não está ativa' }, { status: 400 })
+  }
+
+  // Reachable by agency staff who can see the campaign via
+  // is_campaign_agency_staff but aren't necessarily on the clipper roster —
+  // give them a clear message instead of a raw RLS insert failure. The
+  // RLS check on campaign_participants_insert_own re-validates this
+  // regardless, so this is a friendlier error, not the real enforcement.
+  if (campaign.visibility === 'fechada_agencia') {
+    const { data: isMember } = await supabase.rpc('is_agency_clipper_member', {
+      uid: user.id,
+      target_agency_id: campaign.agency_profile_id,
+    })
+    if (!isMember) {
+      return NextResponse.json(
+        { error: 'Essa campanha é fechada para o time da agência' },
+        { status: 403 }
+      )
+    }
   }
 
   const { data: existing } = await supabase

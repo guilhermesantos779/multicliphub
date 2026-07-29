@@ -68,7 +68,7 @@ export default async function ProfilePage({ params }: PageProps) {
     await supabase.rpc('sync_my_achievements')
   }
 
-  const [linksRes, userAchRes, allAchRes, clips] = await Promise.all([
+  const [linksRes, userAchRes, allAchRes, clips, agencyMembershipRes] = await Promise.all([
     supabase
       .from('profile_links')
       .select('*')
@@ -80,6 +80,11 @@ export default async function ProfilePage({ params }: PageProps) {
       .eq('user_id', profile.id),
     supabase.from('achievements').select('*'),
     getProfileClips(profile.id),
+    supabase
+      .from('agency_membership_public')
+      .select('agency_name, agency_verified')
+      .eq('user_id', profile.id)
+      .maybeSingle(),
   ])
 
   const links = linksRes.data ?? []
@@ -89,9 +94,16 @@ export default async function ProfilePage({ params }: PageProps) {
     unlockedMap[ua.achievement_slug] = ua.unlocked_at ?? ''
   }
 
+  const agencyMembership = agencyMembershipRes.data?.agency_name
+    ? {
+        agencyName: agencyMembershipRes.data.agency_name,
+        agencyVerified: agencyMembershipRes.data.agency_verified ?? false,
+      }
+    : null
+
   return (
     <div className="pb-20">
-      <ProfileHeader profile={profile} isOwnProfile={isOwnProfile} />
+      <ProfileHeader profile={profile} isOwnProfile={isOwnProfile} agencyMembership={agencyMembership} />
 
       <div className="mx-auto mt-8 grid max-w-4xl gap-8 px-4">
         <ProfileLinks links={links} isOwnProfile={isOwnProfile} />

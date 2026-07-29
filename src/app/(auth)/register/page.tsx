@@ -6,6 +6,9 @@ import { createClient } from '@/lib/supabase/client'
 import { isWeakPassword } from '@/lib/auth/weakPasswords'
 import { Logo } from '@/components/shared/Logo'
 import { UsernameInput } from '@/components/ui/UsernameInput'
+import type { AgencyKind } from '@/types/campaigns.types'
+
+type RegisterStep = 'account' | 'agency-kind' | 'form'
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24">
@@ -18,6 +21,8 @@ const GoogleIcon = () => (
 
 export default function RegisterPage() {
   const t = useTranslations('auth')
+  const [step, setStep] = useState<RegisterStep>('account')
+  const [agencyKind, setAgencyKind] = useState<AgencyKind | null>(null)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
@@ -48,12 +53,20 @@ export default function RegisterPage() {
     setError('')
     try {
       const supabase = createClient()
+      // Agência signups need to land on /agencia/onboarding (with the chosen
+      // kind) once the confirmation email is clicked — carried via `next` on
+      // the /auth/callback redirect, which already supports it. Clippers get
+      // no emailRedirectTo at all, so their flow is byte-for-byte unchanged.
+      const nextPath = agencyKind ? `/agencia/onboarding?kind=${agencyKind}` : null
       const { error } = await supabase.auth.signUp({
         email,
         password,
         // username is consumed by the handle_new_user() trigger, which
         // re-validates it and falls back to a generated one if taken.
-        options: { data: { full_name: name, username } },
+        options: {
+          data: { full_name: name, username },
+          ...(nextPath && { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}` }),
+        },
       })
 
       if (error) {
@@ -72,9 +85,13 @@ export default function RegisterPage() {
     try {
       setError('')
       const supabase = createClient()
+      const nextPath = agencyKind ? `/agencia/onboarding?kind=${agencyKind}` : null
+      const redirectTo = nextPath
+        ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
+        : `${window.location.origin}/auth/callback`
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: { redirectTo },
       })
       if (error) setError(t('google_error') + error.message)
     } catch (err) {
@@ -97,7 +114,68 @@ export default function RegisterPage() {
         </div>
 
         <div className="rounded-2xl border border-white/[0.08] bg-[#0a0a0a] p-7">
-          {success ? (
+          {step === 'account' ? (
+            <div className="py-2">
+              <div className="mb-6 text-center">
+                <h1 className="text-[20px] font-semibold text-white">Como você quer se cadastrar?</h1>
+                <p className="mt-1 text-[13px] text-[#555555]">Isso muda o que você vê no app depois do cadastro</p>
+              </div>
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => { setAgencyKind(null); setStep('form') }}
+                  className="w-full rounded-xl border border-white/[0.08] bg-[#111111] p-4 text-left transition-colors hover:border-[#00E5A0]/40"
+                >
+                  <div className="text-[14px] font-semibold text-white">Sou Clipador</div>
+                  <div className="mt-0.5 text-[12px] text-[#666666]">Quero postar clipes e participar de campanhas</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStep('agency-kind')}
+                  className="w-full rounded-xl border border-white/[0.08] bg-[#111111] p-4 text-left transition-colors hover:border-[#00E5A0]/40"
+                >
+                  <div className="text-[14px] font-semibold text-white">Sou Agência</div>
+                  <div className="mt-0.5 text-[12px] text-[#666666]">Quero criar campanhas pra clipadores</div>
+                </button>
+              </div>
+              <p className="mt-4 text-center text-[12px] text-[#444444]">
+                {t('have_account')}{' '}
+                <Link href="/login" className="text-[#00E5A0] hover:underline">{t('sign_in')}</Link>
+              </p>
+            </div>
+          ) : step === 'agency-kind' ? (
+            <div className="py-2">
+              <button
+                type="button"
+                onClick={() => setStep('account')}
+                className="mb-4 text-[12px] text-[#666666] hover:text-white"
+              >
+                ← Voltar
+              </button>
+              <div className="mb-6 text-center">
+                <h1 className="text-[20px] font-semibold text-white">Que tipo de agência?</h1>
+                <p className="mt-1 text-[13px] text-[#555555]">Dá pra ajustar isso depois com o suporte</p>
+              </div>
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => { setAgencyKind('clipadores'); setStep('form') }}
+                  className="w-full rounded-xl border border-white/[0.08] bg-[#111111] p-4 text-left transition-colors hover:border-[#00E5A0]/40"
+                >
+                  <div className="text-[14px] font-semibold text-white">Agência de Clipadores</div>
+                  <div className="mt-0.5 text-[12px] text-[#666666]">Temos um time e compartilhamos o resultado</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setAgencyKind('marca_streamer'); setStep('form') }}
+                  className="w-full rounded-xl border border-white/[0.08] bg-[#111111] p-4 text-left transition-colors hover:border-[#00E5A0]/40"
+                >
+                  <div className="text-[14px] font-semibold text-white">Marca / Streamer</div>
+                  <div className="mt-0.5 text-[12px] text-[#666666]">Quero criar campanhas e distribuir pra qualquer clipador</div>
+                </button>
+              </div>
+            </div>
+          ) : success ? (
             <div className="text-center py-4">
               <div className="mb-3 text-4xl">📧</div>
               <h2 className="text-[18px] font-semibold text-white mb-2">{t('check_email_title')}</h2>

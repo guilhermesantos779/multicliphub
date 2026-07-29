@@ -7,6 +7,7 @@ import { MaterialsField } from '@/components/campaigns/agencia/MaterialsField'
 import { LeaderboardPositionsBuilder } from '@/components/campaigns/agencia/LeaderboardPositionsBuilder'
 import { PixPaymentPanel } from '@/components/campaigns/agencia/PixPaymentPanel'
 import { useToast } from '@/components/shared/Toast'
+import { useAgencyProfile } from '@/hooks/useAgencyProfile'
 import { formatCurrencyBRL } from '@/lib/utils'
 import {
   CATEGORY_LABELS,
@@ -14,6 +15,7 @@ import {
   type CampaignCategory,
   type CampaignContentType,
   type CampaignModality,
+  type CampaignVisibility,
   type LeaderboardPrize,
   type ReferenceMaterial,
 } from '@/types/campaigns.types'
@@ -39,6 +41,7 @@ function reaisToCents(value: string): number {
 
 export default function NewCampaignPage() {
   const { toast } = useToast()
+  const { agencyProfile } = useAgencyProfile()
 
   const [step, setStep] = useState(1)
   const [paymentPhase, setPaymentPhase] = useState(false)
@@ -59,6 +62,7 @@ export default function NewCampaignPage() {
     { id: crypto.randomUUID(), position: 1, amountCents: 0 },
   ])
   const [durationDays, setDurationDays] = useState<7 | 20 | 30>(7)
+  const [visibility, setVisibility] = useState<CampaignVisibility>('aberta')
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -335,6 +339,40 @@ export default function NewCampaignPage() {
               ) : (
                 <LeaderboardPositionsBuilder prizes={leaderboardPrizes} onChange={setLeaderboardPrizes} />
               )}
+
+              {agencyProfile?.kind === 'clipadores' && (
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">
+                    Visibilidade
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setVisibility('aberta')}
+                      className={`rounded-xl border px-4 py-3 text-left transition-colors ${
+                        visibility === 'aberta'
+                          ? 'border-[#00E5A0]/50 bg-[#00E5A0]/[0.08] text-[#00E5A0]'
+                          : 'border-white/[0.08] text-[#888888] hover:border-white/[0.16]'
+                      }`}
+                    >
+                      <div className="text-[13px] font-semibold">Aberta</div>
+                      <div className="mt-1 text-[11px] opacity-80">Qualquer clipador pode se inscrever</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setVisibility('fechada_agencia')}
+                      className={`rounded-xl border px-4 py-3 text-left transition-colors ${
+                        visibility === 'fechada_agencia'
+                          ? 'border-[#00E5A0]/50 bg-[#00E5A0]/[0.08] text-[#00E5A0]'
+                          : 'border-white/[0.08] text-[#888888] hover:border-white/[0.16]'
+                      }`}
+                    >
+                      <div className="text-[13px] font-semibold">Fechada pro time</div>
+                      <div className="mt-1 text-[11px] opacity-80">Só membros ativos do seu roster</div>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -379,6 +417,12 @@ export default function NewCampaignPage() {
                   <span>Duração</span>
                   <span>{durationDays} dias</span>
                 </div>
+                {agencyProfile?.kind === 'clipadores' && (
+                  <div className="flex justify-between text-[#aaaaaa]">
+                    <span>Visibilidade</span>
+                    <span>{visibility === 'aberta' ? 'Aberta' : 'Fechada pro time'}</span>
+                  </div>
+                )}
               </div>
 
               <div className="rounded-xl border border-white/[0.08] bg-black/30 p-4">

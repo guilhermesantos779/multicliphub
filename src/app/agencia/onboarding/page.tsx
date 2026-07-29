@@ -1,17 +1,26 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Logo } from '@/components/shared/Logo'
 import { useToast } from '@/components/shared/Toast'
-import type { AgencyProfileType, AgencySocialLink } from '@/types/campaigns.types'
+import { createClient } from '@/lib/supabase/client'
+import type { AgencyKind, AgencyProfileType, AgencySocialLink } from '@/types/campaigns.types'
+import type { Json } from '@/types/database.types'
 
 const SOCIAL_PLATFORMS = ['Instagram', 'TikTok', 'YouTube', 'X (Twitter)']
+const AGENCY_LOGOS_BUCKET = 'agency-logos'
+
+function parseKind(value: string | null): AgencyKind {
+  return value === 'clipadores' ? 'clipadores' : 'marca_streamer'
+}
 
 export default function AgencyOnboardingPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { toast } = useToast()
+  const kind = parseKind(searchParams.get('kind'))
 
-  const [type, setType] = useState<AgencyProfileType>('agency')
+  const [type, setType] = useState<AgencyProfileType>('agencia')
   const [name, setName] = useState('')
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
@@ -50,15 +59,51 @@ export default function AgencyOnboardingPage() {
     }
 
     setSubmitting(true)
+    const supabase = createClient()
 
-    // TODO: substituir por chamada real: upload da logo pro Storage +
-    // insert em `agency_profiles` (Supabase) quando as migrations do
-    // Agente 1 (schema-backend) estiverem mergeadas.
-    await new Promise(resolve => setTimeout(resolve, 600))
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      toast('Sessão expirada, faça login novamente', 'error')
+      setSubmitting(false)
+      router.push('/login')
+      return
+    }
+
+    let logoUrl: string | null = null
+    if (logoFile) {
+      const ext = logoFile.name.split('.').pop() || 'jpg'
+      const path = `${user.id}/logo-${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from(AGENCY_LOGOS_BUCKET)
+        .upload(path, logoFile, { upsert: true, cacheControl: '3600' })
+      if (uploadError) {
+        toast('Erro ao enviar a logo', 'error')
+        setSubmitting(false)
+        return
+      }
+      logoUrl = supabase.storage.from(AGENCY_LOGOS_BUCKET).getPublicUrl(path).data.publicUrl
+    }
+
+    const { error: insertError } = await supabase.from('agency_profiles').insert({
+      user_id: user.id,
+      type,
+      kind,
+      display_name: name.trim(),
+      logo_url: logoUrl,
+      bio: bio.trim() || null,
+      website_url: website.trim() || null,
+      social_links: socialLinks as unknown as Json,
+    })
 
     setSubmitting(false)
+
+    if (insertError) {
+      toast('Erro ao criar perfil', 'error')
+      return
+    }
+
     toast('Perfil criado com sucesso!', 'success')
-    router.push('/agencia/dashboard')
+    router.push(kind === 'clipadores' ? '/agencia/dashboard/equipe?onboarding=1' : '/agencia/dashboard/campanhas/nova')
   }
 
   return (
@@ -72,7 +117,9 @@ export default function AgencyOnboardingPage() {
           <div className="mb-6 text-center">
             <h1 className="text-[20px] font-semibold text-white">Crie seu perfil de campanhas</h1>
             <p className="mt-1 text-[13px] text-[#555555]">
-              Conte pra gente quem é você para começar a lançar campanhas para clippers
+              {kind === 'clipadores'
+                ? 'Conte pra gente sobre o time de clipadores que você vai gerenciar'
+                : 'Conte pra gente quem é você para começar a lançar campanhas para clippers'}
             </p>
           </div>
 
@@ -82,7 +129,7 @@ export default function AgencyOnboardingPage() {
                 Tipo de perfil
               </label>
               <div className="grid grid-cols-2 gap-2">
-                {(['agency', 'influencer'] as AgencyProfileType[]).map(t => (
+                {(['agencia', 'influencer'] as AgencyProfileType[]).map(t => (
                   <button
                     key={t}
                     type="button"
@@ -93,7 +140,7 @@ export default function AgencyOnboardingPage() {
                         : 'border-white/[0.08] text-[#888888] hover:border-white/[0.16]'
                     }`}
                   >
-                    {t === 'agency' ? 'Agência' : 'Influenciador'}
+                    {t === 'agencia' ? 'Agência' : 'Influenciador'}
                   </button>
                 ))}
               </div>
