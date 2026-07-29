@@ -7,8 +7,8 @@ import { useAgencyProfile } from '@/hooks/useAgencyProfile'
 
 const NAV_ITEMS = [
   {
-    label: 'Campanhas',
-    href: '/agencia/dashboard',
+    label: 'Minhas Campanhas',
+    href: '/agencia/dashboard/campanhas',
     icon: (active: boolean) => (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
         <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
@@ -25,6 +25,16 @@ const NAV_ITEMS = [
     ),
   },
 ]
+
+const TEAM_NAV_ITEM = {
+  label: 'Meu Time',
+  href: '/agencia/dashboard/time',
+  icon: (active: boolean) => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
+    </svg>
+  ),
+}
 
 function NavItem({ item, active }: { item: (typeof NAV_ITEMS)[0]; active: boolean }) {
   return (
@@ -78,12 +88,11 @@ export function AgencySidebar() {
 
       <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
         {NAV_ITEMS.map(item => (
-          <NavItem
-            key={item.href}
-            item={item}
-            active={pathname === item.href || (item.href !== '/agencia/dashboard' && pathname.startsWith(item.href))}
-          />
+          <NavItem key={item.href} item={item} active={pathname.startsWith(item.href)} />
         ))}
+        {agencyProfile?.kind === 'clipadores' && (
+          <NavItem item={TEAM_NAV_ITEM} active={pathname.startsWith(TEAM_NAV_ITEM.href)} />
+        )}
       </nav>
 
       <div className="border-t border-white/[0.06] p-2 space-y-0.5">

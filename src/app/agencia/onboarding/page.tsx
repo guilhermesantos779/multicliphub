@@ -103,7 +103,7 @@ export default function AgencyOnboardingPage() {
     }
 
     toast('Perfil criado com sucesso!', 'success')
-    router.push(kind === 'clipadores' ? '/agencia/dashboard/equipe?onboarding=1' : '/agencia/dashboard/campanhas/nova')
+    router.push(kind === 'clipadores' ? '/agencia/dashboard/time?onboarding=1' : '/agencia/dashboard/campanhas/nova')
   }
 
   return (

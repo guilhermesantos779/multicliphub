@@ -36,15 +36,19 @@ export async function GET() {
           .eq('campaign_id', campaign.id),
         supabase
           .from('campaign_posts')
-          .select('id', { count: 'exact', head: true })
+          .select('views_count')
           .eq('campaign_id', campaign.id)
           .eq('review_status', 'active'),
       ])
 
+      const activePosts = activePostsResult.data ?? []
+      const totalViews = activePosts.reduce((sum, post) => sum + (post.views_count ?? 0), 0)
+
       return {
         ...campaign,
         total_participants: participantsResult.count ?? 0,
-        active_posts_count: activePostsResult.count ?? 0,
+        active_posts_count: activePosts.length,
+        total_views: totalViews,
         pending_final_review: campaign.reviewed_at === null,
       }
     })

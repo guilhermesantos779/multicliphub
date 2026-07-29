@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getAgencyProfileIdsForUser } from '@/lib/campaigns/auth'
 
 // '/api/discord' is public at the middleware layer: the route handler does its
 // own auth + token handling and must run even for logged-out users (otherwise
@@ -11,6 +12,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 const PUBLIC_ROUTES = ['/', '/landing', '/terms', '/privacy', '/termos', '/privacidade', '/login', '/register', '/auth/callback', '/api/auth', '/api/username', '/api/discord', '/api/webhooks', '/api/data-deletion', '/demo']
 const AUTH_ROUTES = ['/login', '/register']
 const ADMIN_ROUTES = ['/admin']
+const AGENCY_TEAM_ROUTES = ['/agencia/dashboard/time']
 
 export async function proxy(request: NextRequest) {
   try {
@@ -44,6 +46,7 @@ export async function proxy(request: NextRequest) {
     )
     const isAuthRoute = AUTH_ROUTES.some(route => pathname.startsWith(route))
     const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route))
+    const isAgencyTeamRoute = AGENCY_TEAM_ROUTES.some(route => pathname.startsWith(route))
 
     if (!user && !isPublicRoute) {
       // Preserve where the user was heading so we can return them after login
@@ -65,6 +68,17 @@ export async function proxy(request: NextRequest) {
 
       if (profile?.role !== 'admin') {
         return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+    }
+
+    if (isAgencyTeamRoute && user) {
+      const [agencyProfileId] = await getAgencyProfileIdsForUser(supabase, user.id)
+      const { data: agencyProfile } = agencyProfileId
+        ? await supabase.from('agency_profiles').select('kind').eq('id', agencyProfileId).single()
+        : { data: null }
+
+      if (agencyProfile?.kind !== 'clipadores') {
+        return NextResponse.redirect(new URL('/agencia/dashboard', request.url))
       }
     }
 

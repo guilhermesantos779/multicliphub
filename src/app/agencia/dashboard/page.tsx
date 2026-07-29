@@ -5,26 +5,37 @@ import { useRouter } from 'next/navigation'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { CampaignCard, type CampaignCardData } from '@/components/campaigns/CampaignCard'
 import { useAgencyProfile } from '@/hooks/useAgencyProfile'
-import { MOCK_CAMPAIGNS } from '@/lib/mocks/campaigns.mock'
-import type { Campaign } from '@/types/campaigns.types'
+import type { Database } from '@/types/database.types'
+import type { CampaignModality, CampaignStatus } from '@/types/campaigns.types'
 import { formatCurrencyBRL, formatViews } from '@/lib/utils'
 
-function toCardData(campaign: Campaign): CampaignCardData {
-  const totalPrizes = campaign.leaderboardPrizes.reduce((sum, p) => sum + p.amountCents, 0)
+type CampaignRow = Database['public']['Tables']['campaigns']['Row'] & {
+  total_participants: number
+  active_posts_count: number
+  total_views: number
+  pending_final_review: boolean
+}
+
+const RECENT_CAMPAIGNS_LIMIT = 4
+
+function toCardData(campaign: CampaignRow, agencyName: string): CampaignCardData {
+  const prizeTotal = Array.isArray(campaign.prize_structure)
+    ? (campaign.prize_structure as { amount?: number }[]).reduce((sum, p) => sum + (p.amount ?? 0), 0)
+    : 0
+  const highlightValue = campaign.modality === 'cpm' ? (campaign.budget_total ?? 0) : prizeTotal
+
   return {
     id: campaign.id,
     title: campaign.title,
-    coverImageUrl: campaign.coverImageUrl,
-    agencyName: campaign.agencyName,
-    agencyLogoUrl: campaign.agencyLogoUrl,
-    agencyVerified: campaign.agencyVerified,
-    modality: campaign.modality,
-    status: campaign.status,
-    endsAt: campaign.endsAt,
-    durationDays: campaign.durationDays,
-    highlightValueCents: campaign.modality === 'cpm' ? campaign.budgetCents ?? 0 : totalPrizes,
-    newPostsSinceLastVisit: campaign.newPostsSinceLastVisit,
-    awaitingFinalReview: campaign.awaitingFinalReview,
+    coverImageUrl: campaign.cover_image_url,
+    agencyName,
+    agencyLogoUrl: null,
+    modality: campaign.modality as CampaignModality,
+    status: campaign.status as CampaignStatus,
+    endsAt: campaign.ends_at,
+    durationDays: campaign.duration_days as CampaignCardData['durationDays'],
+    highlightValueCents: Math.round(highlightValue * 100),
+    awaitingFinalReview: campaign.status === 'completed' && campaign.reviewed_at === null,
   }
 }
 
@@ -64,10 +75,7 @@ function RosterSummaryCard() {
   }, [])
 
   return (
-    <Link
-      href="/agencia/dashboard/equipe"
-      className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/[0.06] bg-[#111111] p-5 transition-colors hover:border-[#00E5A0]/30"
-    >
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/[0.06] bg-[#111111] p-5">
       <div>
         <h2 className="text-[14px] font-semibold text-white">Seu time</h2>
         <p className="mt-0.5 text-[12px] text-[#666666]">
@@ -75,26 +83,34 @@ function RosterSummaryCard() {
           {summary && summary.pendingCount > 0 && ` · ${summary.pendingCount} pendente${summary.pendingCount === 1 ? '' : 's'}`}
         </p>
       </div>
-      {summary && (
-        <div className="flex gap-6 text-right">
-          <div>
-            <div className="text-[10px] uppercase tracking-wide text-[#444444]">Views</div>
-            <div className="text-[15px] font-semibold text-white">{formatViews(summary.totalViews)}</div>
+      <div className="flex items-center gap-6">
+        {summary && (
+          <div className="flex gap-6 text-right">
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-[#444444]">Views</div>
+              <div className="text-[15px] font-semibold text-white">{formatViews(summary.totalViews)}</div>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-[#444444]">Ganhos</div>
+              <div className="text-[15px] font-semibold text-[#00E5A0]">{formatCurrencyBRL(summary.totalEarnings * 100)}</div>
+            </div>
           </div>
-          <div>
-            <div className="text-[10px] uppercase tracking-wide text-[#444444]">Ganhos</div>
-            <div className="text-[15px] font-semibold text-[#00E5A0]">{formatCurrencyBRL(summary.totalEarnings * 100)}</div>
-          </div>
-        </div>
-      )}
-    </Link>
+        )}
+        <Link
+          href="/agencia/dashboard/time"
+          className="shrink-0 rounded-lg border border-white/[0.08] px-3 py-2 text-[12px] font-medium text-[#aaaaaa] transition-colors hover:border-[#00E5A0]/30 hover:text-white"
+        >
+          Ver time completo
+        </Link>
+      </div>
+    </div>
   )
 }
 
 export default function AgencyDashboardPage() {
   const router = useRouter()
   const { agencyProfile, loading: profileLoading } = useAgencyProfile()
-  const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [campaigns, setCampaigns] = useState<CampaignRow[]>([])
   const [campaignsLoading, setCampaignsLoading] = useState(true)
 
   useEffect(() => {
@@ -105,15 +121,22 @@ export default function AgencyDashboardPage() {
 
   useEffect(() => {
     if (!agencyProfile) return
-    // TODO: substituir por chamada real ao Supabase
-    // (`.from('campaigns').select('*').eq('agency_id', agencyProfile.id)`)
-    // quando o schema do Agente 1 estiver disponível neste worktree.
-    const timer = setTimeout(() => {
-      setCampaigns(MOCK_CAMPAIGNS)
-      setCampaignsLoading(false)
-    }, 400)
-    return () => clearTimeout(timer)
+    let cancelled = false
+    async function run() {
+      const res = await fetch('/api/agency/dashboard')
+      const json = await res.json()
+      if (!cancelled) {
+        setCampaigns(json.campaigns ?? [])
+        setCampaignsLoading(false)
+      }
+    }
+    run()
+    return () => { cancelled = true }
   }, [agencyProfile])
+
+  const recentCampaigns = [...campaigns]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, RECENT_CAMPAIGNS_LIMIT)
 
   return (
     <div>
@@ -122,8 +145,8 @@ export default function AgencyDashboardPage() {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-[16px] font-semibold text-white">Suas campanhas</h1>
-            <p className="text-[12px] text-[#555555]">Gerencie as campanhas ativas e acompanhe os resultados</p>
+            <h1 className="text-[16px] font-semibold text-white">Visão geral</h1>
+            <p className="text-[12px] text-[#555555]">Acompanhe as campanhas mais recentes da sua agência</p>
           </div>
           <Link
             href="/agencia/dashboard/campanhas/nova"
@@ -157,15 +180,25 @@ export default function AgencyDashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {campaigns.map(campaign => (
-              <CampaignCard
-                key={campaign.id}
-                campaign={toCardData(campaign)}
-                href={`/agencia/dashboard/campanhas/${campaign.id}`}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {recentCampaigns.map(campaign => (
+                <CampaignCard
+                  key={campaign.id}
+                  campaign={toCardData(campaign, agencyProfile?.name ?? '')}
+                  href={`/agencia/dashboard/campanhas/${campaign.id}`}
+                />
+              ))}
+            </div>
+            <div className="flex justify-center">
+              <Link
+                href="/agencia/dashboard/campanhas"
+                className="rounded-lg border border-white/[0.08] px-4 py-2 text-[12px] font-medium text-[#aaaaaa] transition-colors hover:border-[#00E5A0]/30 hover:text-white"
+              >
+                Ver todas as campanhas ({campaigns.length})
+              </Link>
+            </div>
+          </>
         )}
       </div>
     </div>

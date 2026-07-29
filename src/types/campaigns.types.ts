@@ -1,5 +1,10 @@
 export type CampaignModality = 'cpm' | 'leaderboard'
-export type CampaignStatus = 'draft' | 'awaiting_payment' | 'active' | 'ended' | 'reviewed'
+// Matches the real DB check constraint on campaigns.status exactly (see
+// supabase/migrations/20260718120000_campaigns_schema_core.sql) — this used
+// to be a mock-era enum ('awaiting_payment'/'ended'/'reviewed') that never
+// matched the live schema; fixed here since CampaignCard now renders real
+// campaign rows for the first time.
+export type CampaignStatus = 'draft' | 'aguardando_pagamento' | 'active' | 'paused' | 'completed' | 'cancelled'
 export type CampaignCategory =
   | 'all'
   | 'music'

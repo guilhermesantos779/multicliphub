@@ -37,10 +37,11 @@ const MODALITY_LABEL: Record<CampaignModality, string> = {
 
 const STATUS_CONFIG: Record<CampaignStatus, { label: string; color: string; bg: string }> = {
   draft: { label: 'Rascunho', color: '#888888', bg: 'rgba(136,136,136,0.1)' },
-  awaiting_payment: { label: 'Aguardando pagamento', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+  aguardando_pagamento: { label: 'Aguardando pagamento', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
   active: { label: 'Ativa', color: '#00E5A0', bg: 'rgba(0,229,160,0.1)' },
-  ended: { label: 'Encerrada', color: '#888888', bg: 'rgba(136,136,136,0.1)' },
-  reviewed: { label: 'Revisada', color: '#3CFFB8', bg: 'rgba(60,255,184,0.1)' },
+  paused: { label: 'Pausada', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+  completed: { label: 'Encerrada', color: '#888888', bg: 'rgba(136,136,136,0.1)' },
+  cancelled: { label: 'Cancelada', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
 }
 
 function daysRemainingLabel(endsAt: string | null): string | null {
