@@ -1,7 +1,10 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { fetchMyCampaigns } from '@/lib/mocks/campaigns'
 import type { MyCampaignSummary } from '@/types/campaigns-clipper.types'
+
+interface Participation {
+  campaign: { id: string; title: string } | null
+}
 
 export function useMyCampaigns() {
   const [campaigns, setCampaigns] = useState<MyCampaignSummary[]>([])
@@ -9,13 +12,17 @@ export function useMyCampaigns() {
 
   useEffect(() => {
     let active = true
-    // TODO: substituir por chamada real quando merged (rota do Agente 1)
-    fetchMyCampaigns().then(data => {
-      if (active) {
-        setCampaigns(data)
-        setLoading(false)
-      }
-    })
+    async function run() {
+      const res = await fetch('/api/campaigns/my-campaigns')
+      const json = await res.json()
+      if (!active) return
+      const summaries = ((json.participations ?? []) as Participation[])
+        .map(p => p.campaign)
+        .filter((c): c is { id: string; title: string } => !!c)
+      setCampaigns(summaries)
+      setLoading(false)
+    }
+    run()
     return () => {
       active = false
     }

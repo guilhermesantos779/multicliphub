@@ -16,6 +16,15 @@ const NAV_ITEMS = [
     ),
   },
   {
+    label: 'Visão Geral',
+    href: '/agencia/dashboard',
+    icon: (active: boolean) => (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
+        <rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" />
+      </svg>
+    ),
+  },
+  {
     label: 'Minhas Campanhas',
     href: '/agencia/dashboard/campanhas',
     icon: (active: boolean) => (
@@ -44,6 +53,21 @@ const TEAM_NAV_ITEM = {
     </svg>
   ),
 }
+
+const SETTINGS_NAV_ITEM = {
+  label: 'Configurações',
+  href: '/configuracoes',
+  icon: (active: boolean) => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+    </svg>
+  ),
+}
+
+// Nav roots that other items nest under — matched exactly, not by prefix, so
+// "/agencia/dashboard" isn't marked active while on "/agencia/dashboard/campanhas".
+const EXACT_MATCH_ONLY = new Set(['/agencia/dashboard'])
 
 function NavItem({ item, active }: { item: (typeof NAV_ITEMS)[0]; active: boolean }) {
   return (
@@ -97,7 +121,11 @@ export function AgencySidebar() {
 
       <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
         {NAV_ITEMS.map(item => (
-          <NavItem key={item.href} item={item} active={pathname.startsWith(item.href)} />
+          <NavItem
+            key={item.href}
+            item={item}
+            active={pathname === item.href || (!EXACT_MATCH_ONLY.has(item.href) && pathname.startsWith(item.href))}
+          />
         ))}
         {agencyProfile?.kind === 'clipadores' && (
           <NavItem item={TEAM_NAV_ITEM} active={pathname.startsWith(TEAM_NAV_ITEM.href)} />
@@ -105,6 +133,7 @@ export function AgencySidebar() {
       </nav>
 
       <div className="border-t border-white/[0.06] p-2 space-y-0.5">
+        <NavItem item={SETTINGS_NAV_ITEM} active={pathname.startsWith(SETTINGS_NAV_ITEM.href)} />
         <LogoutButton />
       </div>
     </aside>

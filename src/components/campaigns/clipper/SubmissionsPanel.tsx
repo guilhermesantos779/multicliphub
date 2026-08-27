@@ -6,7 +6,6 @@ const PLATFORM_LABELS: Record<CampaignSubmission['platform'], string> = {
   tiktok: 'TikTok',
   instagram: 'Instagram',
   youtube: 'YouTube',
-  kwai: 'Kwai',
 }
 
 interface SubmissionsPanelProps {
@@ -38,12 +37,9 @@ export function SubmissionsPanel({ hashtag, submissions }: SubmissionsPanelProps
             </div>
           ) : (
             submissions.map(submission => (
-              <a
+              <div
                 key={submission.id}
-                href={submission.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-white/[0.03]"
+                className="flex items-center gap-3 px-5 py-3.5"
               >
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/[0.04] text-[11px] font-semibold text-[#888888]">
                   {PLATFORM_LABELS[submission.platform].slice(0, 2).toUpperCase()}
@@ -55,7 +51,7 @@ export function SubmissionsPanel({ hashtag, submissions }: SubmissionsPanelProps
                 <div className="shrink-0 text-[12px] font-semibold text-[#00E5A0]">
                   {formatViews(submission.views)} views
                 </div>
-              </a>
+              </div>
             ))
           )}
         </div>

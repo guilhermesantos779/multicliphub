@@ -5,7 +5,7 @@ import { formatCurrencyBRL } from '@/lib/utils'
 
 interface PixPaymentPanelProps {
   totalCents: number
-  onConfirmed: () => void
+  onConfirmed: () => void | Promise<void>
 }
 
 // TODO: substituir QR code e código copia-e-cola mockados pela integração
@@ -41,8 +41,9 @@ export function PixPaymentPanel({ totalCents, onConfirmed }: PixPaymentPanelProp
 
   const handleSimulateConfirmation = () => {
     setConfirming(true)
-    setTimeout(() => {
-      onConfirmed()
+    setTimeout(async () => {
+      await onConfirmed()
+      setConfirming(false)
     }, 1200)
   }
 

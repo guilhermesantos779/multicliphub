@@ -137,8 +137,12 @@ export default function AdminUsersPage() {
       .from('profiles')
       .update({ plan_expires_at: expires.toISOString() })
       .eq('id', userId)
-    if (error) { toast('Erro ao conceder dias', 'error') }
-    else { toast(`${grantDays} dias grátis concedidos`, 'success') }
+    if (error) {
+      toast('Erro ao conceder dias', 'error')
+    } else {
+      toast(`${grantDays} dias grátis concedidos`, 'success')
+      fetchUsers()
+    }
     setActionLoading(false)
   }
 

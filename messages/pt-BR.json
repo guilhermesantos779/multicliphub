@@ -61,6 +61,9 @@
   "menu": {
     "inicio": "Início",
     "dashboard": "Dashboard",
+    "visao_geral": "Visão Geral",
+    "campanhas_agencia": "Minhas Campanhas",
+    "time_agencia": "Meu Time",
     "upload": "Upload",
     "canais": "Canais",
     "analytics": "Analytics",

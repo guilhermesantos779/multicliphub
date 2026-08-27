@@ -12,10 +12,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { fetchWalletBalance, fetchPaymentProfile, fetchEarningsHistory } from '@/lib/mocks/campaigns'
+import { useToast } from '@/components/shared/Toast'
+import { useWalletBalance } from '@/hooks/useWalletBalance'
+import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/campaigns/labels'
 import { formatDate } from '@/lib/utils'
-import type { CampaignEarning, PaymentProfile, WalletBalance } from '@/types/campaigns-clipper.types'
+
+interface Earning {
+  id: string
+  campaignTitle: string
+  amount: number
+  status: string
+  paidAt: string | null
+}
 
 const STEPS = [
   {
@@ -33,10 +42,10 @@ const STEPS = [
 ]
 
 export default function PagamentosPage() {
-  const [balance, setBalance] = useState<WalletBalance | null>(null)
-  const [paymentProfile, setPaymentProfile] = useState<PaymentProfile | null>(null)
-  const [earnings, setEarnings] = useState<CampaignEarning[]>([])
-  const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
+  const { balance, loading: balanceLoading } = useWalletBalance()
+  const [earnings, setEarnings] = useState<Earning[]>([])
+  const [loadingEarnings, setLoadingEarnings] = useState(true)
 
   const [configOpen, setConfigOpen] = useState(false)
   const [pixKey, setPixKey] = useState('')
@@ -44,23 +53,46 @@ export default function PagamentosPage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    Promise.all([fetchWalletBalance(), fetchPaymentProfile(), fetchEarningsHistory()]).then(
-      ([balanceData, profileData, earningsData]) => {
-        setBalance(balanceData)
-        setPaymentProfile(profileData)
-        setEarnings(earningsData)
-        setLoading(false)
+    let active = true
+    async function run() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        if (active) setLoadingEarnings(false)
+        return
       }
-    )
+      const { data } = await supabase
+        .from('campaign_payouts')
+        .select('id, amount, status, created_at, campaign:campaigns(title)')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+      if (!active) return
+      setEarnings(
+        (data ?? []).map(row => ({
+          id: row.id,
+          campaignTitle: row.campaign?.title ?? 'Campanha',
+          amount: row.amount,
+          status: row.status,
+          paidAt: row.status === 'completed' ? row.created_at : null,
+        }))
+      )
+      setLoadingEarnings(false)
+    }
+    run()
+    return () => { active = false }
   }, [])
 
+  const loading = balanceLoading || loadingEarnings
+
+  // Persistir chave Pix/CPF de verdade precisa de colunas novas em `profiles`
+  // (ou de uma criação real de wallet via Asaas) — nenhuma das duas existe
+  // ainda, então isso fica honesto em vez de fingir que salvou.
   const handleSaveProfile = async () => {
     setSaving(true)
-    // TODO: substituir por chamada real ao integrar com o Agente 4 (pagamentos Asaas)
-    await new Promise(resolve => setTimeout(resolve, 500))
-    setPaymentProfile({ configured: true, pixKey, cpf })
+    await new Promise(resolve => setTimeout(resolve, 400))
     setSaving(false)
     setConfigOpen(false)
+    toast('Configuração de pagamento chega em breve — ainda estamos integrando com o Asaas.', 'info')
   }
 
   return (
@@ -94,45 +126,19 @@ export default function PagamentosPage() {
               <h2 className="text-[14px] font-semibold text-white">Perfil de pagamento</h2>
               <p className="mt-0.5 text-[12px] text-[#666666]">Chave Pix e CPF usados pra liberar seus ganhos.</p>
             </div>
-
-            {loading ? (
-              <div className="h-9 w-40 animate-pulse rounded-lg bg-white/[0.06]" />
-            ) : paymentProfile?.configured ? (
-              <span className="flex items-center gap-1.5 rounded-full border border-[#00E5A0]/25 bg-[#00E5A0]/[0.08] px-3 py-1 text-[12px] font-medium text-[#00E5A0]">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                Configurado
-              </span>
-            ) : (
-              <span className="rounded-full border border-[#f59e0b]/25 bg-[#f59e0b]/[0.08] px-3 py-1 text-[12px] font-medium text-[#f59e0b]">
-                Não configurado
-              </span>
-            )}
+            <span className="rounded-full border border-[#f59e0b]/25 bg-[#f59e0b]/[0.08] px-3 py-1 text-[12px] font-medium text-[#f59e0b]">
+              Não configurado
+            </span>
           </div>
 
-          {!loading && (
-            <div className="mt-4">
-              {paymentProfile?.configured ? (
-                <div className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-[#0a0a0a] px-4 py-3">
-                  <div>
-                    <div className="text-[12px] text-[#666666]">Chave Pix</div>
-                    <div className="text-[13px] text-white">{paymentProfile.pixKey}</div>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => setConfigOpen(true)}>
-                    Editar
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  onClick={() => setConfigOpen(true)}
-                  className="bg-[#00E5A0] text-[#0B0F19] hover:bg-[#00C484]"
-                >
-                  Configurar chave Pix e CPF
-                </Button>
-              )}
-            </div>
-          )}
+          <div className="mt-4">
+            <Button
+              onClick={() => setConfigOpen(true)}
+              className="bg-[#00E5A0] text-[#0B0F19] hover:bg-[#00C484]"
+            >
+              Configurar chave Pix e CPF
+            </Button>
+          </div>
         </div>
 
         {/* Como funciona */}
@@ -175,7 +181,7 @@ export default function PagamentosPage() {
                   <div>
                     <div className="text-[13px] font-medium text-white">{earning.campaignTitle}</div>
                     <div className="mt-0.5 text-[11px] text-[#555555]">
-                      {earning.status === 'paid' && earning.paidAt
+                      {earning.status === 'completed' && earning.paidAt
                         ? `Pago em ${formatDate(earning.paidAt)}`
                         : 'Aguardando revisão final da agência'}
                     </div>
@@ -183,9 +189,9 @@ export default function PagamentosPage() {
                   <div className="text-right">
                     <div className="text-[13px] font-semibold text-[#00E5A0]">{formatCurrency(earning.amount)}</div>
                     <span
-                      className={`text-[11px] font-medium ${earning.status === 'paid' ? 'text-[#DEFF9A]' : 'text-[#f59e0b]'}`}
+                      className={`text-[11px] font-medium ${earning.status === 'completed' ? 'text-[#DEFF9A]' : 'text-[#f59e0b]'}`}
                     >
-                      {earning.status === 'paid' ? 'Pago' : 'Pendente'}
+                      {earning.status === 'completed' ? 'Pago' : 'Pendente'}
                     </span>
                   </div>
                 </div>

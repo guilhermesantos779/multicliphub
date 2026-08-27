@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
@@ -7,12 +7,8 @@ import { HashtagBadge } from '@/components/campaigns/clipper/HashtagBadge'
 import { ReferenceMaterialsList } from '@/components/campaigns/clipper/ReferenceMaterialsList'
 import { SubmissionsPanel } from '@/components/campaigns/clipper/SubmissionsPanel'
 import { LeaderboardList } from '@/components/campaigns/clipper/LeaderboardList'
-import {
-  fetchCampaignById,
-  fetchLeaderboard,
-  fetchMySubmissions,
-  MOCK_CURRENT_USER_ID,
-} from '@/lib/mocks/campaigns'
+import { useToast } from '@/components/shared/Toast'
+import { useUser } from '@/hooks/useUser'
 import {
   CATEGORY_LABELS,
   CONTENT_TYPE_LABELS,
@@ -25,41 +21,83 @@ import type { Campaign, CampaignSubmission, LeaderboardEntry } from '@/types/cam
 export default function CampaignDetailPage() {
   const params = useParams<{ id: string }>()
   const campaignId = params.id
+  const { toast } = useToast()
+  const { profile } = useUser()
 
   const [campaign, setCampaign] = useState<Campaign | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFoundFlag, setNotFoundFlag] = useState(false)
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [submissions, setSubmissions] = useState<CampaignSubmission[]>([])
+  const [joining, setJoining] = useState(false)
+
+  const loadCampaign = useCallback(async () => {
+    const res = await fetch(`/api/campaigns/${campaignId}`)
+    const json = await res.json()
+    if (!res.ok) {
+      setNotFoundFlag(true)
+      setLoading(false)
+      return
+    }
+    setCampaign(json.campaign)
+    setLoading(false)
+  }, [campaignId])
+
+  const loadLeaderboard = useCallback(async () => {
+    const res = await fetch(`/api/campaigns/${campaignId}/leaderboard`)
+    const json = await res.json()
+    setLeaderboard(
+      (json.leaderboard ?? []).map((row: { user_id: string; position: number; total_views: number; total_posts: number; profile: { full_name: string | null; username: string | null; avatar_url: string | null } | null }) => ({
+        userId: row.user_id,
+        rank: row.position,
+        fullName: row.profile?.full_name || row.profile?.username || 'Clipador',
+        avatarUrl: row.profile?.avatar_url ?? null,
+        totalViews: row.total_views,
+        postsCount: row.total_posts,
+        earnings: null,
+      }))
+    )
+  }, [campaignId])
+
+  const loadSubmissions = useCallback(async () => {
+    if (!profile) return
+    const res = await fetch(`/api/campaigns/${campaignId}/posts/${profile.id}`)
+    const json = await res.json()
+    setSubmissions(
+      (json.posts ?? []).map((post: { id: string; platform: CampaignSubmission['platform']; external_post_id: string; views_count: number; created_at: string }) => ({
+        id: post.id,
+        campaignId,
+        userId: profile.id,
+        platform: post.platform,
+        url: post.external_post_id,
+        views: post.views_count,
+        detectedAt: post.created_at,
+      }))
+    )
+  }, [campaignId, profile])
 
   useEffect(() => {
-    let active = true
+    setLoading(true)
+    loadCampaign()
+    loadLeaderboard()
+  }, [loadCampaign, loadLeaderboard])
 
-    async function run() {
-      setLoading(true)
-      const data = await fetchCampaignById(campaignId)
-      if (!active) return
-      if (!data) {
-        setNotFoundFlag(true)
-        setLoading(false)
-        return
-      }
-      setCampaign(data)
-      setLoading(false)
+  useEffect(() => {
+    if (campaign?.isParticipating) loadSubmissions()
+  }, [campaign?.isParticipating, loadSubmissions])
+
+  const handleJoin = async () => {
+    setJoining(true)
+    const res = await fetch(`/api/campaigns/${campaignId}/join`, { method: 'POST' })
+    const json = await res.json()
+    setJoining(false)
+    if (!res.ok) {
+      toast(json.error ?? 'Erro ao entrar na campanha', 'error')
+      return
     }
-    run()
-
-    fetchLeaderboard(campaignId).then(data => {
-      if (active) setLeaderboard(data)
-    })
-    fetchMySubmissions(campaignId).then(data => {
-      if (active) setSubmissions(data)
-    })
-
-    return () => {
-      active = false
-    }
-  }, [campaignId])
+    toast('Você entrou na campanha! Publique com a hashtag para começar a pontuar.', 'success')
+    loadCampaign()
+  }
 
   if (loading) {
     return (
@@ -88,6 +126,8 @@ export default function CampaignDetailPage() {
       </div>
     )
   }
+
+  const canJoin = campaign.status === 'active' && !campaign.isParticipating
 
   return (
     <div>
@@ -167,6 +207,25 @@ export default function CampaignDetailPage() {
                     {campaign.participantsCount} participantes
                   </div>
                 </div>
+
+                {campaign.isParticipating ? (
+                  <div className="rounded-lg bg-[#00E5A0]/[0.08] px-3 py-2.5 text-center text-[12px] font-medium text-[#00E5A0]">
+                    Você já está participando — publique com a hashtag acima para pontuar.
+                  </div>
+                ) : canJoin ? (
+                  <button
+                    type="button"
+                    onClick={handleJoin}
+                    disabled={joining}
+                    className="w-full rounded-xl bg-[#00E5A0] py-3 text-[13px] font-semibold text-[#0B0F19] transition-colors hover:bg-[#00B584] disabled:opacity-60"
+                  >
+                    {joining ? 'Entrando...' : 'Participar da campanha'}
+                  </button>
+                ) : (
+                  <div className="rounded-lg bg-white/[0.04] px-3 py-2.5 text-center text-[12px] text-[#666666]">
+                    Essa campanha não está aceitando novos participantes no momento.
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
@@ -176,7 +235,7 @@ export default function CampaignDetailPage() {
               campaignId={campaign.id}
               entries={leaderboard}
               isAdminView={false}
-              currentUserId={MOCK_CURRENT_USER_ID}
+              currentUserId={profile?.id}
             />
           </TabsContent>
 

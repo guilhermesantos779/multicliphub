@@ -8,6 +8,7 @@ import { LeaderboardPositionsBuilder } from '@/components/campaigns/agencia/Lead
 import { PixPaymentPanel } from '@/components/campaigns/agencia/PixPaymentPanel'
 import { useToast } from '@/components/shared/Toast'
 import { useAgencyProfile } from '@/hooks/useAgencyProfile'
+import { createClient } from '@/lib/supabase/client'
 import { formatCurrencyBRL } from '@/lib/utils'
 import {
   CATEGORY_LABELS,
@@ -46,9 +47,12 @@ export default function NewCampaignPage() {
   const [step, setStep] = useState(1)
   const [paymentPhase, setPaymentPhase] = useState(false)
   const [paymentConfirmed, setPaymentConfirmed] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [activating, setActivating] = useState(false)
+  const [campaignId, setCampaignId] = useState<string | null>(null)
 
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
-  const [category, setCategory] = useState<CampaignCategory>('all')
+  const [category, setCategory] = useState<CampaignCategory>('geral')
   const [contentType, setContentType] = useState<CampaignContentType>('clipping')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -105,14 +109,75 @@ export default function NewCampaignPage() {
   const goNext = () => setStep(s => Math.min(s + 1, STEPS.length))
   const goBack = () => setStep(s => Math.max(s - 1, 1))
 
-  const handleConfirmSummary = () => {
-    // TODO: substituir por chamada real — criar a campanha (status
-    // `awaiting_payment`) via `app/api/campanhas` (Agente 1) e gerar a
-    // cobrança Pix real via Asaas (Agente 4) antes de exibir o QR code.
+  const handleConfirmSummary = async () => {
+    if (!agencyProfile || creating) return
+    setCreating(true)
+
+    const basePayload = {
+      agency_profile_id: agencyProfile.id,
+      title: title.trim(),
+      description: description.trim() || undefined,
+      rules: rules.trim() || undefined,
+      required_hashtag: hashtag,
+      category,
+      content_type: contentType,
+      duration_days: durationDays,
+      visibility,
+    }
+
+    const payload =
+      modality === 'cpm'
+        ? { ...basePayload, modality: 'cpm' as const, cpm_rate: cpmRateCents / 100, budget_total: budgetCents / 100 }
+        : {
+            ...basePayload,
+            modality: 'leaderboard' as const,
+            prize_structure: leaderboardPrizes.map(p => ({ position: p.position, amount: p.amountCents / 100 })),
+            ranking_metric: 'views',
+          }
+
+    const res = await fetch('/api/campaigns/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    const json = await res.json()
+
+    if (!res.ok) {
+      toast(json.error ?? 'Erro ao criar campanha', 'error')
+      setCreating(false)
+      return
+    }
+
+    if (materials.length > 0) {
+      const supabase = createClient()
+      const { error: materialsError } = await supabase.from('campaign_assets').insert(
+        materials.map(m => ({ campaign_id: json.id, type: m.type, label: m.label || null, url: m.url }))
+      )
+      if (materialsError) {
+        console.error('Save campaign materials error:', materialsError)
+        toast('Campanha criada, mas os materiais de referência não foram salvos.', 'warning')
+      }
+    }
+
+    setCampaignId(json.id)
+    setCreating(false)
     setPaymentPhase(true)
   }
 
-  const handlePaymentConfirmed = () => {
+  const handlePaymentConfirmed = async () => {
+    if (!campaignId || activating) return
+    setActivating(true)
+
+    const res = await fetch(`/api/campaigns/${campaignId}/activate`, { method: 'POST' })
+    const json = await res.json()
+
+    if (!res.ok) {
+      toast(json.error ?? 'Erro ao ativar campanha', 'error')
+      setActivating(false)
+      return
+    }
+
+    setActivating(false)
     setPaymentConfirmed(true)
     toast('Pagamento confirmado! Sua campanha está ativa.', 'success')
   }
@@ -130,10 +195,13 @@ export default function NewCampaignPage() {
                 O pagamento foi confirmado e sua campanha já está visível para os clippers.
               </p>
               <Link
-                href="/agencia/dashboard"
+                href={`/agencia/dashboard/campanhas/${campaignId}`}
                 className="rounded-xl bg-[#00E5A0] px-5 py-2.5 text-[13px] font-semibold text-[#0B0F19] transition-colors hover:bg-[#00B584]"
               >
-                Ir para o dashboard
+                Ver campanha
+              </Link>
+              <Link href="/agencia/dashboard/campanhas" className="text-[12px] text-[#666666] hover:text-white">
+                Ver todas as campanhas
               </Link>
             </div>
           ) : (
@@ -468,9 +536,10 @@ export default function NewCampaignPage() {
             <button
               type="button"
               onClick={handleConfirmSummary}
-              className="rounded-xl bg-[#00E5A0] px-5 py-2.5 text-[13px] font-semibold text-[#0B0F19] transition-colors hover:bg-[#00B584]"
+              disabled={creating}
+              className="rounded-xl bg-[#00E5A0] px-5 py-2.5 text-[13px] font-semibold text-[#0B0F19] transition-colors hover:bg-[#00B584] disabled:opacity-60"
             >
-              Confirmar e ir para pagamento
+              {creating ? 'Criando campanha…' : 'Confirmar e ir para pagamento'}
             </button>
           )}
         </div>

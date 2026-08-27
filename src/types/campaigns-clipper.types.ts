@@ -1,15 +1,13 @@
 // Tipos do domínio "Campanhas" — lado clipper.
-// Divergem intencionalmente de '@/types/campaigns.types' (lado agência): categorias
-// em snake_case sem acento (alinhadas ao enum real do schema em
-// supabase/migrations/20260718120000_campaigns_schema_core.sql) e valores monetários
-// em reais (numeric no banco), não em centavos.
-// TODO: substituir por tipos gerados a partir do schema real
-// (Database['public']['Tables']['campaigns']...) quando a integração com a API deixar
-// de usar os mocks em '@/lib/mocks/campaigns'.
+// Categorias alinhadas ao enum real do schema (ver
+// src/lib/campaigns/schemas.ts campaignCategorySchema); valores monetários
+// em reais (numeric no banco), não em centavos. As rotas em
+// src/app/api/campaigns/** mapeiam as colunas reais pra esse shape.
 
 export type CampaignModality = 'cpm' | 'leaderboard'
 
 export type CampaignCategory =
+  | 'geral'
   | 'musica'
   | 'games'
   | 'entretenimento'
@@ -20,7 +18,7 @@ export type CampaignCategory =
 
 export type CampaignContentType = 'clipping' | 'ugc'
 
-export type CampaignStatus = 'active' | 'awaiting_payment' | 'ended' | 'draft'
+export type CampaignStatus = 'draft' | 'aguardando_pagamento' | 'active' | 'paused' | 'completed' | 'cancelled'
 
 export interface ReferenceMaterial {
   id: string
@@ -59,7 +57,7 @@ export interface Campaign {
   isParticipating: boolean
 }
 
-export type SubmissionPlatform = 'tiktok' | 'instagram' | 'youtube' | 'kwai'
+export type SubmissionPlatform = 'tiktok' | 'instagram' | 'youtube'
 
 export interface CampaignSubmission {
   id: string
@@ -86,35 +84,7 @@ export interface WalletBalance {
   pending: number
 }
 
-export interface PaymentProfile {
-  configured: boolean
-  pixKey: string | null
-  cpf: string | null
-}
-
-export interface CampaignEarning {
-  id: string
-  campaignId: string
-  campaignTitle: string
-  amount: number
-  status: 'pending' | 'paid'
-  paidAt: string | null
-}
-
 export interface MyCampaignSummary {
   id: string
   title: string
-}
-
-export interface PublicPost {
-  id: string
-  platform: SubmissionPlatform
-  url: string
-  views: number
-  postedAt: string
-}
-
-export interface ParticipantProfile {
-  entry: LeaderboardEntry
-  posts: PublicPost[]
 }

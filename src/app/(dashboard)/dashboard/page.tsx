@@ -242,7 +242,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <Link
-                href="/pricing"
+                href="/configuracoes"
                 className="rounded-lg bg-[#f59e0b] px-4 py-2 text-[13px] font-medium text-black hover:bg-[#d97706] transition-colors"
               >
                 {t('trial_cta')}

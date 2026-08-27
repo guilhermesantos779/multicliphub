@@ -1,8 +1,10 @@
 'use client'
 import { useState } from 'react'
+import { useToast } from '@/components/shared/Toast'
 import type { PlanKey } from '@/lib/stripe'
 
 export function useSubscription() {
+  const { toast } = useToast()
   const [loading, setLoading] = useState(false)
 
   const subscribe = async (plan: PlanKey, billing: 'monthly' | 'annual') => {
@@ -18,8 +20,12 @@ export function useSubscription() {
         window.location.href = data.url
       } else {
         console.error('Erro ao redirecionar para checkout:', data.error)
+        toast(data.error ?? 'Erro ao iniciar assinatura', 'error')
+        setLoading(false)
       }
-    } finally {
+    } catch (err) {
+      console.error('Erro ao iniciar checkout:', err)
+      toast('Erro ao iniciar assinatura', 'error')
       setLoading(false)
     }
   }

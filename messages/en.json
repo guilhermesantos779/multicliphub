@@ -61,6 +61,9 @@
   "menu": {
     "inicio": "Home",
     "dashboard": "Dashboard",
+    "visao_geral": "Overview",
+    "campanhas_agencia": "My Campaigns",
+    "time_agencia": "My Team",
     "upload": "Upload",
     "canais": "Channels",
     "analytics": "Analytics",

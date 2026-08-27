@@ -5,7 +5,7 @@ import type { CSSProperties, ReactNode } from 'react'
 export type SystemIconName =
   | 'dashboard' | 'upload' | 'analytics' | 'ranking' | 'perfil'
   | 'canais' | 'historico' | 'config' | 'notificacoes' | 'admin' | 'suporte'
-  | 'campanhas' | 'inicio'
+  | 'campanhas' | 'inicio' | 'time'
 
 interface SystemIconProps {
   name: SystemIconName
@@ -17,6 +17,14 @@ interface SystemIconProps {
 // Proprietary gaming-style nav glyphs. Bold filled shapes; on active they take
 // the shared purple→mint gradient (url(#mchGradient)) plus a neon glow.
 const ICONS: Record<SystemIconName, (paint: string) => ReactNode> = {
+  time: (p) => (
+    <g fill={p}>
+      <circle cx="9" cy="8" r="3.4" />
+      <path d="M2.5 20.2 C2.5 15.9 5.4 13.4 9 13.4 C12.6 13.4 15.5 15.9 15.5 20.2 Z" />
+      <circle cx="17.5" cy="9" r="2.6" opacity="0.75" />
+      <path d="M16 13.6 C18.9 13.6 21 15.6 21.3 19.2 L17.5 19.2" opacity="0.75" />
+    </g>
+  ),
   inicio: (p) => (
     <g fill={p}>
       <path d="M12 2.8 L21.5 10.4 V21 A1 1 0 0 1 20.5 22 H14.5 V15 H9.5 V22 H3.5 A1 1 0 0 1 2.5 21 V10.4 Z" />

@@ -1,6 +1,7 @@
 import type { CampaignCategory, CampaignContentType, CampaignModality } from '@/types/campaigns-clipper.types'
 
 export const CATEGORY_LABELS: Record<CampaignCategory, string> = {
+  geral: 'Geral',
   musica: 'Música',
   games: 'Games',
   entretenimento: 'Entretenimento',

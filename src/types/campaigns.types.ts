@@ -5,15 +5,19 @@ export type CampaignModality = 'cpm' | 'leaderboard'
 // matched the live schema; fixed here since CampaignCard now renders real
 // campaign rows for the first time.
 export type CampaignStatus = 'draft' | 'aguardando_pagamento' | 'active' | 'paused' | 'completed' | 'cancelled'
+// Matches the real DB check constraint on campaigns.category exactly (see
+// src/lib/campaigns/schemas.ts campaignCategorySchema) — this used to be a
+// mock-era enum (English words + 'all') that the create-campaign wizard would
+// have sent straight to the API, failing Zod validation on every submit.
 export type CampaignCategory =
-  | 'all'
-  | 'music'
+  | 'geral'
+  | 'musica'
   | 'games'
-  | 'entertainment'
-  | 'sports'
-  | 'education'
-  | 'lifestyle'
-  | 'tech'
+  | 'entretenimento'
+  | 'esportes'
+  | 'educacao'
+  | 'estilo_de_vida'
+  | 'tecnologia'
 export type CampaignContentType = 'clipping' | 'ugc'
 export type ReferenceMaterialType = 'link' | 'image'
 export type AgencyProfileType = 'agencia' | 'influencer'
@@ -22,14 +26,14 @@ export type CampaignPlatform = 'tiktok' | 'instagram' | 'youtube'
 export type CampaignVisibility = 'aberta' | 'fechada_agencia'
 
 export const CATEGORY_LABELS: Record<CampaignCategory, string> = {
-  all: 'Todas as categorias',
-  music: 'Música',
+  geral: 'Geral',
+  musica: 'Música',
   games: 'Games',
-  entertainment: 'Entretenimento',
-  sports: 'Esportes',
-  education: 'Educação',
-  lifestyle: 'Estilo de vida',
-  tech: 'Tecnologia',
+  entretenimento: 'Entretenimento',
+  esportes: 'Esportes',
+  educacao: 'Educação',
+  estilo_de_vida: 'Estilo de vida',
+  tecnologia: 'Tecnologia',
 }
 
 export const CONTENT_TYPE_LABELS: Record<CampaignContentType, string> = {

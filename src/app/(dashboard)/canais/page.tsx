@@ -79,7 +79,8 @@ export default function CanaisPage() {
 
   const handleDisconnect = async (id: string) => {
     const supabase = createClient()
-    await supabase.from('channels').update({ is_active: false }).eq('id', id)
+    const { error } = await supabase.from('channels').update({ is_active: false }).eq('id', id)
+    if (error) { toast('Erro ao desconectar canal', 'error'); return }
     setChannels(prev => prev.map(c => c.id === id ? { ...c, is_active: false } : c))
     toast('Canal desconectado', 'info')
   }

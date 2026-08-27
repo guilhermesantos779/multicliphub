@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { useUser } from '@/hooks/useUser'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useWalletBalance } from '@/hooks/useWalletBalance'
+import { useAgencyProfile } from '@/hooks/useAgencyProfile'
 import { useMobileNav } from '@/components/dashboard/MobileNav'
 import { formatDate } from '@/lib/utils'
 import { UserMenu } from '@/components/app/UserMenu'
@@ -49,6 +50,7 @@ const notifIcons: Record<string, string> = {
 export function Topbar({ title }: { title: string }) {
   const t = useTranslations('topbar')
   const { profile } = useUser()
+  const { agencyProfile } = useAgencyProfile()
   const { notifications, unreadCount, markAllRead, markRead } = useNotifications(profile?.id)
   const { toggle } = useMobileNav()
   const [notifOpen, setNotifOpen] = useState(false)
@@ -78,7 +80,7 @@ export function Topbar({ title }: { title: string }) {
 
       <div className="flex shrink-0 items-center gap-3">
         <LanguageSelector />
-        <WalletPill />
+        {!agencyProfile && <WalletPill />}
 
         {/* Notification bell */}
         <div className="relative">

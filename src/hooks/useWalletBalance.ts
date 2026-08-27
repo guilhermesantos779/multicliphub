@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { fetchWalletBalance } from '@/lib/mocks/campaigns'
+import { createClient } from '@/lib/supabase/client'
 import type { WalletBalance } from '@/types/campaigns-clipper.types'
 
 export function useWalletBalance() {
@@ -9,13 +9,29 @@ export function useWalletBalance() {
 
   useEffect(() => {
     let active = true
-    // TODO: substituir por chamada real quando merged (rota do Agente 4 — pagamentos Asaas)
-    fetchWalletBalance().then(data => {
-      if (active) {
-        setBalance(data)
-        setLoading(false)
+    async function run() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        if (active) setLoading(false)
+        return
       }
-    })
+
+      const { data } = await supabase
+        .from('campaign_payouts')
+        .select('amount, status')
+        .eq('user_id', user.id)
+
+      if (!active) return
+
+      const rows = data ?? []
+      setBalance({
+        available: rows.filter(r => r.status === 'completed').reduce((sum, r) => sum + r.amount, 0),
+        pending: rows.filter(r => r.status === 'pending').reduce((sum, r) => sum + r.amount, 0),
+      })
+      setLoading(false)
+    }
+    run()
     return () => {
       active = false
     }

@@ -7,10 +7,12 @@ import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/hooks/useUser'
 import { useMyCampaigns } from '@/hooks/useMyCampaigns'
+import { useAgencyProfile } from '@/hooks/useAgencyProfile'
 import { useMobileNav } from '@/components/dashboard/MobileNav'
 import { LogoSidebar } from '@/components/shared/Logo'
 import { SystemIcon, type SystemIconName } from '@/components/icons/SystemIcon'
 import { UserMenu } from '@/components/app/UserMenu'
+import type { AgencyProfile } from '@/types/campaigns.types'
 
 const navIcon = (name: SystemIconName) => (active: boolean) =>
   <SystemIcon name={name} active={active} size={18} />
@@ -23,16 +25,38 @@ type NavEntry = {
   badge?: string
 }
 
-const NAV_ITEMS: NavEntry[] = [
-  { key: 'inicio',    href: '/inicio',     icon: navIcon('inicio')    },
-  { key: 'dashboard', href: '/dashboard',  icon: navIcon('dashboard') },
-  { key: 'upload',    href: '/upload',     icon: navIcon('upload')    },
-  { key: 'canais',    href: '/canais',     icon: navIcon('canais')    },
-  { key: 'analytics', href: '/analytics',  icon: navIcon('analytics') },
-  { key: 'ranking',   href: '/ranking',    icon: navIcon('ranking')   },
-  { key: 'campanhas', href: '/campanhas',  icon: navIcon('campanhas') },
-  { key: 'historico', href: '/historico',  icon: navIcon('historico') },
-]
+// Agencies (either kind) don't post content — they manage campaigns instead.
+// So the shared nav swaps the whole creator-tooling block (upload, canais,
+// analytics, ranking, campanhas, historico) for the agency's own items
+// rather than just hiding "Conexão de Contas" in isolation.
+function buildNavItems(agencyProfile: AgencyProfile | null): NavEntry[] {
+  const items: NavEntry[] = [{ key: 'inicio', href: '/inicio', icon: navIcon('inicio') }]
+
+  if (agencyProfile) {
+    items.push({ key: 'visao_geral', href: '/agencia/dashboard', icon: navIcon('dashboard') })
+    items.push({ key: 'campanhas_agencia', href: '/agencia/dashboard/campanhas', icon: navIcon('campanhas') })
+    if (agencyProfile.kind === 'clipadores') {
+      items.push({ key: 'time_agencia', href: '/agencia/dashboard/time', icon: navIcon('time') })
+    }
+    return items
+  }
+
+  return [
+    ...items,
+    { key: 'dashboard', href: '/dashboard',  icon: navIcon('dashboard') },
+    { key: 'upload',    href: '/upload',     icon: navIcon('upload')    },
+    { key: 'canais',    href: '/canais',     icon: navIcon('canais')    },
+    { key: 'analytics', href: '/analytics',  icon: navIcon('analytics') },
+    { key: 'ranking',   href: '/ranking',    icon: navIcon('ranking')   },
+    { key: 'campanhas', href: '/campanhas',  icon: navIcon('campanhas') },
+    { key: 'historico', href: '/historico',  icon: navIcon('historico') },
+  ]
+}
+
+// Nav roots that other items nest under — matched exactly, not by prefix,
+// so e.g. "/agencia/dashboard" isn't marked active while on
+// "/agencia/dashboard/campanhas" (which has its own nav entry).
+const EXACT_MATCH_ONLY = new Set(['/dashboard', '/agencia/dashboard'])
 
 // 'Perfil' moved into the user-card dropdown ("Ver perfil") to avoid duplication
 const BOTTOM_ITEMS: NavEntry[] = [
@@ -89,7 +113,9 @@ export function Sidebar() {
   const t = useTranslations('menu')
   const pathname = usePathname()
   const { profile, isAdmin } = useUser()
+  const { agencyProfile } = useAgencyProfile()
   const { open, setOpen } = useMobileNav()
+  const navItems = buildNavItems(agencyProfile)
   const postsLimit = profile?.plan === 'clipper' ? 200 : profile?.plan === 'trial' ? 10 : null
   const postsUsed = profile?.posts_this_month || 0
   const postsPct = postsLimit ? Math.min((postsUsed / postsLimit) * 100, 100) : 0
@@ -168,12 +194,12 @@ export function Sidebar() {
 
       {/* Nav principal */}
       <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
-        {NAV_ITEMS.map(item => (
+        {navItems.map(item => (
           <div key={item.href}>
             <NavItem
               item={item}
               onNavigate={closeOnMobile}
-              active={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
+              active={pathname === item.href || (!EXACT_MATCH_ONLY.has(item.href) && pathname.startsWith(item.href))}
             />
             {item.href === '/campanhas' && <MyCampaignsSublist pathname={pathname} />}
           </div>

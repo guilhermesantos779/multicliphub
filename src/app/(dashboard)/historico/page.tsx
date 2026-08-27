@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { PlatformIcon } from '@/components/shared/PlatformIcon'
@@ -173,12 +174,12 @@ export default function HistoricoPage() {
                     {status.label}
                   </span>
                   {post.status === 'failed' && (
-                    <button
+                    <Link
+                      href="/upload"
                       className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-[11px] text-[#888888] transition-colors hover:border-[#9146FF]/40 hover:text-[#9146FF]"
-                      onClick={() => {}}
                     >
                       Republicar
-                    </button>
+                    </Link>
                   )}
                 </div>
               </motion.div>

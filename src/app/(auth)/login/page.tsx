@@ -104,7 +104,7 @@ export default function LoginPage() {
             <div>
               <div className="mb-1.5 flex items-center justify-between">
                 <label className="text-[11px] font-medium uppercase tracking-[0.06em] text-[#444444]">{t('password')}</label>
-                <Link href="#" className="text-[11px] text-[#00E5A0] hover:underline">{t('forgot_password')}</Link>
+                <Link href="/esqueci-senha" className="text-[11px] text-[#00E5A0] hover:underline">{t('forgot_password')}</Link>
               </div>
               <div className="relative">
                 <input

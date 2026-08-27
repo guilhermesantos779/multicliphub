@@ -9,10 +9,14 @@ import { getAgencyProfileIdsForUser } from '@/lib/campaigns/auth'
 // '/api/webhooks' is public: external platforms (Meta/Instagram) hit it with no
 // session cookie, so the middleware must not redirect them to /login — the
 // route handler verifies the request itself (verify token / X-Hub-Signature).
-const PUBLIC_ROUTES = ['/', '/landing', '/terms', '/privacy', '/termos', '/privacidade', '/login', '/register', '/auth/callback', '/api/auth', '/api/username', '/api/discord', '/api/webhooks', '/api/data-deletion', '/demo']
-const AUTH_ROUTES = ['/login', '/register']
+const PUBLIC_ROUTES = ['/', '/landing', '/terms', '/privacy', '/termos', '/privacidade', '/login', '/register', '/esqueci-senha', '/redefinir-senha', '/auth/callback', '/api/auth', '/api/username', '/api/discord', '/api/webhooks', '/api/data-deletion', '/demo']
+const AUTH_ROUTES = ['/login', '/register', '/esqueci-senha']
 const ADMIN_ROUTES = ['/admin']
 const AGENCY_TEAM_ROUTES = ['/agencia/dashboard/time']
+// Content-creation tooling: agencies (either kind) manage campaigns, they
+// don't post clips, so none of this applies to them.
+const CLIPPER_ONLY_ROUTES = ['/dashboard', '/upload', '/canais', '/analytics', '/ranking', '/campanhas', '/historico', '/perfil/pagamentos']
+const AGENCY_ONLY_ROUTES = ['/agencia/dashboard']
 
 export async function proxy(request: NextRequest) {
   try {
@@ -47,6 +51,8 @@ export async function proxy(request: NextRequest) {
     const isAuthRoute = AUTH_ROUTES.some(route => pathname.startsWith(route))
     const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route))
     const isAgencyTeamRoute = AGENCY_TEAM_ROUTES.some(route => pathname.startsWith(route))
+    const isClipperOnlyRoute = CLIPPER_ONLY_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'))
+    const isAgencyOnlyRoute = AGENCY_ONLY_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'))
 
     if (!user && !isPublicRoute) {
       // Preserve where the user was heading so we can return them after login
@@ -67,18 +73,29 @@ export async function proxy(request: NextRequest) {
         .single()
 
       if (profile?.role !== 'admin') {
-        return NextResponse.redirect(new URL('/dashboard', request.url))
+        return NextResponse.redirect(new URL('/inicio', request.url))
       }
     }
 
-    if (isAgencyTeamRoute && user) {
+    // These three checks all hinge on the same "does this user have an
+    // agency profile, and which kind" fact — resolve it once.
+    if (user && (isAgencyTeamRoute || isClipperOnlyRoute || isAgencyOnlyRoute)) {
       const [agencyProfileId] = await getAgencyProfileIdsForUser(supabase, user.id)
       const { data: agencyProfile } = agencyProfileId
         ? await supabase.from('agency_profiles').select('kind').eq('id', agencyProfileId).single()
         : { data: null }
+      const isAgency = !!agencyProfile
 
-      if (agencyProfile?.kind !== 'clipadores') {
+      // Broadest mismatch first, so a plain clipper hitting /agencia/dashboard/time
+      // lands on /inicio in one hop instead of bouncing through /agencia/dashboard.
+      if (isAgencyOnlyRoute && !isAgency) {
+        return NextResponse.redirect(new URL('/inicio', request.url))
+      }
+      if (isAgencyTeamRoute && agencyProfile?.kind !== 'clipadores') {
         return NextResponse.redirect(new URL('/agencia/dashboard', request.url))
+      }
+      if (isClipperOnlyRoute && isAgency) {
+        return NextResponse.redirect(new URL('/inicio', request.url))
       }
     }
 
