@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { getAgencyProfileIdsForUser } from '@/lib/campaigns/auth'
+import { VIEW_AS_COOKIE } from '@/lib/admin/view-as'
 
 export async function GET() {
   const supabase = await createClient()
@@ -8,6 +10,17 @@ export async function GET() {
 
   if (!user) {
     return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+  }
+
+  // Mirrors the proxy's "view as clipper" override: an admin previewing the
+  // clipper experience shouldn't see their own real agency data leak through
+  // here even though it still exists in the DB.
+  const viewAsMode = (await cookies()).get(VIEW_AS_COOKIE)?.value
+  if (viewAsMode === 'clipper') {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    if (profile?.role === 'admin') {
+      return NextResponse.json({ agencyProfile: null })
+    }
   }
 
   const [agencyProfileId] = await getAgencyProfileIdsForUser(supabase, user.id)

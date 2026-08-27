@@ -9,6 +9,7 @@ import { SubmissionsPanel } from '@/components/campaigns/clipper/SubmissionsPane
 import { LeaderboardList } from '@/components/campaigns/clipper/LeaderboardList'
 import { useToast } from '@/components/shared/Toast'
 import { useUser } from '@/hooks/useUser'
+import { useAgencyProfile } from '@/hooks/useAgencyProfile'
 import {
   CATEGORY_LABELS,
   CONTENT_TYPE_LABELS,
@@ -23,6 +24,7 @@ export default function CampaignDetailPage() {
   const campaignId = params.id
   const { toast } = useToast()
   const { profile } = useUser()
+  const { agencyProfile } = useAgencyProfile()
 
   const [campaign, setCampaign] = useState<Campaign | null>(null)
   const [loading, setLoading] = useState(true)
@@ -127,7 +129,7 @@ export default function CampaignDetailPage() {
     )
   }
 
-  const canJoin = campaign.status === 'active' && !campaign.isParticipating
+  const canJoin = campaign.status === 'active' && !campaign.isParticipating && !agencyProfile
 
   return (
     <div>
@@ -208,7 +210,11 @@ export default function CampaignDetailPage() {
                   </div>
                 </div>
 
-                {campaign.isParticipating ? (
+                {agencyProfile ? (
+                  <div className="rounded-lg bg-white/[0.04] px-3 py-2.5 text-center text-[12px] text-[#666666]">
+                    👁️ Modo visualização — contas de agência não podem se inscrever em campanhas.
+                  </div>
+                ) : campaign.isParticipating ? (
                   <div className="rounded-lg bg-[#00E5A0]/[0.08] px-3 py-2.5 text-center text-[12px] font-medium text-[#00E5A0]">
                     Você já está participando — publique com a hashtag acima para pontuar.
                   </div>

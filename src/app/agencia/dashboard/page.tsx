@@ -43,6 +43,41 @@ function CampaignCardSkeleton() {
   return <div className="h-[300px] animate-pulse rounded-xl border border-white/[0.06] bg-[#111111]" />
 }
 
+function campaignBudget(campaign: CampaignRow): number {
+  const prizeTotal = Array.isArray(campaign.prize_structure)
+    ? (campaign.prize_structure as { amount?: number }[]).reduce((sum, p) => sum + (p.amount ?? 0), 0)
+    : 0
+  return campaign.modality === 'cpm' ? (campaign.budget_total ?? 0) : prizeTotal
+}
+
+interface SummaryStatCardProps {
+  label: string
+  value: string
+  icon: string
+}
+
+function SummaryStatCard({ label, value, icon }: SummaryStatCardProps) {
+  return (
+    <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+      <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-[#555555]">
+        <span>{icon}</span>
+        {label}
+      </div>
+      <div className="mt-1.5 text-[22px] font-semibold text-white">{value}</div>
+    </div>
+  )
+}
+
+function SummaryStatsSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="h-[76px] animate-pulse rounded-xl border border-white/[0.06] bg-[#111111]" />
+      ))}
+    </div>
+  )
+}
+
 interface RosterSummaryData {
   activeCount: number
   pendingCount: number
@@ -138,6 +173,11 @@ export default function AgencyDashboardPage() {
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, RECENT_CAMPAIGNS_LIMIT)
 
+  const activeCampaignsCount = campaigns.filter(c => c.status === 'active').length
+  const totalParticipants = campaigns.reduce((sum, c) => sum + c.total_participants, 0)
+  const totalViews = campaigns.reduce((sum, c) => sum + c.total_views, 0)
+  const totalBudget = campaigns.reduce((sum, c) => sum + campaignBudget(c), 0)
+
   return (
     <div>
       <Topbar title="Campanhas" />
@@ -158,6 +198,17 @@ export default function AgencyDashboardPage() {
             Nova campanha
           </Link>
         </div>
+
+        {campaignsLoading ? (
+          <SummaryStatsSkeleton />
+        ) : (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <SummaryStatCard icon="📢" label="Campanhas ativas" value={String(activeCampaignsCount)} />
+            <SummaryStatCard icon="👥" label="Participantes" value={String(totalParticipants)} />
+            <SummaryStatCard icon="👁️" label="Views totais" value={formatViews(totalViews)} />
+            <SummaryStatCard icon="💰" label="Orçamento movimentado" value={formatCurrencyBRL(Math.round(totalBudget * 100))} />
+          </div>
+        )}
 
         {agencyProfile?.kind === 'clipadores' && <RosterSummaryCard />}
 

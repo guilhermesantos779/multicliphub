@@ -38,6 +38,7 @@ function buildNavItems(agencyProfile: AgencyProfile | null): NavEntry[] {
     if (agencyProfile.kind === 'clipadores') {
       items.push({ key: 'time_agencia', href: '/agencia/dashboard/time', icon: navIcon('time') })
     }
+    items.push({ key: 'campanhas_site', href: '/campanhas', icon: navIcon('campanhas') })
     return items
   }
 

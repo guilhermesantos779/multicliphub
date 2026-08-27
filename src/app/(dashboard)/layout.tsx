@@ -6,6 +6,7 @@ import { ToastProvider } from '@/components/shared/Toast'
 import { ProfileProvider } from '@/components/app/ProfileProvider'
 import { OnboardingProvider } from '@/components/onboarding/OnboardingProvider'
 import { OnboardingLayers } from '@/components/onboarding/OnboardingLayers'
+import { ViewAsBanner } from '@/components/admin/ViewAsBanner'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -33,6 +34,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div className="flex min-h-screen bg-obsidiana">
               <Sidebar />
               <main className="flex-1 min-w-0 md:ml-56">
+                <ViewAsBanner />
                 <PageTransition>
                   {children}
                 </PageTransition>

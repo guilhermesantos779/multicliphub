@@ -8,9 +8,11 @@ import {
   type ContentTypeFilterValue,
 } from '@/components/campaigns/clipper/CampaignFilters'
 import { CampaignCard } from '@/components/campaigns/clipper/CampaignCard'
+import { useAgencyProfile } from '@/hooks/useAgencyProfile'
 import type { Campaign } from '@/types/campaigns-clipper.types'
 
 export default function CampanhasPage() {
+  const { agencyProfile } = useAgencyProfile()
   const [category, setCategory] = useState<CategoryFilterValue>('all')
   const [contentType, setContentType] = useState<ContentTypeFilterValue>('all')
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
@@ -44,12 +46,20 @@ export default function CampanhasPage() {
             <div>
               <h2 className="text-[16px] font-semibold text-white">Campanhas disponíveis</h2>
               <p className="mt-0.5 text-[12px] text-[#666666]">
-                Encontre campanhas ativas e comece a postar com a hashtag exigida.
+                {agencyProfile
+                  ? 'Acompanhe as campanhas ativas no site — modo somente visualização.'
+                  : 'Encontre campanhas ativas e comece a postar com a hashtag exigida.'}
               </p>
             </div>
-            <Link href="/agencia/onboarding" className="text-[12px] font-medium text-[#00E5A0] hover:underline">
-              Quer criar campanhas? Comece o onboarding de agência →
-            </Link>
+            {agencyProfile ? (
+              <span className="rounded-full border border-white/[0.08] bg-white/[0.02] px-3 py-1 text-[11px] font-medium text-[#888888]">
+                👁️ Modo visualização
+              </span>
+            ) : (
+              <Link href="/agencia/onboarding" className="text-[12px] font-medium text-[#00E5A0] hover:underline">
+                Quer criar campanhas? Comece o onboarding de agência →
+              </Link>
+            )}
           </div>
 
           <CampaignFilters

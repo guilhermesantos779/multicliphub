@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAgencyProfileIdsForUser } from '@/lib/campaigns/auth'
 
 export async function POST(
   _req: Request,
@@ -11,6 +12,16 @@ export async function POST(
 
   if (!user) {
     return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+  }
+
+  // Agencies get read-only access to the marketplace listing (/campanhas) —
+  // they browse to see what's running, they don't participate as clippers.
+  const agencyProfileIds = await getAgencyProfileIdsForUser(supabase, user.id)
+  if (agencyProfileIds.length > 0) {
+    return NextResponse.json(
+      { error: 'Contas de agência não podem se inscrever em campanhas — esse acesso é somente visualização.' },
+      { status: 403 }
+    )
   }
 
   const { data: campaign, error: campaignError } = await supabase

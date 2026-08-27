@@ -42,6 +42,15 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+    label: 'Campanhas do site',
+    href: '/campanhas',
+    icon: (active: boolean) => (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={active ? 'text-white' : 'text-[#555555]'}>
+        <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+    ),
+  },
 ]
 
 const TEAM_NAV_ITEM = {

@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getAgencyProfileIdsForUser } from '@/lib/campaigns/auth'
+import { VIEW_AS_COOKIE, type ViewAsMode } from '@/lib/admin/view-as'
 
 // '/api/discord' is public at the middleware layer: the route handler does its
 // own auth + token handling and must run even for logged-out users (otherwise
@@ -14,8 +15,10 @@ const AUTH_ROUTES = ['/login', '/register', '/esqueci-senha']
 const ADMIN_ROUTES = ['/admin']
 const AGENCY_TEAM_ROUTES = ['/agencia/dashboard/time']
 // Content-creation tooling: agencies (either kind) manage campaigns, they
-// don't post clips, so none of this applies to them.
-const CLIPPER_ONLY_ROUTES = ['/dashboard', '/upload', '/canais', '/analytics', '/ranking', '/campanhas', '/historico', '/perfil/pagamentos']
+// don't post clips, so none of this applies to them. '/campanhas' is
+// deliberately NOT here — agencies get read-only access to the public
+// marketplace listing (see the join-route guard for the actual enforcement).
+const CLIPPER_ONLY_ROUTES = ['/dashboard', '/upload', '/canais', '/analytics', '/ranking', '/historico', '/perfil/pagamentos']
 const AGENCY_ONLY_ROUTES = ['/agencia/dashboard']
 
 export async function proxy(request: NextRequest) {
@@ -65,16 +68,25 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL('/inicio', request.url))
     }
 
-    if (isAdminRoute && user) {
+    // "View as" — lets an admin preview the app as a clipper or an agency
+    // from their own real account, via a short-lived cookie (see
+    // /api/admin/view-as). Only ever honored after re-confirming role='admin'
+    // here — the cookie itself carries no authority.
+    const viewAsCookie = request.cookies.get(VIEW_AS_COOKIE)?.value as ViewAsMode | undefined
+    const needsRoleCheck = isAdminRoute || !!viewAsCookie
+    let isAdmin = false
+
+    if (needsRoleCheck && user) {
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single()
+      isAdmin = profile?.role === 'admin'
+    }
 
-      if (profile?.role !== 'admin') {
-        return NextResponse.redirect(new URL('/inicio', request.url))
-      }
+    if (isAdminRoute && user && !isAdmin) {
+      return NextResponse.redirect(new URL('/inicio', request.url))
     }
 
     // These three checks all hinge on the same "does this user have an
@@ -84,14 +96,23 @@ export async function proxy(request: NextRequest) {
       const { data: agencyProfile } = agencyProfileId
         ? await supabase.from('agency_profiles').select('kind').eq('id', agencyProfileId).single()
         : { data: null }
-      const isAgency = !!agencyProfile
+
+      let isAgency = !!agencyProfile
+      let effectiveKind = agencyProfile?.kind
+      if (isAdmin && viewAsCookie === 'clipper') {
+        isAgency = false
+        effectiveKind = undefined
+      } else if (isAdmin && viewAsCookie === 'agency' && agencyProfile) {
+        isAgency = true
+        effectiveKind = agencyProfile.kind
+      }
 
       // Broadest mismatch first, so a plain clipper hitting /agencia/dashboard/time
       // lands on /inicio in one hop instead of bouncing through /agencia/dashboard.
       if (isAgencyOnlyRoute && !isAgency) {
         return NextResponse.redirect(new URL('/inicio', request.url))
       }
-      if (isAgencyTeamRoute && agencyProfile?.kind !== 'clipadores') {
+      if (isAgencyTeamRoute && effectiveKind !== 'clipadores') {
         return NextResponse.redirect(new URL('/agencia/dashboard', request.url))
       }
       if (isClipperOnlyRoute && isAgency) {

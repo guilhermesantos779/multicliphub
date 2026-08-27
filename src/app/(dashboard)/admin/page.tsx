@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
+import { ViewAsToggle } from '@/components/admin/ViewAsToggle'
 
 interface Stats {
   totalUsers: number
@@ -86,6 +87,8 @@ export default function AdminPage() {
         <h1 className="text-[20px] font-bold text-white">Visão Geral</h1>
         <p className="mt-0.5 text-[13px] text-[#888888]">Resumo operacional do MultiClip Hub</p>
       </div>
+
+      <ViewAsToggle />
 
       {/* Metric cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
