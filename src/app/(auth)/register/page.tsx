@@ -6,9 +6,16 @@ import { createClient } from '@/lib/supabase/client'
 import { isWeakPassword } from '@/lib/auth/weakPasswords'
 import { Logo } from '@/components/shared/Logo'
 import { UsernameInput } from '@/components/ui/UsernameInput'
+import { TermsContent } from '@/components/terms/TermsContent'
 import type { AgencyKind } from '@/types/campaigns.types'
 
-type RegisterStep = 'account' | 'agency-kind' | 'form'
+type RegisterStep = 'account' | 'agency-kind' | 'terms' | 'form'
+
+interface TermsVersion {
+  id: string
+  versao: string
+  conteudo: string
+}
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24">
@@ -30,10 +37,29 @@ export default function RegisterPage() {
   const [usernameChecking, setUsernameChecking] = useState(false)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
-  const [agreed, setAgreed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  const [termsVersion, setTermsVersion] = useState<TermsVersion | null>(null)
+  const [termsLoading, setTermsLoading] = useState(false)
+
+  const goToTerms = async (kind: AgencyKind | null) => {
+    setAgencyKind(kind)
+    setStep('terms')
+    setTermsLoading(true)
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('terms_versions')
+      .select('id, versao, conteudo')
+      .eq('tipo', kind ? 'agencia' : 'clipador')
+      .lte('vigente_a_partir', new Date().toISOString())
+      .order('vigente_a_partir', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    setTermsVersion(data)
+    setTermsLoading(false)
+  }
 
   // Block submission until the nickname is confirmed available.
   const canSubmit =
@@ -47,7 +73,6 @@ export default function RegisterPage() {
     if (password.length < 8) { setError(t('err_password_short')); return }
     // Offline weak-password guard (HIBP is a Supabase Pro feature, not available here).
     if (isWeakPassword(password, { email, username })) { setError(t('err_password_weak')); return }
-    if (!agreed) { setError(t('err_accept_terms')); return }
 
     setLoading(true)
     setError('')
@@ -55,17 +80,23 @@ export default function RegisterPage() {
       const supabase = createClient()
       // Agência signups need to land on /agencia/onboarding (with the chosen
       // kind) once the confirmation email is clicked — carried via `next` on
-      // the /auth/callback redirect, which already supports it. Clippers get
-      // no emailRedirectTo at all, so their flow is byte-for-byte unchanged.
-      const nextPath = agencyKind ? `/agencia/onboarding?kind=${agencyKind}` : null
+      // the /auth/callback redirect, which already supports it.
+      const nextPath = agencyKind ? `/agencia/onboarding?kind=${agencyKind}` : '/inicio'
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        // username is consumed by the handle_new_user() trigger, which
-        // re-validates it and falls back to a generated one if taken.
         options: {
-          data: { full_name: name, username },
-          ...(nextPath && { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}` }),
+          // username is consumed by the handle_new_user() trigger, which
+          // re-validates it and falls back to a generated one if taken.
+          // terms_version_id/terms_accepted_at let /api/terms/status record
+          // the acceptance once a real session exists (confirmation can take
+          // a while, so this can't just be an immediate DB write here).
+          data: {
+            full_name: name,
+            username,
+            ...(termsVersion && { terms_version_id: termsVersion.id, terms_accepted_at: new Date().toISOString() }),
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
         },
       })
 
@@ -84,11 +115,15 @@ export default function RegisterPage() {
   const handleGoogle = async () => {
     try {
       setError('')
+      // Google OAuth has no options.data like signUp() does, so the accepted
+      // version rides in a short-lived cookie instead — /auth/callback picks
+      // it up right after the redirect back, once a real session exists.
+      if (termsVersion) {
+        document.cookie = `mch_pending_terms=${termsVersion.id}; path=/; max-age=1800; samesite=lax`
+      }
       const supabase = createClient()
-      const nextPath = agencyKind ? `/agencia/onboarding?kind=${agencyKind}` : null
-      const redirectTo = nextPath
-        ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
-        : `${window.location.origin}/auth/callback`
+      const nextPath = agencyKind ? `/agencia/onboarding?kind=${agencyKind}` : '/inicio'
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo },
@@ -123,7 +158,7 @@ export default function RegisterPage() {
               <div className="space-y-3">
                 <button
                   type="button"
-                  onClick={() => { setAgencyKind(null); setStep('form') }}
+                  onClick={() => goToTerms(null)}
                   className="w-full rounded-xl border border-white/[0.08] bg-[#111111] p-4 text-left transition-colors hover:border-[#00E5A0]/40"
                 >
                   <div className="text-[14px] font-semibold text-white">Sou Clipador</div>
@@ -159,7 +194,7 @@ export default function RegisterPage() {
               <div className="space-y-3">
                 <button
                   type="button"
-                  onClick={() => { setAgencyKind('clipadores'); setStep('form') }}
+                  onClick={() => goToTerms('clipadores')}
                   className="w-full rounded-xl border border-white/[0.08] bg-[#111111] p-4 text-left transition-colors hover:border-[#00E5A0]/40"
                 >
                   <div className="text-[14px] font-semibold text-white">Agência de Clipadores</div>
@@ -167,13 +202,46 @@ export default function RegisterPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setAgencyKind('marca_streamer'); setStep('form') }}
+                  onClick={() => goToTerms('marca_streamer')}
                   className="w-full rounded-xl border border-white/[0.08] bg-[#111111] p-4 text-left transition-colors hover:border-[#00E5A0]/40"
                 >
                   <div className="text-[14px] font-semibold text-white">Marca / Streamer</div>
                   <div className="mt-0.5 text-[12px] text-[#666666]">Quero criar campanhas e distribuir pra qualquer clipador</div>
                 </button>
               </div>
+            </div>
+          ) : step === 'terms' ? (
+            <div className="py-2">
+              <button
+                type="button"
+                onClick={() => setStep(agencyKind ? 'agency-kind' : 'account')}
+                className="mb-4 text-[12px] text-[#666666] hover:text-white"
+              >
+                ← Voltar
+              </button>
+              <div className="mb-4 text-center">
+                <h1 className="text-[18px] font-semibold text-white">Nossos termos de uso</h1>
+                <p className="mt-1 text-[13px] text-[#555555]">Leia e aceite pra continuar o cadastro</p>
+              </div>
+              <div className="max-h-[45vh] overflow-y-auto rounded-xl border border-white/[0.08] bg-black/30 p-4">
+                {termsLoading || !termsVersion ? (
+                  <div className="space-y-2">
+                    <div className="h-4 w-2/3 animate-pulse rounded bg-white/[0.06]" />
+                    <div className="h-4 w-full animate-pulse rounded bg-white/[0.06]" />
+                    <div className="h-4 w-5/6 animate-pulse rounded bg-white/[0.06]" />
+                  </div>
+                ) : (
+                  <TermsContent versao={termsVersion.versao} conteudo={termsVersion.conteudo} />
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setStep('form')}
+                disabled={termsLoading || !termsVersion}
+                className="mt-4 w-full rounded-xl bg-[#00E5A0] py-3 text-[13px] font-semibold text-[#0B0F19] transition-colors hover:bg-[#00B584] disabled:opacity-50"
+              >
+                Aceitar e continuar
+              </button>
             </div>
           ) : success ? (
             <div className="text-center py-4">
@@ -238,20 +306,13 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            <label className="flex cursor-pointer items-start gap-2.5">
-              <input
-                type="checkbox"
-                checked={agreed}
-                onChange={e => setAgreed(e.target.checked)}
-                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#9146FF]"
-              />
-              <span className="text-[11px] leading-relaxed text-[#444444]">
-                {t('agree_prefix')}
-                <Link href="/termos" target="_blank" className="text-[#00E5A0] hover:underline">{t('terms')}</Link>
-                {t('and')}
-                <Link href="/privacidade" target="_blank" className="text-[#00E5A0] hover:underline">{t('privacy')}</Link>
-              </span>
-            </label>
+            {/* Aceite explícito já aconteceu na etapa anterior (tela de termos) */}
+            <p className="text-[11px] leading-relaxed text-[#444444]">
+              Você já concordou com nossos{' '}
+              <Link href="/termos" target="_blank" className="text-[#00E5A0] hover:underline">{t('terms')}</Link>
+              {t('and')}
+              <Link href="/privacidade" target="_blank" className="text-[#00E5A0] hover:underline">{t('privacy')}</Link>
+            </p>
 
             {error && (
               <div className="rounded-lg border border-[#ef4444]/20 bg-[#ef4444]/[0.08] px-3 py-2 text-[12px] text-[#ef4444]">

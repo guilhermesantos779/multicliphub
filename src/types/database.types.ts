@@ -1263,6 +1263,33 @@ export type Database = {
           },
         ]
       }
+      terms_versions: {
+        Row: {
+          id: string
+          tipo: string
+          versao: string
+          conteudo: string
+          vigente_a_partir: string
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          tipo: string
+          versao: string
+          conteudo: string
+          vigente_a_partir?: string
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          tipo?: string
+          versao?: string
+          conteudo?: string
+          vigente_a_partir?: string
+          criado_em?: string
+        }
+        Relationships: []
+      }
       ticket_attachments: {
         Row: {
           created_at: string | null
@@ -1423,6 +1450,35 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "achievements"
             referencedColumns: ["slug"]
+          },
+        ]
+      }
+      user_terms_acceptance: {
+        Row: {
+          id: string
+          user_id: string
+          terms_version_id: string
+          aceito_em: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          terms_version_id: string
+          aceito_em?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          terms_version_id?: string
+          aceito_em?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_terms_acceptance_terms_version_id_fkey"
+            columns: ["terms_version_id"]
+            isOneToOne: false
+            referencedRelation: "terms_versions"
+            referencedColumns: ["id"]
           },
         ]
       }

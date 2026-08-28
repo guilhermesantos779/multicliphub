@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getTranslations } from 'next-intl/server'
 import './globals.css'
 import { IconDefs } from '@/components/icons/IconDefs'
+import { CookieBanner } from '@/components/shared/CookieBanner'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -56,6 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <NextIntlClientProvider>
           <IconDefs />
           {children}
+          <CookieBanner />
         </NextIntlClientProvider>
       </body>
     </html>
